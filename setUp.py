@@ -4,9 +4,9 @@ from sklearn.preprocessing import MinMaxScaler
 import joblib
 
 #I downloaded the datasets manually to train the model, I plan on automating the downloading process
-advanced_stats_df = pd.read_csv("C:/Users/slamd/Downloads/Advanced.csv")
-per_game_stats_df = pd.read_csv("C:/Users/slamd/Downloads/Players_Per_Game.csv")
-shooting_stats_df = pd.read_csv("C:/Users/slamd/Downloads/Player_Shooting.csv")
+advanced_stats_df = pd.read_csv("Advanced.csv")
+per_game_stats_df = pd.read_csv("Players_Per_Game.csv")
+shooting_stats_df = pd.read_csv("Player_Shooting.csv")
 
 # Merges the dataframes, removes all rows with blank spaces, removes all data before 2004, and removes birth_year since only some players had it
 combined_df = pd.merge(advanced_stats_df, per_game_stats_df, on=['seas_id', 'season', 'player_id', 'player', 'birth_year', 'pos', 'age', 'experience', 'lg', 'tm', 'g'])
@@ -35,9 +35,8 @@ km = KMeans(n_clusters=3, random_state=42)
 y_predicted = km.fit_predict(scaled_features)
 
 # Downloads model and scaler as a file
-filename = 'C:/Users/slamd/Flask_Login/kmeans_model_guard.sav'
-joblib.dump(km, filename)
-joblib.dump(scaler, 'C:/Users/slamd/Flask_Login/scaler_guard.gz')
+joblib.dump(km, 'kmeans_model_guard.sav')
+joblib.dump(scaler, 'scaler_guard.gz')
 
 # Made an Excel spreadsheet with each sheet being the players in the category
 # Helped me see if the model was accurate or not (I tried a lot of combinations for the features)
@@ -60,9 +59,8 @@ km = KMeans(n_clusters=3, random_state=42)
 y_predicted = km.fit_predict(scaled_features)
 
 # Downloads model and scaler as a file
-filename = 'C:/Users/slamd/Flask_Login/kmeans_model_wing.sav'
-joblib.dump(km, filename)
-joblib.dump(scaler, 'C:/Users/slamd/Flask_Login/scaler_wing.gz')
+joblib.dump(km, 'kmeans_model_wing.sav')
+joblib.dump(scaler, 'scaler_wing.gz')
 
 # Made an Excel spreadsheet with each sheet being the players in the category
 # Helped me see if the model was accurate or not (I tried a lot of combinations for the features)
@@ -85,9 +83,8 @@ km = KMeans(n_clusters=3, random_state=42)
 y_predicted = km.fit_predict(scaled_features)
 
 # Downloads model and scaler as a file
-filename = 'C:/Users/slamd/Flask_Login/kmeans_model_big.sav'
-joblib.dump(km, filename)
-joblib.dump(scaler, 'C:/Users/slamd/Flask_Login/scaler_big.gz')
+joblib.dump(km, 'kmeans_model_big.sav')
+joblib.dump(scaler, 'scaler_big.gz')
 
 # Made an Excel spreadsheet with each sheet being the players in the category
 # Helped me see if the model was accurate or not (I tried a lot of combinations for the features)
