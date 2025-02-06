@@ -258,11 +258,11 @@ def protected():
                                 'PLAYER_AGE': [player_basic['Age'] + 1],
                                 'GP': [None],
                                 'GS': [None],
-                                'PTS': [predict[0][0].round(1)],
-                                'REB': [predict[0][1].round(1)],
-                                'AST': [predict[0][2].round(1)],
-                                'STL': [predict[0][3].round(1)],
-                                'BLK': [predict[0][4].round(1)],
+                                'PTS': [str(round(predict[0][0], 1))],
+                                'REB': [str(round(predict[0][1], 1))],
+                                'AST': [str(round(predict[0][2], 1))],
+                                'STL': [str(round(predict[0][3], 1))],
+                                'BLK': [str(round(predict[0][4], 1))],
                                 'FG_PCT': [None],
                                 'FG3_PCT': [None],
                                 'FT_PCT': [None]
@@ -281,9 +281,9 @@ def protected():
                         playerselection = pandas.concat(
                             [playerdf[['SEASON_ID', 'TEAM_ABBREVIATION', 'PLAYER_AGE', 'GP', 'GS']], pts_avg, reb_avg,
                              ast_avg, stl_avg, blk_avg, playerdf[['FG_PCT', 'FG3_PCT', 'FT_PCT']]], axis=1)
-                        playerselection = pd.concat([playerselection, newRow])
                         # Adds a multilevel header with the player's name
                         if active:
+                            playerselection = pd.concat([playerselection, newRow])
                             playerselection = pandas.concat([playerselection],
                                                             keys=[f"{player_name} - {matched_category}"], axis=1)
                         else:
@@ -363,15 +363,16 @@ def protected():
                                 'PLAYER_AGE': [player_basic['Age'] + 1],
                                 'GP': [None],
                                 'GS': [None],
-                                'PTS': [predict[0][0].round(1)],
-                                'REB': [predict[0][1].round(1)],
-                                'AST': [predict[0][2].round(1)],
-                                'STL': [predict[0][3].round(1)],
-                                'BLK': [predict[0][4].round(1)],
+                                'PTS': [str(round(predict[0][0], 1))],
+                                'REB': [str(round(predict[0][1], 1))],
+                                'AST': [str(round(predict[0][2], 1))],
+                                'STL': [str(round(predict[0][3], 1))],
+                                'BLK': [str(round(predict[0][4], 1))],
                                 'FG_PCT': [None],
                                 'FG3_PCT': [None],
                                 'FT_PCT': [None]
                             })
+
                         # Uses player id to get the stats of the player as an object
                         player_info = playercareerstats.PlayerCareerStats(player_id=player_id)
                         # Converts object into a dataframe
@@ -386,9 +387,9 @@ def protected():
                         playerselection = pandas.concat(
                             [playerdf[['SEASON_ID', 'TEAM_ABBREVIATION', 'PLAYER_AGE', 'GP', 'GS']], pts_avg, reb_avg,
                              ast_avg, stl_avg, blk_avg, playerdf[['FG_PCT', 'FG3_PCT', 'FT_PCT']]], axis=1)
-                        playerselection = pd.concat([playerselection, newRow])
                         # Adds a multilevel header with the player's name
                         if active:
+                            playerselection = pd.concat([playerselection, newRow])
                             playerselection = pandas.concat([playerselection],
                                                             keys=[f"{player_name} - {matched_category}"], axis=1)
                         else:
