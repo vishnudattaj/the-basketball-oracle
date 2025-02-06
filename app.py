@@ -10,7 +10,6 @@ import requests
 import datetime
 from bs4 import BeautifulSoup
 import dcl
-import numpy
 
 # Sets up the flask app
 app = Flask(__name__)
@@ -57,7 +56,7 @@ xgb = joblib.load('statPrediction.sav')
 yr = datetime.date.today().year
 month = datetime.date.today().month
 
-# Scrapes basketball reference, uses todays date to determine what season we are in right now
+# Scrapes basketball reference, uses today's date to determine what season we are in right now
 if month >= 11:
     basic = f"https://www.basketball-reference.com/leagues/NBA_{yr + 1}_per_game.html"
     advanced = f"https://www.basketball-reference.com/leagues/NBA_{yr + 1}_advanced.html"

@@ -3,10 +3,8 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from sklearn.multioutput import MultiOutputRegressor
-from sklearn.metrics import r2_score
 from xgboost import XGBRegressor
 import joblib
-import numpy
 
 #I downloaded the datasets manually to train the model, I plan on automating the downloading process
 advanced_stats_df = pd.read_csv("Advanced.csv")
