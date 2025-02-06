@@ -324,7 +324,6 @@ def protected():
                                 features = pandas.DataFrame([features])
                                 scaled_features = scalerg.transform(features)
                                 categorizing = kmg.predict(scaled_features)
-                                print(categorizing)
                                 role = ["Role Player", "Star Player", "Bench Warmer"]
                                 matched_category = role[categorizing[0]]
                             elif player_basic['Pos'] in ["SF", "PF"]:
@@ -333,7 +332,6 @@ def protected():
                                 features = pandas.DataFrame([features])
                                 scaled_features = scalerw.transform(features)
                                 categorizing = kmw.predict(scaled_features)
-                                print(categorizing)
                                 role = ["Star Player", "Role Player", "Bench Warmer"]
                                 matched_category = role[categorizing[0]]
                             elif player_basic['Pos'] == "C":
@@ -342,7 +340,6 @@ def protected():
                                 features = pandas.DataFrame([features])
                                 scaled_features = scalerb.transform(features)
                                 categorizing = kmb.predict(scaled_features)
-                                print(categorizing)
                                 role = ["Bench Warmer", "Star Player", "Role Player"]
                                 matched_category = role[categorizing[0]]
                             else:
