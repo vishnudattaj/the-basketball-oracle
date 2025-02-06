@@ -1,3 +1,4 @@
+import pandas as pd
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 import flask_login
@@ -9,6 +10,7 @@ import requests
 import datetime
 from bs4 import BeautifulSoup
 import dcl
+import numpy
 
 # Sets up the flask app
 app = Flask(__name__)
@@ -49,6 +51,8 @@ scalerw = joblib.load('scaler_wing.gz')
 kmb = joblib.load('kmeans_model_big.sav')
 scalerb = joblib.load('scaler_big.gz')
 
+xgb = joblib.load('statPrediction.sav')
+
 # Finds todays date
 yr = datetime.date.today().year
 month = datetime.date.today().month
@@ -57,9 +61,11 @@ month = datetime.date.today().month
 if month >= 11:
     basic = f"https://www.basketball-reference.com/leagues/NBA_{yr + 1}_per_game.html"
     advanced = f"https://www.basketball-reference.com/leagues/NBA_{yr + 1}_advanced.html"
+    season = yr + 1
 else:
     basic = f"https://www.basketball-reference.com/leagues/NBA_{yr}_per_game.html"
     advanced = f"https://www.basketball-reference.com/leagues/NBA_{yr}_advanced.html"
+    season = yr
 
 # Requests the page based on the above urls
 basic_page = requests.get(basic)
@@ -216,7 +222,6 @@ def protected():
                                 features = pandas.DataFrame([features])
                                 scaled_features = scalerg.transform(features)
                                 categorizing = kmg.predict(scaled_features)
-                                print(categorizing)
                                 role = ["Role Player", "Star Player", "Bench Warmer"]
                                 matched_category = role[categorizing[0]]
                             elif player_basic['Pos'] in ["SF", "PF"]:
@@ -225,7 +230,6 @@ def protected():
                                 features = pandas.DataFrame([features])
                                 scaled_features = scalerw.transform(features)
                                 categorizing = kmw.predict(scaled_features)
-                                print(categorizing)
                                 role = ["Star Player", "Role Player", "Bench Warmer"]
                                 matched_category = role[categorizing[0]]
                             elif player_basic['Pos'] == "C":
@@ -234,11 +238,35 @@ def protected():
                                 features = pandas.DataFrame([features])
                                 scaled_features = scalerb.transform(features)
                                 categorizing = kmb.predict(scaled_features)
-                                print(categorizing)
                                 role = ["Bench Warmer", "Star Player", "Role Player"]
                                 matched_category = role[categorizing[0]]
                             else:
                                 pass
+
+                            data = pd.DataFrame({
+                                "PastPPG": [player_basic['PTS']],
+                                "PastRPG": [player_basic['TRB']],
+                                "PastAPG": [player_basic['AST']],
+                                "PastSPG": [player_basic['STL']],
+                                "PastBPG": [player_basic['BLK']],
+                                "PastAGE": [player_basic['Age']]
+                            })
+                            predict = xgb.predict(data[['PastPPG', 'PastRPG', 'PastAPG', 'PastSPG', 'PastBPG', 'PastAGE']])
+                            newRow = pd.DataFrame({
+                                'SEASON_ID': [str(season) + "-" + str(season + 1)[2:4]],
+                                'TEAM_ABBREVIATION': [None],
+                                'PLAYER_AGE': [player_basic['Age'] + 1],
+                                'GP': [None],
+                                'GS': [None],
+                                'PTS': [predict[0][0].round(1)],
+                                'REB': [predict[0][1].round(1)],
+                                'AST': [predict[0][2].round(1)],
+                                'STL': [predict[0][3].round(1)],
+                                'BLK': [predict[0][4].round(1)],
+                                'FG_PCT': [None],
+                                'FG3_PCT': [None],
+                                'FT_PCT': [None]
+                            })
                         # Uses player id to get the stats of the player as an object
                         player_info = playercareerstats.PlayerCareerStats(player_id=player_id)
                         # Converts object into a dataframe
@@ -253,6 +281,7 @@ def protected():
                         playerselection = pandas.concat(
                             [playerdf[['SEASON_ID', 'TEAM_ABBREVIATION', 'PLAYER_AGE', 'GP', 'GS']], pts_avg, reb_avg,
                              ast_avg, stl_avg, blk_avg, playerdf[['FG_PCT', 'FG3_PCT', 'FT_PCT']]], axis=1)
+                        playerselection = pd.concat([playerselection, newRow])
                         # Adds a multilevel header with the player's name
                         if active:
                             playerselection = pandas.concat([playerselection],
@@ -318,6 +347,31 @@ def protected():
                                 matched_category = role[categorizing[0]]
                             else:
                                 pass
+
+                            data = pd.DataFrame({
+                                "PastPPG": [player_basic['PTS']],
+                                "PastRPG": [player_basic['TRB']],
+                                "PastAPG": [player_basic['AST']],
+                                "PastSPG": [player_basic['STL']],
+                                "PastBPG": [player_basic['BLK']],
+                                "PastAGE": [player_basic['Age']]
+                            })
+                            predict = xgb.predict(data[['PastPPG', 'PastRPG', 'PastAPG', 'PastSPG', 'PastBPG', 'PastAGE']])
+                            newRow = pd.DataFrame({
+                                'SEASON_ID': [str(season) + "-" + str(season + 1)[2:4]],
+                                'TEAM_ABBREVIATION': [None],
+                                'PLAYER_AGE': [player_basic['Age'] + 1],
+                                'GP': [None],
+                                'GS': [None],
+                                'PTS': [predict[0][0].round(1)],
+                                'REB': [predict[0][1].round(1)],
+                                'AST': [predict[0][2].round(1)],
+                                'STL': [predict[0][3].round(1)],
+                                'BLK': [predict[0][4].round(1)],
+                                'FG_PCT': [None],
+                                'FG3_PCT': [None],
+                                'FT_PCT': [None]
+                            })
                         # Uses player id to get the stats of the player as an object
                         player_info = playercareerstats.PlayerCareerStats(player_id=player_id)
                         # Converts object into a dataframe
@@ -332,6 +386,7 @@ def protected():
                         playerselection = pandas.concat(
                             [playerdf[['SEASON_ID', 'TEAM_ABBREVIATION', 'PLAYER_AGE', 'GP', 'GS']], pts_avg, reb_avg,
                              ast_avg, stl_avg, blk_avg, playerdf[['FG_PCT', 'FG3_PCT', 'FT_PCT']]], axis=1)
+                        playerselection = pd.concat([playerselection, newRow])
                         # Adds a multilevel header with the player's name
                         if active:
                             playerselection = pandas.concat([playerselection],

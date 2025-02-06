@@ -1,7 +1,12 @@
 import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import train_test_split
+from sklearn.multioutput import MultiOutputRegressor
+from sklearn.metrics import r2_score
+from xgboost import XGBRegressor
 import joblib
+import numpy
 
 #I downloaded the datasets manually to train the model, I plan on automating the downloading process
 advanced_stats_df = pd.read_csv("Advanced.csv")
@@ -38,18 +43,6 @@ y_predicted = km.fit_predict(scaled_features)
 joblib.dump(km, 'kmeans_model_guard.sav')
 joblib.dump(scaler, 'scaler_guard.gz')
 
-# Made an Excel spreadsheet with each sheet being the players in the category
-# Helped me see if the model was accurate or not (I tried a lot of combinations for the features)
-combined_guard['Archetype'] = y_predicted
-
-group_column = "Archetype"
-
-grouped = combined_guard.groupby(group_column)
-
-with pd.ExcelWriter("archetypeSeperatedGuard.xlsx", engine='openpyxl') as writer:
-    for group_name, group_data in grouped:
-        group_data.to_excel(writer, sheet_name='group' + str(group_name), index=False)
-
 # Scales the features to optimize the clusters
 scaler = MinMaxScaler()
 scaled_features = scaler.fit_transform(combined_wing[wingFeatures])
@@ -61,18 +54,6 @@ y_predicted = km.fit_predict(scaled_features)
 # Downloads model and scaler as a file
 joblib.dump(km, 'kmeans_model_wing.sav')
 joblib.dump(scaler, 'scaler_wing.gz')
-
-# Made an Excel spreadsheet with each sheet being the players in the category
-# Helped me see if the model was accurate or not (I tried a lot of combinations for the features)
-combined_wing['Archetype'] = y_predicted
-
-group_column = "Archetype"
-
-grouped = combined_wing.groupby(group_column)
-
-with pd.ExcelWriter("archetypeSeperatedWing.xlsx", engine='openpyxl') as writer:
-    for group_name, group_data in grouped:
-        group_data.to_excel(writer, sheet_name='group' + str(group_name), index=False)
 
 # Scales the features to optimize the clusters
 scaler = MinMaxScaler()
@@ -86,14 +67,22 @@ y_predicted = km.fit_predict(scaled_features)
 joblib.dump(km, 'kmeans_model_big.sav')
 joblib.dump(scaler, 'scaler_big.gz')
 
-# Made an Excel spreadsheet with each sheet being the players in the category
-# Helped me see if the model was accurate or not (I tried a lot of combinations for the features)
-combined_big['Archetype'] = y_predicted
+combined_df['PastPPG'] = combined_df.groupby('player')['pts_per_game'].shift(-1)
+combined_df['PastRPG'] = combined_df.groupby('player')['trb_per_game'].shift(-1)
+combined_df['PastAPG'] = combined_df.groupby('player')['ast_per_game'].shift(-1)
+combined_df['PastSPG'] = combined_df.groupby('player')['stl_per_game'].shift(-1)
+combined_df['PastBPG'] = combined_df.groupby('player')['blk_per_game'].shift(-1)
+combined_df['PastAGE'] = combined_df.groupby('player')['age'].shift(-1)
 
-group_column = "Archetype"
+combined_df.dropna(inplace=True)
 
-grouped = combined_big.groupby(group_column)
+X = combined_df[['PastPPG', 'PastRPG', 'PastAPG', 'PastSPG', 'PastBPG', 'PastAGE']]
+y = combined_df[['pts_per_game', 'trb_per_game', 'ast_per_game', 'stl_per_game', 'blk_per_game']]
 
-with pd.ExcelWriter("archetypeSeperatedBig.xlsx", engine='openpyxl') as writer:
-    for group_name, group_data in grouped:
-        group_data.to_excel(writer, sheet_name='group' + str(group_name), index=False)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=15)
+
+model = MultiOutputRegressor(XGBRegressor(learning_rate=0.1, max_depth=3))
+
+model.fit(X_train, y_train)
+
+joblib.dump(model, filename='statPrediction.sav')
