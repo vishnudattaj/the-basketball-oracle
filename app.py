@@ -203,6 +203,7 @@ def protected():
                 try:
                     # Lists hold the players table
                     player_table = []
+                    player_url = []
                     for player in player_list:
                         # Uses api to get player id and full name for each player in list
                         # The program runs even if you type part of a players name (Like Bron instead of LeBron James) so we still need to get their full name
@@ -210,7 +211,12 @@ def protected():
                         player_id = player_dict[0]["id"]
                         player_name = player_dict[0]["full_name"]
                         active = player_dict[0]["is_active"]
-
+                        playerFirst = player_dict[0]["first_name"].replace("'", "")[0:2].lower()
+                        try:
+                            playerLast = player_dict[0]["last_name"].replace("'", "")[0:5].lower()
+                        except IndexError:
+                            playerLast = player_dict[0]["last_name"].lower().replace("'", "")
+                        playerUrl = f"https://www.basketball-reference.com/req/202106291/images/headshots/{playerLast + playerFirst}01.jpg"
                         if active:
                             player_basic = basic_df.loc[basic_df['Player'] == player_name].iloc[0]
                             player_advanced = advanced_df.loc[advanced_df['Player'] == player_name].iloc[0]
@@ -289,9 +295,11 @@ def protected():
                             playerselection = pandas.concat([playerselection], keys=[f"{player_name}"], axis=1)
                         # Converts dataframe into a html table and adds it to the list
                         player_table.append(playerselection.to_html(classes="table table-striped", index=False))
+                        player_url.append(playerUrl)
                 # Runs if a player doesn't exist
                 except IndexError:
                     player_table = []
+                    player_url = []
                     # List keeps track of all players who exist
                     valid_players = []
                     for player in player_list:
@@ -312,7 +320,12 @@ def protected():
                         player_id = player_dict[0]["id"]
                         player_name = player_dict[0]["full_name"]
                         active = player_dict[0]["is_active"]
-
+                        playerFirst = player_dict[0]["first_name"].replace("'", "")[0:2].lower()
+                        try:
+                            playerLast = player_dict[0]["last_name"].replace("'", "")[0:5].lower()
+                        except IndexError:
+                            playerLast = player_dict[0]["last_name"].lower().replace("'", "")
+                        playerUrl = f"https://www.basketball-reference.com/req/202106291/images/headshots/{playerLast + playerFirst}01.jpg"
                         if active:
                             player_basic = basic_df.loc[basic_df['Player'] == player_name].iloc[0]
                             player_advanced = advanced_df.loc[advanced_df['Player'] == player_name].iloc[0]
@@ -392,6 +405,7 @@ def protected():
                             playerselection = pandas.concat([playerselection], keys=[f"{player_name}"], axis=1)
                         # Converts dataframe into a html table and adds it to the list
                         player_table.append(playerselection.to_html(classes="table table-striped", index=False))
+                        player_url.append(playerUrl)
             # Runs if team field isn't blank when submitted
             if request.form['team'] != "":
                 # Separates teams by comma and a space
@@ -446,7 +460,7 @@ def protected():
                 try:
                     if len(player_table) != 0:
                         return render_template('dataTable.html', save=flask_login.current_user.id,
-                                               playertable=player_table, badPlayer=badRequestPlayer)
+                                               playertable=zip(player_table, player_url), badPlayer=badRequestPlayer)
                     else:
                         return render_template('search.html', save=flask_login.current_user.id,
                                                badPlayer=badRequestPlayer)
@@ -460,7 +474,7 @@ def protected():
                 return render_template('search.html', save=flask_login.current_user.id, badTeam=badRequestTeam,
                                        badPlayer=badRequestPlayer)
             else:
-                return render_template('dataTable.html', save=flask_login.current_user.id, playertable=player_table,
+                return render_template('dataTable.html', save=flask_login.current_user.id, playertable=zip(player_table, player_url),
                                        teamtable=team_table, badPlayer=badRequestPlayer, badTeam=badRequestTeam)
         # Returns user to search.html if return to search button is pressed
         elif request.form['Submit'] == "return":

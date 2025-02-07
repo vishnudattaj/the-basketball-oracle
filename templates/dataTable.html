@@ -57,9 +57,10 @@
         {% endfor %}
 
         <div class="my-3 mx-3">
-            {% for table in playertable %}
+            {% for table, url in playertable %}
                 {{ table|safe }}
-            <br>
+                <img src="{{ url }}" alt="Player Image">
+                <br>
             {% endfor %}
         </div>
 
