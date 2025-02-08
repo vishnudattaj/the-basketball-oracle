@@ -35,6 +35,20 @@
         .closebtn:hover {
           color: black;
         }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 4fr;
+        }
+
+        .boxTable {
+            overflow: auto;
+        }
+
+        .playerHeadshot {
+            width: 80%;
+            height: auto;
+        }
     </style>
 
 </head>
@@ -56,13 +70,15 @@
         </div>
         {% endfor %}
 
-        <div class="my-3 mx-3">
-            {% for table, url in playertable %}
-                {{ table|safe }}
-                <img src="{{ url }}" alt="Player Image">
+        {% for table, url in playertable %}
+            <div class="grid">
+                <img src="{{ url_for('static', filename='img/' + url) }}" alt="Player Image" class="playerHeadshot">
+                <div class="boxTable">
+                    {{ table|safe }}
+                </div>
                 <br>
-            {% endfor %}
-        </div>
+            </div>
+        {% endfor %}
 
         <div class="my-3 mx-3">
             {% for table in teamtable %}
