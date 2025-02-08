@@ -207,6 +207,8 @@ def protected():
                     # Lists hold the players table
                     player_table = []
                     player_url = []
+                    playerNameZip = []
+                    playerCategoryZip = []
                     for player in player_list:
                         # Uses api to get player id and full name for each player in list
                         # The program runs even if you type part of a players name (Like Bron instead of LeBron James) so we still need to get their full name
@@ -290,18 +292,22 @@ def protected():
                              ast_avg, stl_avg, blk_avg, playerdf[['FG_PCT', 'FG3_PCT', 'FT_PCT']]], axis=1)
                         # Adds a multilevel header with the player's name
                         if active:
+                            playerCategoryZip.append(matched_category)
                             playerselection = pd.concat([playerselection, newRow])
-                            playerselection = pandas.concat([playerselection],
-                                                            keys=[f"{player_name} - {matched_category}"], axis=1)
                         else:
-                            playerselection = pandas.concat([playerselection], keys=[f"{player_name}"], axis=1)
+                            playerCategoryZip.append("Retired")
+                        playerselection = pandas.concat([playerselection], keys=["Player History"], axis=1)
+                        playerselection = playerselection.rename(columns={'SEASON_ID': 'YEAR', 'TEAM_ABBREVIATION': 'TEAM', 'PLAYER_AGE': 'AGE', 'FG_PCT': 'FG%', 'FG3_PCT': '3PT%', 'FT_PCT': 'FT%'})
                         # Converts dataframe into a html table and adds it to the list
-                        player_table.append(playerselection.to_html(classes="table table-striped", index=False))
+                        player_table.append(playerselection.to_html(classes="table table-striped tableFont", index=False))
                         player_url.append(f"https://www.basketball-reference.com/req/202106291/images/headshots/{playerLast + playerFirst}01.jpg")
+                        playerNameZip.append(player_name)
                 # Runs if a player doesn't exist
                 except IndexError:
                     player_table = []
                     player_url = []
+                    playerNameZip = []
+                    playerCategoryZip = []
                     # List keeps track of all players who exist
                     valid_players = []
                     for player in player_list:
@@ -329,60 +335,63 @@ def protected():
                             playerLast = player_dict[0]["last_name"].lower().replace("'", "")
                         playerUrl = f"https://www.basketball-reference.com/req/202106291/images/headshots/{playerLast + playerFirst}01.jpg"
                         if active:
-                            player_basic = basic_df.loc[basic_df['Player'] == player_name].iloc[0]
-                            player_advanced = advanced_df.loc[advanced_df['Player'] == player_name].iloc[0]
+                            try:
+                                player_basic = basic_df.loc[basic_df['Player'] == player_name].iloc[0]
+                                player_advanced = advanced_df.loc[advanced_df['Player'] == player_name].iloc[0]
 
-                            if player_basic['Pos'] in ["PG", "SG"]:
-                                features = [player_basic['PTS'], player_basic['AST'], player_basic['STL'],
-                                            player_advanced['DWS'], player_advanced['VORP']]
-                                features = pandas.DataFrame([features])
-                                scaled_features = scalerg.transform(features)
-                                categorizing = kmg.predict(scaled_features)
-                                role = ["Role Player", "Star Player", "Bench Warmer"]
-                                matched_category = role[categorizing[0]]
-                            elif player_basic['Pos'] in ["SF", "PF"]:
-                                features = [player_basic['PTS'], player_basic['AST'], player_basic['STL'],
-                                            player_advanced['DWS'], player_advanced['VORP']]
-                                features = pandas.DataFrame([features])
-                                scaled_features = scalerw.transform(features)
-                                categorizing = kmw.predict(scaled_features)
-                                role = ["Star Player", "Role Player", "Bench Warmer"]
-                                matched_category = role[categorizing[0]]
-                            elif player_basic['Pos'] == "C":
-                                features = [player_basic['PTS'], player_basic['TRB'], player_basic['BLK'],
-                                            player_advanced['DWS'], player_advanced['VORP']]
-                                features = pandas.DataFrame([features])
-                                scaled_features = scalerb.transform(features)
-                                categorizing = kmb.predict(scaled_features)
-                                role = ["Bench Warmer", "Star Player", "Role Player"]
-                                matched_category = role[categorizing[0]]
-                            else:
+                                if player_basic['Pos'] in ["PG", "SG"]:
+                                    features = [player_basic['PTS'], player_basic['AST'], player_basic['STL'],
+                                                player_advanced['DWS'], player_advanced['VORP']]
+                                    features = pandas.DataFrame([features])
+                                    scaled_features = scalerg.transform(features)
+                                    categorizing = kmg.predict(scaled_features)
+                                    role = ["Role Player", "Star Player", "Bench Warmer"]
+                                    matched_category = role[categorizing[0]]
+                                elif player_basic['Pos'] in ["SF", "PF"]:
+                                    features = [player_basic['PTS'], player_basic['AST'], player_basic['STL'],
+                                                player_advanced['DWS'], player_advanced['VORP']]
+                                    features = pandas.DataFrame([features])
+                                    scaled_features = scalerw.transform(features)
+                                    categorizing = kmw.predict(scaled_features)
+                                    role = ["Star Player", "Role Player", "Bench Warmer"]
+                                    matched_category = role[categorizing[0]]
+                                elif player_basic['Pos'] == "C":
+                                    features = [player_basic['PTS'], player_basic['TRB'], player_basic['BLK'],
+                                                player_advanced['DWS'], player_advanced['VORP']]
+                                    features = pandas.DataFrame([features])
+                                    scaled_features = scalerb.transform(features)
+                                    categorizing = kmb.predict(scaled_features)
+                                    role = ["Bench Warmer", "Star Player", "Role Player"]
+                                    matched_category = role[categorizing[0]]
+                                else:
+                                    pass
+
+                                data = pd.DataFrame({
+                                    "PastPPG": [player_basic['PTS']],
+                                    "PastRPG": [player_basic['TRB']],
+                                    "PastAPG": [player_basic['AST']],
+                                    "PastSPG": [player_basic['STL']],
+                                    "PastBPG": [player_basic['BLK']],
+                                    "PastAGE": [player_basic['Age']]
+                                })
+                                predict = xgb.predict(data[['PastPPG', 'PastRPG', 'PastAPG', 'PastSPG', 'PastBPG', 'PastAGE']])
+                                newRow = pd.DataFrame({
+                                    'SEASON_ID': [str(season) + "-" + str(season + 1)[2:4]],
+                                    'TEAM_ABBREVIATION': [None],
+                                    'PLAYER_AGE': [player_basic['Age'] + 1],
+                                    'GP': [None],
+                                    'GS': [None],
+                                    'PTS': [str(round(predict[0][0], 1))],
+                                    'REB': [str(round(predict[0][1], 1))],
+                                    'AST': [str(round(predict[0][2], 1))],
+                                    'STL': [str(round(predict[0][3], 1))],
+                                    'BLK': [str(round(predict[0][4], 1))],
+                                    'FG_PCT': [None],
+                                    'FG3_PCT': [None],
+                                    'FT_PCT': [None]
+                                })
+                            except IndexError:
                                 pass
-
-                            data = pd.DataFrame({
-                                "PastPPG": [player_basic['PTS']],
-                                "PastRPG": [player_basic['TRB']],
-                                "PastAPG": [player_basic['AST']],
-                                "PastSPG": [player_basic['STL']],
-                                "PastBPG": [player_basic['BLK']],
-                                "PastAGE": [player_basic['Age']]
-                            })
-                            predict = xgb.predict(data[['PastPPG', 'PastRPG', 'PastAPG', 'PastSPG', 'PastBPG', 'PastAGE']])
-                            newRow = pd.DataFrame({
-                                'SEASON_ID': [str(season) + "-" + str(season + 1)[2:4]],
-                                'TEAM_ABBREVIATION': [None],
-                                'PLAYER_AGE': [player_basic['Age'] + 1],
-                                'GP': [None],
-                                'GS': [None],
-                                'PTS': [str(round(predict[0][0], 1))],
-                                'REB': [str(round(predict[0][1], 1))],
-                                'AST': [str(round(predict[0][2], 1))],
-                                'STL': [str(round(predict[0][3], 1))],
-                                'BLK': [str(round(predict[0][4], 1))],
-                                'FG_PCT': [None],
-                                'FG3_PCT': [None],
-                                'FT_PCT': [None]
-                            })
 
                         # Uses player id to get the stats of the player as an object
                         player_info = playercareerstats.PlayerCareerStats(player_id=player_id)
@@ -398,16 +407,21 @@ def protected():
                         playerselection = pandas.concat(
                             [playerdf[['SEASON_ID', 'TEAM_ABBREVIATION', 'PLAYER_AGE', 'GP', 'GS']], pts_avg, reb_avg,
                              ast_avg, stl_avg, blk_avg, playerdf[['FG_PCT', 'FG3_PCT', 'FT_PCT']]], axis=1)
+                        playerselection = playerselection.rename(columns={'SEASON_ID': 'YEAR', 'TEAM_ABBREVIATION': 'TEAM', 'PLAYER_AGE': 'AGE', 'FG_PCT': 'FG%', 'FG3_PCT': '3PT%', 'FT_PCT': 'FT%'})
                         # Adds a multilevel header with the player's name
                         if active:
-                            playerselection = pd.concat([playerselection, newRow])
-                            playerselection = pandas.concat([playerselection],
-                                                            keys=[f"{player_name} - {matched_category}"], axis=1)
+                            try:
+                                playerCategoryZip.append(matched_category)
+                                playerselection = pd.concat([playerselection, newRow])
+                            except UnboundLocalError:
+                                playerCategoryZip.append("Free Agent")
                         else:
-                            playerselection = pandas.concat([playerselection], keys=[f"{player_name}"], axis=1)
+                            playerCategoryZip.append("Retired")
+                        playerselection = pandas.concat([playerselection], keys=["Player History"], axis=1)
                         # Converts dataframe into a html table and adds it to the list
-                        player_table.append(playerselection.to_html(classes="table table-striped", index=False))
+                        player_table.append(playerselection.to_html(classes="table table-striped tableFont", index=False))
                         player_url.append(playerUrl)
+                        playerNameZip.append(player_name)
             # Runs if team field isn't blank when submitted
             if request.form['team'] != "":
                 # Separates teams by comma and a space
@@ -462,7 +476,7 @@ def protected():
                 try:
                     if len(player_table) != 0:
                         return render_template('dataTable.html', save=flask_login.current_user.id,
-                                               playertable=zip(player_table, player_url), badPlayer=badRequestPlayer)
+                                               playertable=zip(player_table, player_url, playerNameZip, playerCategoryZip), badPlayer=badRequestPlayer)
                     else:
                         return render_template('search.html', save=flask_login.current_user.id,
                                                badPlayer=badRequestPlayer)
@@ -476,7 +490,7 @@ def protected():
                 return render_template('search.html', save=flask_login.current_user.id, badTeam=badRequestTeam,
                                        badPlayer=badRequestPlayer)
             else:
-                return render_template('dataTable.html', save=flask_login.current_user.id, playertable=zip(player_table, player_url),
+                return render_template('dataTable.html', save=flask_login.current_user.id, playertable=zip(player_table, player_url, playerNameZip, playerCategoryZip),
                                        teamtable=team_table, badPlayer=badRequestPlayer, badTeam=badRequestTeam)
         # Returns user to search.html if return to search button is pressed
         elif request.form['Submit'] == "return":
