@@ -72,7 +72,7 @@
 
         {% for table, url in playertable %}
             <div class="grid">
-                <img src="{{ url_for('static', filename='img/' + url) }}" alt="Player Image" class="playerHeadshot">
+                <img src="{{ url }}" alt="Player Image" class="playerHeadshot">
                 <div class="boxTable">
                     {{ table|safe }}
                 </div>

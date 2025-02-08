@@ -219,10 +219,6 @@ def protected():
                             playerLast = player_dict[0]["last_name"].replace("'", "")[0:5].lower()
                         except IndexError:
                             playerLast = player_dict[0]["last_name"].lower().replace("'", "")
-                        playerHeadshot = requests.get(f"https://www.basketball-reference.com/req/202106291/images/headshots/{playerLast + playerFirst}01.jpg")
-                        playerHeadshot = Image.open(BytesIO(playerHeadshot.content))
-                        playerHeadshot.save(f'static/img/{player_name}.png')
-                        subprocess.run(['C:/Program Files/WindowsApps/25415Inkscape.Inkscape_1.3.2.0_x64__9waqn51p1ttv2/VFS/ProgramFilesX64/Inkscape/bin/inkscape.exe', f'C:/Users/slamd/Flask_Login/static/img/{player_name}.png', '--export-type=svg', '--export-filename=' + f'C:/Users/slamd/Flask_Login/static/img/{player_name}.svg'])
                         if active:
                             player_basic = basic_df.loc[basic_df['Player'] == player_name].iloc[0]
                             player_advanced = advanced_df.loc[advanced_df['Player'] == player_name].iloc[0]
@@ -301,7 +297,7 @@ def protected():
                             playerselection = pandas.concat([playerselection], keys=[f"{player_name}"], axis=1)
                         # Converts dataframe into a html table and adds it to the list
                         player_table.append(playerselection.to_html(classes="table table-striped", index=False))
-                        player_url.append(f'{player_name}.svg')
+                        player_url.append(f"https://www.basketball-reference.com/req/202106291/images/headshots/{playerLast + playerFirst}01.jpg")
                 # Runs if a player doesn't exist
                 except IndexError:
                     player_table = []
