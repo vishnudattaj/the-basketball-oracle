@@ -36,20 +36,41 @@
           color: black;
         }
 
-        .grid {
+        .playerGrid {
             display: grid;
             grid-template-columns: 1fr 4fr;
             grid-template-rows: auto 1fr;
         }
 
-        .boxTable {
+        .teamGrid {
+            display: grid;
+            grid-template-columns: 1fr 4fr;
+            grid-template-rows: min-content auto;
+        }
+
+        .playerTable {
             overflow-y: auto;
             grid-column: 2;
             grid-row: 1 / 3;
             max-height: 50vh;
         }
 
-        .boxTable thead th {
+        .playerTable thead th {
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 1;
+            text-align: center;
+        }
+
+        .teamTable {
+            overflow-y: auto;
+            grid-column: 2;
+            grid-row: 1;
+            max-height: 34vh;
+        }
+
+        .teamTable thead th {
             position: sticky;
             top: 0;
             background: white;
@@ -60,6 +81,7 @@
         .tableFont {
             font-size: 0.88em;
         }
+
         .playerHeadshot {
             grid-column: 1;
         }
@@ -98,14 +120,14 @@
         {% endfor %}
 
         {% for table, url, name, category in playertable %}
-            <div class="grid mx-3">
+            <div class="playerGrid mx-3">
                 <div class="playerHeadshot">
                     <img src="{{ url }}" alt="Player Image" onerror="this.onerror=null;this.className='defaultImage';this.src='https://storage.googleapis.com/support-forums-api/attachment/thread-120988-16861902392288249134.png';" class="playerHeadshot">
                     <br>
                     <h3 style="text-align:center;">{{ name }}</h3>
                     <h4 style="text-align:center;">{{ category }}</h4>
                 </div>
-                <div class="boxTable">
+                <div class="playerTable">
                     {{ table|safe }}
                 </div>
                 <br>
@@ -113,12 +135,20 @@
         <br>
         {% endfor %}
 
-        <div class="my-3 mx-3">
-            {% for table in teamtable %}
-                {{ table|safe }}
-            <br>
-            {% endfor %}
-        </div>
+        {% for table, url, name in teamtable %}
+            <div class="teamGrid mx-3">
+                <div class="playerHeadshot">
+                    <img src="{{ url }}" alt="Team Image" onerror="this.onerror=null;this.className='defaultImage';this.src='https://storage.googleapis.com/support-forums-api/attachment/thread-120988-16861902392288249134.png';" class="playerHeadshot">
+                    <br>
+                    <h3 style="text-align:center;">{{ name }}</h3>
+                </div>
+                <div class="teamTable">
+                    {{ table|safe }}
+                </div>
+                <br>
+            </div>
+        <br>
+        {% endfor %}
 
         <form action="/protected" method="POST">
             <div class="mx-3">

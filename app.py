@@ -337,7 +337,6 @@ def protected():
                             playerLast = player_dict[0]["last_name"].replace("'", "")[0:5].lower()
                         except IndexError:
                             playerLast = player_dict[0]["last_name"].lower().replace("'", "")
-                        playerUrl = f"https://www.basketball-reference.com/req/202106291/images/headshots/{playerLast + playerFirst}01.jpg"
                         if active:
                             try:
                                 player_basic = basic_df.loc[basic_df['Player'] == player_name].iloc[0]
@@ -423,19 +422,24 @@ def protected():
                         playerselection = playerselection.rename(columns={'SEASON_ID': 'YEAR', 'TEAM_ABBREVIATION': 'TEAM', 'PLAYER_AGE': 'AGE', 'FG_PCT': 'FG%', 'FG3_PCT': '3PT%', 'FT_PCT': 'FT%'})
                         # Converts dataframe into a html table and adds it to the list
                         player_table.append(playerselection.to_html(classes="table table-striped tableFont", index=False))
-                        player_url.append(playerUrl)
+                        player_url.append(f"https://www.basketball-reference.com/req/202106291/images/headshots/{playerLast + playerFirst}01.jpg")
                         playerNameZip.append(player_name)
             # Runs if team field isn't blank when submitted
             if request.form['team'] != "":
                 # Separates teams by comma and a space
                 desired_teams = request.form['team']
                 team_list = desired_teams.split(', ')
+                team_list = list(dict.fromkeys(team_list))
                 try:
                     # Team table holds the teams dataframe
                     team_table = []
+                    team_url = []
+                    teamNameZip = []
                     for team in team_list:
+                        team = team.replace("\\", "")
                         team_dict = teams.find_teams_by_full_name(team)
                         # Like the player section, we need the full name since the program accepts partial names (like Dal for Dallas)
+                        team_abbreviation = team_dict[0]["abbreviation"]
                         team_name = team_dict[0]["full_name"]
                         team_id = team_dict[0]["id"]
                         # Returns team roster information as an object
@@ -445,13 +449,17 @@ def protected():
                         # Selects specific columns to display to user
                         teamselection = teamdf[0][
                             ['PLAYER', 'NUM', 'POSITION', 'HEIGHT', 'WEIGHT', 'AGE', 'EXP', 'SCHOOL', 'HOW_ACQUIRED']]
-                        teamselection = pandas.concat([teamselection], keys=[team_name], axis=1)
                         team_table.append(teamselection.to_html(classes='table table-striped', index=False))
+                        team_url.append(f"https://cdn.ssref.net/req/202502031/tlogo/bbr/{team_abbreviation}.png")
+                        teamNameZip.append(team_name)
                 # Runs if one of the teams doesn't exist
-                except IndexError:
+                except IndexError or re.error:
                     team_table = []
+                    team_url = []
+                    teamNameZip = []
                     valid_teams = []
                     for team in team_list:
+                        team = team.replace("\\", "")
                         try:
                             team_dict = teams.find_teams_by_full_name(team)
                             # Team_id is used to trigger an index error if name doesn't exist
@@ -462,14 +470,16 @@ def protected():
                     # Code reused from above
                     for team in valid_teams:
                         team_dict = teams.find_teams_by_full_name(team)
+                        team_abbreviation = team_dict[0]["abbreviation"]
                         team_name = team_dict[0]["full_name"]
                         team_id = team_dict[0]["id"]
                         team_roster = commonteamroster.CommonTeamRoster(team_id=team_id)
                         teamdf = team_roster.get_data_frames()
                         teamselection = teamdf[0][
                             ['PLAYER', 'NUM', 'POSITION', 'HEIGHT', 'WEIGHT', 'AGE', 'EXP', 'SCHOOL', 'HOW_ACQUIRED']]
-                        teamselection = pandas.concat([teamselection], keys=[team_name], axis=1)
                         team_table.append(teamselection.to_html(classes='table table-striped', index=False))
+                        team_url.append(f"https://cdn.ssref.net/req/202502031/tlogo/bbr/{team_abbreviation}.png")
+                        teamNameZip.append(team_name)
 
             # Returns search.html if no valid players were typed
             # Returns dataTable.html if at least one valid player or team was typed in
@@ -485,7 +495,7 @@ def protected():
                                                badPlayer=badRequestPlayer)
                 except UnboundLocalError:
                     if len(team_table) != 0:
-                        return render_template('dataTable.html', save=flask_login.current_user.id, teamtable=team_table,
+                        return render_template('dataTable.html', save=flask_login.current_user.id, teamtable=zip(team_table, team_url, teamNameZip),
                                                badTeam=badRequestTeam)
                     else:
                         return render_template('search.html', save=flask_login.current_user.id, badTeam=badRequestTeam)
@@ -494,7 +504,7 @@ def protected():
                                        badPlayer=badRequestPlayer)
             else:
                 return render_template('dataTable.html', save=flask_login.current_user.id, playertable=zip(player_table, player_url, playerNameZip, playerCategoryZip),
-                                       teamtable=team_table, badPlayer=badRequestPlayer, badTeam=badRequestTeam)
+                                       teamtable=zip(team_table, team_url, teamNameZip), badPlayer=badRequestPlayer, badTeam=badRequestTeam)
         # Returns user to search.html if return to search button is pressed
         elif request.form['Submit'] == "return":
             return render_template('search.html', save=flask_login.current_user.id)
