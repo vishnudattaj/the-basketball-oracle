@@ -1,3 +1,5 @@
+import re
+
 import pandas as pd
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
@@ -211,6 +213,7 @@ def protected():
                     playerNameZip = []
                     playerCategoryZip = []
                     for player in player_list:
+                        player = player.replace("\\", "")
                         # Uses api to get player id and full name for each player in list
                         # The program runs even if you type part of a players name (Like Bron instead of LeBron James) so we still need to get their full name
                         player_dict = players.find_players_by_full_name(player)
@@ -303,7 +306,7 @@ def protected():
                         player_url.append(f"https://www.basketball-reference.com/req/202106291/images/headshots/{playerLast + playerFirst}01.jpg")
                         playerNameZip.append(player_name)
                 # Runs if a player doesn't exist
-                except IndexError:
+                except IndexError or re.error:
                     player_table = []
                     player_url = []
                     playerNameZip = []
@@ -311,6 +314,7 @@ def protected():
                     # List keeps track of all players who exist
                     valid_players = []
                     for player in player_list:
+                        player = player.replace("\\", "")
                         try:
                             player_dict = players.find_players_by_full_name(player)
                             # Player_id used to trigger index error if player doesn't exist
