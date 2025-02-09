@@ -203,6 +203,7 @@ def protected():
                 # Separates players by comma and a space
                 desired_players = request.form['player']
                 player_list = desired_players.split(', ')
+                player_list = list(dict.fromkeys(player_list))
                 try:
                     # Lists hold the players table
                     player_table = []
@@ -296,7 +297,6 @@ def protected():
                             playerselection = pd.concat([playerselection, newRow])
                         else:
                             playerCategoryZip.append("Retired")
-                        playerselection = pandas.concat([playerselection], keys=["Player History"], axis=1)
                         playerselection = playerselection.rename(columns={'SEASON_ID': 'YEAR', 'TEAM_ABBREVIATION': 'TEAM', 'PLAYER_AGE': 'AGE', 'FG_PCT': 'FG%', 'FG3_PCT': '3PT%', 'FT_PCT': 'FT%'})
                         # Converts dataframe into a html table and adds it to the list
                         player_table.append(playerselection.to_html(classes="table table-striped tableFont", index=False))
@@ -407,7 +407,6 @@ def protected():
                         playerselection = pandas.concat(
                             [playerdf[['SEASON_ID', 'TEAM_ABBREVIATION', 'PLAYER_AGE', 'GP', 'GS']], pts_avg, reb_avg,
                              ast_avg, stl_avg, blk_avg, playerdf[['FG_PCT', 'FG3_PCT', 'FT_PCT']]], axis=1)
-                        playerselection = playerselection.rename(columns={'SEASON_ID': 'YEAR', 'TEAM_ABBREVIATION': 'TEAM', 'PLAYER_AGE': 'AGE', 'FG_PCT': 'FG%', 'FG3_PCT': '3PT%', 'FT_PCT': 'FT%'})
                         # Adds a multilevel header with the player's name
                         if active:
                             try:
@@ -417,7 +416,7 @@ def protected():
                                 playerCategoryZip.append("Free Agent")
                         else:
                             playerCategoryZip.append("Retired")
-                        playerselection = pandas.concat([playerselection], keys=["Player History"], axis=1)
+                        playerselection = playerselection.rename(columns={'SEASON_ID': 'YEAR', 'TEAM_ABBREVIATION': 'TEAM', 'PLAYER_AGE': 'AGE', 'FG_PCT': 'FG%', 'FG3_PCT': '3PT%', 'FT_PCT': 'FT%'})
                         # Converts dataframe into a html table and adds it to the list
                         player_table.append(playerselection.to_html(classes="table table-striped tableFont", index=False))
                         player_url.append(playerUrl)
