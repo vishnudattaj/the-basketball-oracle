@@ -1,5 +1,3 @@
-import re
-
 import pandas as pd
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
@@ -12,9 +10,7 @@ import requests
 import datetime
 from bs4 import BeautifulSoup
 import dcl
-from PIL import Image
-from io import BytesIO
-import subprocess
+import re
 
 # Sets up the flask app
 app = Flask(__name__)
