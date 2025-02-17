@@ -2,7 +2,7 @@ import pandas as pd
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 import flask_login
-from nba_api.stats.endpoints import playercareerstats, commonteamroster
+from nba_api.stats.endpoints import playercareerstats, commonteamroster, leaguestandings
 from nba_api.stats.static import players, teams
 import pandas
 import joblib
@@ -446,6 +446,12 @@ def protected():
                         teamselection = teamdf[0][
                             ['PLAYER', 'NUM', 'POSITION', 'HEIGHT', 'WEIGHT', 'AGE', 'EXP', 'SCHOOL', 'HOW_ACQUIRED']]
                         team_table.append(teamselection.to_html(classes='table table-striped', index=False))
+                        if team_abbreviation == 'BKN':
+                            team_abbreviation = 'NJN'
+                        elif team_abbreviation == 'PHX':
+                            team_abbreviation = 'PHO'
+                        else:
+                            pass
                         team_url.append(f"https://cdn.ssref.net/req/202502031/tlogo/bbr/{team_abbreviation}.png")
                         teamNameZip.append(team_name)
                 # Runs if one of the teams doesn't exist
@@ -474,13 +480,19 @@ def protected():
                         teamselection = teamdf[0][
                             ['PLAYER', 'NUM', 'POSITION', 'HEIGHT', 'WEIGHT', 'AGE', 'EXP', 'SCHOOL', 'HOW_ACQUIRED']]
                         team_table.append(teamselection.to_html(classes='table table-striped', index=False))
+                        if team_abbreviation == 'BKN':
+                            team_abbreviation = 'NJN'
+                        elif team_abbreviation == 'PHX':
+                            team_abbreviation = 'PHO'
+                        else:
+                            pass
                         team_url.append(f"https://cdn.ssref.net/req/202502031/tlogo/bbr/{team_abbreviation}.png")
                         teamNameZip.append(team_name)
 
             # Returns search.html if no valid players were typed
             # Returns dataTable.html if at least one valid player or team was typed in
             if request.form['player'] == "" and request.form['team'] == "":
-                return render_template('search.html', save=flask_login.current_user.id)
+                return render_template('search.html', save=flask_login.current_user.id, standings=standingsHTML())
             elif bool(request.form['player'] == "") != bool(request.form['team'] == ""):
                 try:
                     if len(player_table) != 0:
@@ -488,26 +500,68 @@ def protected():
                                                playertable=zip(player_table, player_url, playerNameZip, playerCategoryZip), badPlayer=badRequestPlayer)
                     else:
                         return render_template('search.html', save=flask_login.current_user.id,
-                                               badPlayer=badRequestPlayer)
+                                               badPlayer=badRequestPlayer, standings=standingsHTML())
                 except UnboundLocalError:
                     if len(team_table) != 0:
                         return render_template('dataTable.html', save=flask_login.current_user.id, teamtable=zip(team_table, team_url, teamNameZip),
                                                badTeam=badRequestTeam)
                     else:
-                        return render_template('search.html', save=flask_login.current_user.id, badTeam=badRequestTeam)
+                        return render_template('search.html', save=flask_login.current_user.id, badTeam=badRequestTeam, standings=standingsHTML())
             elif len(player_table) == 0 and len(team_table) == 0:
                 return render_template('search.html', save=flask_login.current_user.id, badTeam=badRequestTeam,
-                                       badPlayer=badRequestPlayer)
+                                       badPlayer=badRequestPlayer, standings=standingsHTML())
             else:
                 return render_template('dataTable.html', save=flask_login.current_user.id, playertable=zip(player_table, player_url, playerNameZip, playerCategoryZip),
                                        teamtable=zip(team_table, team_url, teamNameZip), badPlayer=badRequestPlayer, badTeam=badRequestTeam)
         # Returns user to search.html if return to search button is pressed
         elif request.form['Submit'] == "return":
-            return render_template('search.html', save=flask_login.current_user.id)
+            return render_template('search.html', save=flask_login.current_user.id, standings=standingsHTML())
     # Returns search.html if method is GET instead of POST
     else:
-        return render_template('search.html', save=flask_login.current_user.id)
+        return render_template('search.html', save=flask_login.current_user.id, standings=standingsHTML())
 
+def standingsHTML():
+    standings = leaguestandings.LeagueStandings()
+    standings_df = standings.get_data_frames()[0]
+    standingsSelection = standings_df[
+        ['TeamName', 'WINS', 'LOSSES', 'WinPCT', 'ConferenceGamesBack', 'L10', 'strCurrentStreak',
+         'Conference']]
+    standingsSelection = standingsSelection.rename(
+        columns={'TeamName': 'Team', 'WINS': 'W', 'LOSSES': 'L', 'WinPCT': 'Win%',
+                 'ConferenceGamesBack': 'GB', 'strCurrentStreak': 'Strk'})
+    westStandings = standingsSelection.loc[standingsSelection['Conference'] == 'West']
+    eastStandings = standingsSelection.loc[standingsSelection['Conference'] == 'East']
+    westStandings = westStandings.drop(columns=['Conference']).reset_index(drop=True)
+    eastStandings = eastStandings.drop(columns=['Conference']).reset_index(drop=True)
+    westIcon = []
+    eastIcon = []
+    for team in westStandings['Team']:
+        team_dict = teams.find_teams_by_full_name(team)
+        team_abbreviation = team_dict[0]["abbreviation"]
+        if team_abbreviation == 'PHX':
+            team_abbreviation = 'PHO'
+        elif team_abbreviation == 'NOP':
+            team_abbreviation = 'NO'
+        elif team_abbreviation == 'UTA':
+            team_abbreviation = 'UTAH'
+        westIcon.append(f"https://a.espncdn.com/combiner/i?img=/i/teamlogos/nba/500/{team_abbreviation}.png&h=40&w=40")
+    print(westIcon)
+    for team in eastStandings['Team']:
+        team_dict = teams.find_teams_by_full_name(team)
+        team_abbreviation = team_dict[0]["abbreviation"]
+        if team_abbreviation == 'BKN':
+            team_abbreviation = 'NJN'
+        eastIcon.append(f"https://a.espncdn.com/combiner/i?img=/i/teamlogos/nba/500/{team_abbreviation}.png&h=40&w=40")
+    westStandings.insert(0, '', westIcon)
+    eastStandings.insert(0, '', eastIcon)
+    westStandings[''] = westStandings[''].apply(create_img_tag)
+    eastStandings[''] = eastStandings[''].apply(create_img_tag)
+    westStandings.index += 1
+    eastStandings.index += 1
+    return [westStandings.to_html(classes='table table-striped standingsTable', escape=False), eastStandings.to_html(classes='table table-striped standingsTable', escape=False)]
+
+def create_img_tag(link):
+    return f'<img src="{link}" width="30"/>'
 
 # Runs app in debug mode
 if __name__ == "__main__":
