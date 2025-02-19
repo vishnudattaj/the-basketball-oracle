@@ -420,102 +420,13 @@ def protected():
                         player_table.append(playerselection.to_html(classes="table table-striped tableFont", index=False))
                         player_url.append(f"https://www.basketball-reference.com/req/202106291/images/headshots/{playerLast + playerFirst}01.jpg")
                         playerNameZip.append(player_name)
-            # Runs if team field isn't blank when submitted
-            if request.form['team'] != "":
-                # Separates teams by comma and a space
-                desired_teams = request.form['team']
-                team_list = desired_teams.split(', ')
-                team_list = list(dict.fromkeys(team_list))
-                try:
-                    # Team table holds the teams dataframe
-                    team_table = []
-                    team_url = []
-                    teamNameZip = []
-                    for team in team_list:
-                        team = team.replace("\\", "")
-                        team_dict = teams.find_teams_by_full_name(team)
-                        # Like the player section, we need the full name since the program accepts partial names (like Dal for Dallas)
-                        team_abbreviation = team_dict[0]["abbreviation"]
-                        team_name = team_dict[0]["full_name"]
-                        team_id = team_dict[0]["id"]
-                        # Returns team roster information as an object
-                        team_roster = commonteamroster.CommonTeamRoster(team_id=team_id)
-                        # Converts object into a dataframe
-                        teamdf = team_roster.get_data_frames()
-                        # Selects specific columns to display to user
-                        teamselection = teamdf[0][
-                            ['PLAYER', 'NUM', 'POSITION', 'HEIGHT', 'WEIGHT', 'AGE', 'EXP', 'SCHOOL', 'HOW_ACQUIRED']]
-                        team_table.append(teamselection.to_html(classes='table table-striped', index=False))
-                        if team_abbreviation == 'BKN':
-                            team_abbreviation = 'NJN'
-                        elif team_abbreviation == 'PHX':
-                            team_abbreviation = 'PHO'
-                        else:
-                            pass
-                        team_url.append(f"https://cdn.ssref.net/req/202502031/tlogo/bbr/{team_abbreviation}.png")
-                        teamNameZip.append(team_name)
-                # Runs if one of the teams doesn't exist
-                except IndexError or re.error:
-                    team_table = []
-                    team_url = []
-                    teamNameZip = []
-                    valid_teams = []
-                    for team in team_list:
-                        team = team.replace("\\", "")
-                        try:
-                            team_dict = teams.find_teams_by_full_name(team)
-                            # Team_id is used to trigger an index error if name doesn't exist
-                            team_id = team_dict[0]["id"]
-                            valid_teams.append(team)
-                        except IndexError:
-                            badRequestTeam.append(team)
-                    # Code reused from above
-                    for team in valid_teams:
-                        team_dict = teams.find_teams_by_full_name(team)
-                        team_abbreviation = team_dict[0]["abbreviation"]
-                        team_name = team_dict[0]["full_name"]
-                        team_id = team_dict[0]["id"]
-                        team_roster = commonteamroster.CommonTeamRoster(team_id=team_id)
-                        teamdf = team_roster.get_data_frames()
-                        teamselection = teamdf[0][
-                            ['PLAYER', 'NUM', 'POSITION', 'HEIGHT', 'WEIGHT', 'AGE', 'EXP', 'SCHOOL', 'HOW_ACQUIRED']]
-                        team_table.append(teamselection.to_html(classes='table table-striped', index=False))
-                        if team_abbreviation == 'BKN':
-                            team_abbreviation = 'NJN'
-                        elif team_abbreviation == 'PHX':
-                            team_abbreviation = 'PHO'
-                        else:
-                            pass
-                        team_url.append(f"https://cdn.ssref.net/req/202502031/tlogo/bbr/{team_abbreviation}.png")
-                        teamNameZip.append(team_name)
-
-            # Returns search.html if no valid players were typed
-            # Returns dataTable.html if at least one valid player or team was typed in
-            if request.form['player'] == "" and request.form['team'] == "":
+            if request.form['player'] == "":
                 return render_template('search.html', save=flask_login.current_user.id, standings=standingsHTML())
-            elif bool(request.form['player'] == "") != bool(request.form['team'] == ""):
-                try:
-                    if len(player_table) != 0:
-                        return render_template('dataTable.html', save=flask_login.current_user.id,
-                                               playertable=zip(player_table, player_url, playerNameZip, playerCategoryZip), badPlayer=badRequestPlayer)
-                    else:
-                        return render_template('search.html', save=flask_login.current_user.id,
-                                               badPlayer=badRequestPlayer, standings=standingsHTML())
-                except UnboundLocalError:
-                    if len(team_table) != 0:
-                        return render_template('dataTable.html', save=flask_login.current_user.id, teamtable=zip(team_table, team_url, teamNameZip),
-                                               badTeam=badRequestTeam)
-                    else:
-                        return render_template('search.html', save=flask_login.current_user.id, badTeam=badRequestTeam, standings=standingsHTML())
-            elif len(player_table) == 0 and len(team_table) == 0:
-                return render_template('search.html', save=flask_login.current_user.id, badTeam=badRequestTeam,
-                                       badPlayer=badRequestPlayer, standings=standingsHTML())
             else:
-                return render_template('dataTable.html', save=flask_login.current_user.id, playertable=zip(player_table, player_url, playerNameZip, playerCategoryZip),
-                                       teamtable=zip(team_table, team_url, teamNameZip), badPlayer=badRequestPlayer, badTeam=badRequestTeam)
-        # Returns user to search.html if return to search button is pressed
-        elif request.form['Submit'] == "return":
-            return render_template('search.html', save=flask_login.current_user.id, standings=standingsHTML())
+                try:
+                    return render_template('dataTable.html', save=flask_login.current_user.id, playertable=zip(player_table, player_url, playerNameZip, playerCategoryZip), badPlayer=badRequestPlayer)
+                except:
+                    return render_template('search.html', save=flask_login.current_user.id, badPlayer=badRequestPlayer, standings=standingsHTML())
     # Returns search.html if method is GET instead of POST
     else:
         return render_template('search.html', save=flask_login.current_user.id, standings=standingsHTML())
@@ -545,23 +456,40 @@ def standingsHTML():
         elif team_abbreviation == 'UTA':
             team_abbreviation = 'UTAH'
         westIcon.append(f"https://a.espncdn.com/combiner/i?img=/i/teamlogos/nba/500/{team_abbreviation}.png&h=40&w=40")
-    print(westIcon)
     for team in eastStandings['Team']:
         team_dict = teams.find_teams_by_full_name(team)
         team_abbreviation = team_dict[0]["abbreviation"]
-        if team_abbreviation == 'BKN':
-            team_abbreviation = 'NJN'
         eastIcon.append(f"https://a.espncdn.com/combiner/i?img=/i/teamlogos/nba/500/{team_abbreviation}.png&h=40&w=40")
     westStandings.insert(0, '', westIcon)
     eastStandings.insert(0, '', eastIcon)
     westStandings[''] = westStandings[''].apply(create_img_tag)
     eastStandings[''] = eastStandings[''].apply(create_img_tag)
+    westStandings['Team'] = westStandings['Team'].apply(create_link)
+    eastStandings['Team'] = eastStandings['Team'].apply(create_link)
     westStandings.index += 1
     eastStandings.index += 1
     return [westStandings.to_html(classes='table table-striped standingsTable', escape=False), eastStandings.to_html(classes='table table-striped standingsTable', escape=False)]
 
 def create_img_tag(link):
     return f'<img src="{link}" width="30"/>'
+
+def create_link(name):
+    return f'<a href="/teams/{name}">{name}</a>'
+
+@app.route('/teams/<string:team>', methods=['GET', 'POST'])
+@flask_login.login_required
+def teamHTML(team):
+    team_dict = teams.find_teams_by_full_name(team)
+    team_abbreviation = team_dict[0]["abbreviation"]
+    team_id = team_dict[0]["id"]
+    team_roster = commonteamroster.CommonTeamRoster(team_id=team_id)
+    teamdf = team_roster.get_data_frames()
+    teamselection = teamdf[0][
+        ['PLAYER', 'NUM', 'POSITION', 'HEIGHT', 'WEIGHT', 'AGE', 'EXP', 'SCHOOL', 'HOW_ACQUIRED']]
+    team_table = teamselection.to_html(classes='table table-striped', index=False)
+    team_url = f'{team_abbreviation.lower()}.png'
+    return render_template('dataTable.html', save=flask_login.current_user.id, teamtable=zip([team_table], [team_url]))
+
 
 # Runs app in debug mode
 if __name__ == "__main__":

@@ -105,11 +105,27 @@
             margin: 0 auto; /* Ensure this is set */
         }
 
-
         .defaultImage {
             width: 100%;
             height: auto;
             display: block;
+        }
+
+        .fixed-element {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+        }
+
+        .btn-outline-danger {
+            color: #ff0000;
+            border: 1px solid #ff0000;
+            background-color: transparent;
+        }
+
+        .btn-outline-danger:hover {
+            background-color: #ff0000;
+            color: white;
         }
     </style>
 
@@ -125,13 +141,7 @@
         </div>
         {% endfor %}
 
-        {% for team in badTeam %}
-        <div class="alert">
-          <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-          <strong>Unknown Team: </strong>{{team}}
-        </div>
-        {% endfor %}
-
+        <br>
         {% for table, url, name, category in playertable %}
             <div class="playerGrid mx-3">
                 <div class="playerHeadshot">
@@ -148,11 +158,10 @@
         <br>
         {% endfor %}
 
-        {% for table, url, name in teamtable %}
+        {% for table, url in teamtable %}
             <div class="teamGrid mx-3">
                 <div class="teamHeadshot">
-                    <img src="{{ url }}" alt="Team Image" onerror="this.onerror=null;this.className='defaultImage';this.src='https://storage.googleapis.com/support-forums-api/attachment/thread-120988-16861902392288249134.png';" class="playerHeadshot">
-                </div>
+                    <img src="{{ url_for('static', filename='img/' + url) }}" alt="Team Image" onerror="this.onerror=null; this.className='defaultImage'; this.src='https://storage.googleapis.com/support-forums-api/attachment/thread-120988-16861902392288249134.png';" class="teamHeadshot">                </div>
                 <div class="teamTable">
                     {{ table|safe }}
                 </div>
@@ -161,15 +170,27 @@
         <br>
         {% endfor %}
 
-        <form action="/protected" method="POST">
-            <div class="mx-3">
-                <button type="submit" value="return" name="Submit" class="btn btn-grayish btn-lg btn-block">Return to Search</button>
-            </div>
-        </form>
+        <div class="mx-3">
+            <a href="/protected">
+                <button id="returnToSearchButton" class="btn btn-grayish btn-lg btn-block">Return to Search</button>
+                <form action="/protected" method="POST">
+                    <button type="submit" value="Log Out" name="Submit" class="btn btn-outline-danger fixed-element">Log Out</button>
+                </form>
+            </a>
+        </div>
 
         {% endblock %}
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                document.getElementById('returnToSearchButton').click();k
+            }
+        });
+    </script>
+
 </body>
 </html>
