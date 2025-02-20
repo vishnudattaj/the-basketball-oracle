@@ -507,9 +507,16 @@ def scoreboardData():
             teamName = team['team']['name']
             team_dict = teams.find_teams_by_full_name(teamName)
             team_abbreviation = team_dict[0]["abbreviation"]
-            scoreDict[home_away_list[home_away] + ' Team'] = teamName
-            scoreDict[home_away_list[home_away] + ' Logo'] = f'{team_abbreviation.lower()}.png'
+            if team_abbreviation == 'PHX':
+                team_abbreviation = 'PHO'
+            elif team_abbreviation == 'NOP':
+                team_abbreviation = 'NO'
+            elif team_abbreviation == 'UTA':
+                team_abbreviation = 'UTAH'
+            scoreDict[home_away_list[home_away] + ' Team'] = team_abbreviation
+            scoreDict[home_away_list[home_away] + ' Logo'] = f"https://a.espncdn.com/combiner/i?img=/i/teamlogos/nba/500/{team_abbreviation}.png&h=40&w=40"
             scoreDict[home_away_list[home_away] + ' Score'] = team['score']
+            scoreDict[home_away_list[home_away] + ' Record'] = team['records'][0]['summary']
             home_away += 1
         scoreData.append(scoreDict)
 
@@ -528,7 +535,7 @@ def scoreboardData():
         scoreDict['Date'] = date
         scoreDict['Status'] = status
         gameData.append(scoreDict)
-    print(gameData)
+        dictIndex += 1
     if len(gameData) == 0:
         gameData.append({'Status': 'No Games Scheduled Today'})
     return gameData

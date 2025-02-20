@@ -266,6 +266,7 @@
         }
 
         .upcoming-game .score {
+            font-size: 15px;
             color: #999;
         }
 
@@ -368,7 +369,7 @@
                                     <div class="team-container">
                                         <a href="/teams/{{ game['Home Team'] }}">
                                             <div class="team-info">
-                                                <div class="team-logo" style="background-image: url('{{ url_for('static', filename='img/' + game['Home Logo']) }}');"></div>
+                                                <div class="team-logo" style="background-image: url({{ game['Home Logo'] }});"></div>
                                                 <div class="team-name">{{ game['Home Team'] }}</div>
                                                 <div class="score">{{ game['Home Score'] }}</div>
                                             </div>
@@ -381,7 +382,7 @@
                                     <div class="team-container">
                                         <a href="/teams/{{ game['Away Team'] }}">
                                             <div class="team-info">
-                                                <div class="team-logo" style="background-image: url('{{ url_for('static', filename='img/' + game['Away Logo']) }}');"></div>
+                                                <div class="team-logo" style="background-image: url({{ game['Away Logo'] }});"></div>
                                                 <div class="team-name">{{ game['Away Team'] }}</div>
                                                 <div class="score">{{ game['Away Score'] }}</div>
                                             </div>
@@ -402,7 +403,7 @@
                                     <div class="team-container">
                                         <a href="/teams/{{ game['Home Team'] }}">
                                             <div class="team-info">
-                                                <div class="team-logo" style="background-image: url('{{ url_for('static', filename='img/' + game['Home Logo']) }}');"></div>
+                                                <div class="team-logo" style="background-image: url({{ game['Home Logo'] }});"></div>
                                                 <div class="team-name">{{ game['Home Team'] }}</div>
                                                 <div class="score">{{ game['Home Score'] }}</div>
                                             </div>
@@ -414,9 +415,9 @@
                                     <div class="team-container">
                                         <a href="/teams/{{ game['Away Team'] }}">
                                             <div class="team-info">
-                                                <div class="team-logo" style="background-image: url('{{ url_for('static', filename='img/' + game['Away Logo']) }}');"></div>
+                                                <div class="team-logo" style="background-image: url({{ game['Away Logo'] }}) }}');"></div>
                                                 <div class="team-name">{{ game['Away Team'] }}</div>
-                                                <div class="score">{{ game['Away Score'] }}</div>
+                                                <div>{{ game['Away Score'] }}</div>
                                             </div>
                                         </a>
                                     </div>
@@ -434,9 +435,9 @@
                                     <div class="team-container">
                                         <a href="/teams/{{ game['Home Team'] }}">
                                             <div class="team-info">
-                                                <div class="team-logo" style="background-image: url('{{ url_for('static', filename='img/' + game['Home Logo']) }}');"></div>
+                                                <div class="team-logo" style="background-image: url({{ game['Home Logo'] }});"></div>
                                                 <div class="team-name">{{ game['Home Team'] }}</div>
-                                                <div class="score">-</div>
+                                                <div class="score">{{ game['Home Record'] }}</div>
                                             </div>
                                         </a>
                                     </div>
@@ -444,11 +445,11 @@
                                         <div class="quarter">VS</div>
                                     </div>
                                     <div class="team-container">
-                                        <a href="/teams/{{ game['Home Team'] }}">
+                                        <a href="/teams/{{ game['Away Team'] }}">
                                             <div class="team-info">
-                                                <div class="team-logo" style="background-image: url('{{ url_for('static', filename='img/' + game['Away Logo']) }}');"></div>
+                                                <div class="team-logo" style="background-image: url({{ game['Away Logo'] }});"></div>
                                                 <div class="team-name">{{ game['Away Team'] }}</div>
-                                                <div class="score">-</div>
+                                                <div class="score">{{ game['Away Record'] }}</div>
                                             </div>
                                         </a>
                                     </div>
