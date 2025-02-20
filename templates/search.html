@@ -12,6 +12,7 @@
       href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"
     />
     <style>
+        /* Existing styles */
         table {
             text-align: center;
         }
@@ -109,49 +110,359 @@
             grid-template-rows: 0.35fr 4fr;
         }
 
+        /* Improved carousel styles */
         .topBar {
             display: flex;
             grid-row: 1;
-            background-color: #ECECEC;
+            background-color: #f8f9fa;
+            color: #333;
+            height: 80px;
+            align-items: center;
+            border-bottom: 1px solid #e5e5e5;
+            padding: 0;
+            overflow: hidden;
+            position: relative;
         }
 
-        .card {
+        .scorecards-wrapper {
             display: flex;
-            flex-basis: 7%;
-            background-color: #ffffff;
-            border-right: 1px solid black;
-            border-left: 1px solid black;
+            width: 100%;
+            position: relative;
         }
 
-        .card > * {
+        .scorecards-container {
+            display: flex;
+            width: calc(100% - 100px); /* Make room for navigation buttons */
+            margin: 0 auto;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .scorecards-slider {
+            display: flex;
+            transition: transform 0.3s ease;
+            width: 100%;
+        }
+
+        .scorecard {
+            min-width: calc(100% / 5 - 12px); /* Display exactly 5 cards */
+            max-width: calc(100% / 5 - 12px);
+            height: 65px;
+            margin-right: 15px;
+            background-color: white;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+            flex-shrink: 0;
+        }
+
+        .scorecard:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: #f9f9f9;
+        }
+
+        .scorecard-header {
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 6px 6px 0 0;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            color: #666;
+        }
+
+        .scorecard-body {
+            display: flex;
+            height: 45px;
+            padding: 0 10px;
+        }
+
+        .team-container {
+            display: flex;
+            flex: 1;
+            align-items: center;
+        }
+
+        .team-info {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .team-logo {
+            width: 25px;
+            height: 25px;
+            margin-right: 8px;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            flex-shrink: 0;
+        }
+
+        .team-name {
+            font-weight: 600;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 65px; /* Fixed width for team names */
+            color: #333;
+        }
+
+        .score {
+            font-weight: 700;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            width: 30px;
+            justify-content: flex-end;
+            margin-left: auto;
+            color: #222;
+            flex-shrink: 0;
+        }
+
+        .game-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0 10px;
+            min-width: 45px;
+            flex-shrink: 0;
+        }
+
+        .quarter {
+            font-weight: 700;
+            font-size: 14px;
+            color: #444;
+        }
+
+        .time {
+            font-size: 12px;
+            color: #FF0000;
+        }
+
+        .live-indicator {
+            position: absolute;
+            top: 5px;          /* Changed from -5px */
+            right: 5px;        /* Changed from -5px */
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #FF0000;
+            animation: pulse 1.5s infinite;
+            z-index: 10;       /* Add z-index to ensure it's on top */
+        }
+
+        .upcoming-game {
+            color: #777;
+        }
+
+        .upcoming-game .score {
+            color: #999;
+        }
+
+        .final-game .scorecard-header {
+            background-color: #e0e0e0;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
+
+        /* Improved navigation controls */
+        .nav-controls {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            padding: 0 10px;
+            z-index: 10;
+        }
+
+        .nav-button {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(233, 236, 239, 0.8);
+            border-radius: 50%;
+            cursor: pointer;
+            color: #555;
+            pointer-events: auto;
+            z-index: 10;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .nav-button:hover {
+            background-color: rgba(222, 226, 230, 0.9);
+        }
+
+        .nav-button.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .centerText {
+            text-align: center;
+            display: flex;
             align-items: center;
             justify-content: center;
             height: 100%;
+            width: 100%;
+            flex-grow: 1;
         }
 
-        .centerBar {
+        /* Add indicators for carousel position */
+        .carousel-indicators {
+            position: absolute;
+            bottom: 0px;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100%;
+            gap: 5px;
+            z-index: 5;
         }
 
-        .bottomSection {
-            grid-row: 2 / 4;
-        }
     </style>
 </head>
 <body class="grid">
     <div class="topBar">
-        <div class="card">
-            <div>
-                <h7 class="centerBar">Games</h7>
+        <div class="scorecards-wrapper">
+            <div class="nav-controls">
+                <div class="nav-button" id="prevButton">
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                <div class="nav-button" id="nextButton">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
             </div>
-            <div>
-                <h7 class="centerBar">Games</h7>
+
+            <div class="scorecards-container">
+                <div class="scorecards-slider" id="scorecardsSlider">
+                    {% for game in scoreboard %}
+                        {% if game['Status'] == 'No Games Scheduled Today' %}
+                            <h6 class="centerText">{{ game['Status'] }}</h6>
+                        {% endif %}
+                        {% if game['Status'] == 'in' %}
+                            <div class="scorecard">
+                                <div class="live-indicator"></div>
+                                <div class="scorecard-header">
+                                    <span>NBA</span>
+                                    <span>IN PROGRESS&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                                </div>
+                                <div class="scorecard-body">
+                                    <div class="team-container">
+                                        <a href="/teams/{{ game['Home Team'] }}">
+                                            <div class="team-info">
+                                                <div class="team-logo" style="background-image: url('{{ url_for('static', filename='img/' + game['Home Logo']) }}');"></div>
+                                                <div class="team-name">{{ game['Home Team'] }}</div>
+                                                <div class="score">{{ game['Home Score'] }}</div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <div class="game-info">
+                                        <div class="quarter">{{ game['Quarter'] }}</div>
+                                        <div class="time">{{ game['Clock'] }}</div>
+                                    </div>
+                                    <div class="team-container">
+                                        <a href="/teams/{{ game['Away Team'] }}">
+                                            <div class="team-info">
+                                                <div class="team-logo" style="background-image: url('{{ url_for('static', filename='img/' + game['Away Logo']) }}');"></div>
+                                                <div class="team-name">{{ game['Away Team'] }}</div>
+                                                <div class="score">{{ game['Away Score'] }}</div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+
+
+                        {% if game['Status'] == 'post' %}
+                            <div class="scorecard final-game">
+                                <div class="scorecard-header">
+                                    <span>NBA</span>
+                                    <span>FINAL</span>
+                                </div>
+                                <div class="scorecard-body">
+                                    <div class="team-container">
+                                        <a href="/teams/{{ game['Home Team'] }}">
+                                            <div class="team-info">
+                                                <div class="team-logo" style="background-image: url('{{ url_for('static', filename='img/' + game['Home Logo']) }}');"></div>
+                                                <div class="team-name">{{ game['Home Team'] }}</div>
+                                                <div class="score">{{ game['Home Score'] }}</div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <div class="game-info">
+                                        <div class="quarter">F</div>
+                                    </div>
+                                    <div class="team-container">
+                                        <a href="/teams/{{ game['Away Team'] }}">
+                                            <div class="team-info">
+                                                <div class="team-logo" style="background-image: url('{{ url_for('static', filename='img/' + game['Away Logo']) }}');"></div>
+                                                <div class="team-name">{{ game['Away Team'] }}</div>
+                                                <div class="score">{{ game['Away Score'] }}</div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if game['Status'] == 'pre' %}
+                            <div class="scorecard upcoming-game">
+                                <div class="scorecard-header">
+                                    <span>NBA</span>
+                                    <span>{{ game['Date'] }}</span>
+                                </div>
+                                <div class="scorecard-body">
+                                    <div class="team-container">
+                                        <a href="/teams/{{ game['Home Team'] }}">
+                                            <div class="team-info">
+                                                <div class="team-logo" style="background-image: url('{{ url_for('static', filename='img/' + game['Home Logo']) }}');"></div>
+                                                <div class="team-name">{{ game['Home Team'] }}</div>
+                                                <div class="score">-</div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <div class="game-info">
+                                        <div class="quarter">VS</div>
+                                    </div>
+                                    <div class="team-container">
+                                        <a href="/teams/{{ game['Home Team'] }}">
+                                            <div class="team-info">
+                                                <div class="team-logo" style="background-image: url('{{ url_for('static', filename='img/' + game['Away Logo']) }}');"></div>
+                                                <div class="team-name">{{ game['Away Team'] }}</div>
+                                                <div class="score">-</div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
             </div>
+
+            <div class="carousel-indicators" id="carouselIndicators"></div>
         </div>
     </div>
+
     <div class="container-sm py-5 h-100 bottomSection">
         {% block body %}
 
@@ -183,6 +494,99 @@
 
         {% endblock %}
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const slider = document.getElementById('scorecardsSlider');
+        const prevButton = document.getElementById('prevButton');
+        const nextButton = document.getElementById('nextButton');
+        const container = document.querySelector('.scorecards-container');
+        const scorecards = document.querySelectorAll('.scorecard');
+        const indicatorsContainer = document.getElementById('carouselIndicators');
+
+        // Set hard limit of 5 visible cards at a time
+        const visibleCards = 5;
+
+        // Calculate total number of cards
+        const totalCards = scorecards.length;
+
+        // Skip carousel setup if 5 or fewer cards
+        if (totalCards <= visibleCards) {
+            prevButton.style.display = 'none';
+            nextButton.style.display = 'none';
+            return;
+        }
+
+        // Calculate total number of pages
+        const totalPages = Math.ceil(totalCards / visibleCards);
+
+        // Current page
+        let currentPage = 0;
+
+        // Calculate card width based on container width
+        function updateCardWidth() {
+            const containerWidth = container.clientWidth;
+            const cardWidth = (containerWidth / visibleCards) - 12; // Accounting for margin
+
+            scorecards.forEach(card => {
+                card.style.minWidth = `${cardWidth}px`;
+                card.style.maxWidth = `${cardWidth}px`;
+            });
+
+            return cardWidth;
+        }
+
+        // Initial card width setup
+        let cardWidth = updateCardWidth();
+
+        // Function to move to a specific page
+        function goToPage(page) {
+            // Ensure page is within bounds
+            page = Math.max(0, Math.min(page, totalPages - 1));
+
+            // Update current page
+            currentPage = page;
+
+            // Calculate position
+            const position = page * (visibleCards * (cardWidth + 15)); // Include margin
+
+            // Move slider
+            slider.style.transform = `translateX(-${position}px)`;
+
+            // Update button states
+            updateButtonStates();
+        }
+
+        // Update buttons state
+        function updateButtonStates() {
+            prevButton.classList.toggle('disabled', currentPage <= 0);
+            nextButton.classList.toggle('disabled', currentPage >= totalPages - 1);
+        }
+
+        // Initialize button states
+        updateButtonStates();
+
+        // Previous button click handler
+        prevButton.addEventListener('click', function() {
+            if (currentPage > 0) {
+                goToPage(currentPage - 1);
+            }
+        });
+
+        // Next button click handler
+        nextButton.addEventListener('click', function() {
+            if (currentPage < totalPages - 1) {
+                goToPage(currentPage + 1);
+            }
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            cardWidth = updateCardWidth();
+            goToPage(currentPage); // Refresh current page position
+        });
+    });
+    </script>
 </body>
 </html>

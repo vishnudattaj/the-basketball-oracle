@@ -429,7 +429,7 @@ def protected():
                     return render_template('search.html', save=flask_login.current_user.id, badPlayer=badRequestPlayer, standings=standingsHTML())
     # Returns search.html if method is GET instead of POST
     else:
-        return render_template('search.html', save=flask_login.current_user.id, standings=standingsHTML())
+        return render_template('search.html', save=flask_login.current_user.id, standings=standingsHTML(), scoreboard=scoreboardData())
 
 def standingsHTML():
     standings = leaguestandings.LeagueStandings()
@@ -490,6 +490,48 @@ def teamHTML(team):
     team_url = f'{team_abbreviation.lower()}.png'
     return render_template('dataTable.html', save=flask_login.current_user.id, teamtable=zip([team_table], [team_url]))
 
+def scoreboardData():
+    url = "http://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
+    response = requests.get(url).json()
+
+    events = response.get("events", [])
+
+    scoreboard = pd.DataFrame(events)
+
+    scoreData = []
+    home_away_list = ['Home', 'Away']
+    for score in scoreboard['competitions']:
+        scoreDict = {}
+        home_away = 0
+        for team in score[0]['competitors']:
+            teamName = team['team']['name']
+            team_dict = teams.find_teams_by_full_name(teamName)
+            team_abbreviation = team_dict[0]["abbreviation"]
+            scoreDict[home_away_list[home_away] + ' Team'] = teamName
+            scoreDict[home_away_list[home_away] + ' Logo'] = f'{team_abbreviation.lower()}.png'
+            scoreDict[home_away_list[home_away] + ' Score'] = team['score']
+            home_away += 1
+        scoreData.append(scoreDict)
+
+    gameData = []
+    dictIndex = 0
+    for time in scoreboard['status']:
+        scoreDict = scoreData[dictIndex]
+        period = time['period']
+        displayClock = time['displayClock']
+        date = time['type']['shortDetail']
+        status = time['type']['state']
+        if status == "pre":
+            date = "TODAY, " + date.split(" - ")[1]
+        scoreDict['Quarter'] = 'Q' + str(period)
+        scoreDict['Clock'] = displayClock
+        scoreDict['Date'] = date
+        scoreDict['Status'] = status
+        gameData.append(scoreDict)
+    print(gameData)
+    if len(gameData) == 0:
+        gameData.append({'Status': 'No Games Scheduled Today'})
+    return gameData
 
 # Runs app in debug mode
 if __name__ == "__main__":
