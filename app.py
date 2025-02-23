@@ -22,7 +22,6 @@ load_dotenv()
 
 # Sets Up The Flask App
 app = Flask(__name__)
-app.config['RECAPTCHA_SITE_KEY'] = os.getenv('RECAPTCHA_SITE_KEY')
 app.secret_key = os.getenv('FLASK_SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///login.db'
 db = SQLAlchemy(app)
