@@ -41,7 +41,14 @@ tr {
 .standingsTable {
     overflow-y: auto;
     grid-row: 1 / 3;
-    max-height: 67.2vh;
+}
+
+.table-vh-1 {
+  max-height: 67.3vh;
+}
+
+.table-vh-1_25 {
+  max-height: 55.7vh;
 }
 
 .standingsTable td, .standingsTable tr {

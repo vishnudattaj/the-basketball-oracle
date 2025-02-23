@@ -514,18 +514,18 @@ def predictPlayer(player_name):
     predict = xgb.predict(data[['PastPPG', 'PastRPG', 'PastAPG', 'PastSPG', 'PastBPG', 'PastAGE']])
     newRow = pd.DataFrame({
         'SEASON_ID': [str(season) + "-" + str(season + 1)[2:4]],
-        'TEAM_ABBREVIATION': [None],
+        'TEAM_ABBREVIATION': ['-'],
         'PLAYER_AGE': [player_basic['Age'] + 1],
-        'GP': [None],
-        'GS': [None],
+        'GP': ['-'],
+        'GS': ['-'],
         'PTS': [str(round(predict[0][0], 1))],
         'REB': [str(round(predict[0][1], 1))],
         'AST': [str(round(predict[0][2], 1))],
         'STL': [str(round(predict[0][3], 1))],
         'BLK': [str(round(predict[0][4], 1))],
-        'FG_PCT': [None],
-        'FG3_PCT': [None],
-        'FT_PCT': [None]
+        'FG_PCT': ['-'],
+        'FG3_PCT': ['-'],
+        'FT_PCT': ['-']
     })
 
     return newRow, matched_category

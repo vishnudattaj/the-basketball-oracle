@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/Flask_Login.iml" filepath="$PROJECT_DIR$/.idea/Flask_Login.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/basketball-oracle.iml" filepath="$PROJECT_DIR$/.idea/basketball-oracle.iml" />
     </modules>
   </component>
 </project>

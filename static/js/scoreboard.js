@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const container = document.querySelector('.scorecards-container');
     const scorecards = document.querySelectorAll('.scorecard');
     const indicatorsContainer = document.getElementById('carouselIndicators');
-
     let visibleCards;
 
     if (window.devicePixelRatio >= 1.24 && window.devicePixelRatio <= 1.26) {
@@ -77,4 +76,17 @@ document.addEventListener('DOMContentLoaded', function() {
         cardWidth = updateCardWidth();
         goToPage(currentPage);
     });
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+  const pixelRatio = window.devicePixelRatio;
+  const tables = document.querySelectorAll('.standingsTable');
+
+  tables.forEach((table) => {
+    if (pixelRatio === 1) {
+      table.classList.add('table-vh-1')
+    } else if (pixelRatio === 1.25) {
+      table.classList.add('table-vh-1_25')
+    }
+  });
 });

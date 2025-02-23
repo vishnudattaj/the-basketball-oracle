@@ -78,6 +78,10 @@ th:not([colspan]) {
     z-index: 10;
 }
 
+td {
+    text-align: center;
+}
+
 .playerTable table, .futureTable table, .teamTable table {
     width: 100%;
     margin-bottom: 0;

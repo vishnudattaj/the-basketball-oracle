@@ -93,6 +93,10 @@ th[colspan] {
     z-index: 11;
 }
 
+td {
+    text-align: center;
+}
+
 th:not([colspan]) {
     background-color: white;
     position: sticky;
@@ -121,6 +125,10 @@ th:not([colspan]) {
   padding: 20px;
   background-color: #f44336;
   color: white;
+}
+
+#returnToSearchButton:hover {
+    background-color: #2F2F2F;
 }
 
 .closebtn {
