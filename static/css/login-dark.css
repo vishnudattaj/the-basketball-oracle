@@ -1,0 +1,73 @@
+.vh-100 {
+    background-color: #151516;
+}
+
+.btn-danger {
+    background-color: #f93154;
+}
+
+.card {
+    background-color: #202124;
+    color: white;
+}
+
+.form-label {
+    color: white;
+}
+
+.form-control, .form-control:focus {
+    border: 1px solid white !important;
+    color: white;
+}
+
+h7 {
+    color: #777777;
+}
+
+h5 {
+    color: #FF474C !important;
+}
+
+.theme-toggle {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #111;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+
+.theme-toggle.light {
+  background-color: #eee;
+}
+
+.toggle-icon {
+  font-size: 16px;
+  transition: opacity 0.2s ease;
+}
+
+.sun {
+  color: #fff;
+  opacity: 1;
+}
+
+.moon {
+  color: #000;
+  position: absolute;
+  opacity: 0;
+}
+
+.theme-toggle.light .sun {
+  opacity: 0;
+}
+
+.theme-toggle.light .moon {
+  opacity: 1;
+}

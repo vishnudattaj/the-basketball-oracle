@@ -17,84 +17,64 @@
     />
     <!-- MDB -->
     <link rel="stylesheet" href="{{ url_for('static',filename='css/mdb.min.css') }}" />
+
+    <!-- Theme stylesheets -->
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/login-dark.css') }}" id="dark-theme" />
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/login-light.css') }}" id="light-theme" disabled />
   </head>
   <body>
+    <!-- Theme toggle button -->
+    <div class="theme-toggle" id="themeToggle">
+      <div class="toggle-icon sun">☀</div>
+      <div class="toggle-icon moon">☾</div>
+    </div>
+
     <!-- Start your project here-->
-  <section class="vh-100" style="background-color: #508bfc;">
-    <div class="container py-5 h-100">
-      <div class="row d-flex justify-content-center align-items-center h-100">
-        <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-          <div class="card shadow-2-strong" style="border-radius: 1rem;">
-            <div class="card-body p-5 text-center">
+    <section class="vh-100">
+      <div class="container h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+          <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+            <div class="card shadow-2-strong" style="border-radius: 1rem;">
+              <div class="card-body p-5 text-center">
 
-              <h3 class="mb-5">Sign Up</h3>
-            <form action="/signup" method="POST">
-              <div class="form-outline mb-4">
-                <label style="float: left" class="form-label" for="typeEmailX-2">Username</label>
-                &nbsp<input style="border: 1px solid #000000" type="text" id="typeEmailX-2" name="username" class="form-control form-control-lg" />
+                <h3 class="mb-5">Sign Up</h3>
+              <form action="/signup" method="POST">
+                <div class="form-outline mb-4">
+                  <input style="border: 1px solid #000000" type="text" id="typeEmailX-2" name="username" class="form-control form-control-lg" placeholder="Username"/>
+                </div>
+
+                <div class="form-outline mb-4">
+                  <input style="border: 1px solid #000000" type="password" id="typePasswordX-2" name="password" class="form-control form-control-lg" oninput="colorChanger()" placeholder="Password"/>
+                </div>
+
+                <div class="form-outline mb-4">
+                  <input style="border: 1px solid #000000" type="password" id="typePasswordX-3" name="confirmpassword" class="form-control form-control-lg" oninput="colorChanger()" placeholder="Confirm Password"/>
+                </div>
+
+                <!-- Checkbox -->
+              <div class="form-check d-flex justify-content-start mb-4">
+                <input class="form-check-input" type="checkbox" value="" id="form1Example3" onclick="myFunction()"/>
+                <label class="form-check-label" for="form1Example3"> Show Password </label>
               </div>
 
-              <div class="form-outline mb-4">
-                <label style="float: left" class="form-label" for="typePasswordX-2">Password</label>
-                &nbsp<input style="border: 1px solid #000000" type="password" id="typePasswordX-2" name="password" class="form-control form-control-lg" oninput="colorChanger()"/>
+                <button class="btn btn-danger btn-lg btn-block" type="submit" value="LOGIN">Sign Up</button>
+
+                <hr class="my-4">
+
+                <h7> Already have an account? Click <a href="/">here</a>! </h7>
+              </form>
+
               </div>
-
-              <div class="form-outline mb-4">
-                <label style="float: left" class="form-label" for="typePasswordX-3">Confirm Password</label>
-                &nbsp<input style="border: 1px solid #000000" type="password" id="typePasswordX-3" name="confirmpassword" class="form-control form-control-lg" oninput="colorChanger()"/>
-              </div>
-
-              <!-- Checkbox -->
-            <div class="form-check d-flex justify-content-start mb-4">
-              <input class="form-check-input" type="checkbox" value="" id="form1Example3" onclick="myFunction()"/>
-              <script type = "text/javascript">
-               function myFunction() {
-                var x = document.getElementById("typePasswordX-2");
-                var y = document.getElementById("typePasswordX-3");
-                if (x.type === "password") {
-                  x.type = "text";
-                  y.type = "text";
-                } else {
-                  x.type = "password";
-                  y.type = "password";
-                }
-              }
-                function colorChanger() {
-                  var x = document.getElementById("typePasswordX-2");
-                  var y = document.getElementById("typePasswordX-3");
-                  if (x.value === y.value) {
-                    x.style = "border: 4px solid #11910060";
-                    y.style = "border: 4px solid #11910060";
-                  } else if (y.value === x.value){
-                    x.style = "border: 4px solid #11910060";
-                    y.style = "border: 4px solid #11910060";
-                  } else {
-                    x.style = "border: 4px solid #ff000060";
-                    y.style = "border: 4px solid #ff000060";
-                  }
-              }
-              </script>
-              <label class="form-check-label" for="form1Example3"> Show Password </label>
-            </div>
-
-              <button class="btn btn-primary btn-lg btn-block" type="submit" value="LOGIN">Sign Up</button>
-
-              <hr class="my-4">
-
-              <h5> Already have an account? Click <a href="/">here</a>! </h5>
-            </form>
-
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
     <!-- End your project here-->
 
     <!-- MDB -->
-    <script type="text/javascript" src="js/mdb.min.js"></script>
-    <!-- Custom scripts -->
-    <script type="text/javascript"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='js/mdb.min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='js/modeToggle.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static',filename='js/passwordReveal.js') }}"></script>
   </body>
 </html>
