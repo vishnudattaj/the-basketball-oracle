@@ -360,18 +360,20 @@ def create_link(name):
 @app.route('/teams/<string:team>', methods=['GET', 'POST'])
 @flask_login.login_required
 def teamHTML(team):
-    print(team)
-    team_dict = teams.find_teams_by_full_name(team)
-    team_abbreviation = team_dict[0]["abbreviation"]
-    team_id = team_dict[0]["id"]
-    team_roster = commonteamroster.CommonTeamRoster(team_id=team_id)
-    teamdf = team_roster.get_data_frames()
-    teamselection = teamdf[0][
-        ['PLAYER', 'NUM', 'POSITION', 'HEIGHT', 'WEIGHT', 'AGE', 'EXP', 'SCHOOL', 'HOW_ACQUIRED']]
-    teamselection = pandas.concat([teamselection], keys=["Team Roster"], axis=1)
-    team_table = teamselection.to_html(classes='table table-striped', index=False)
-    team_url = f'{team_abbreviation.lower()}.png'
-    return render_template('dataTable.html', save=flask_login.current_user.id, teamtable=zip([team_table], [team_url]), scoreboard=scoreboardData())
+    try:
+        team_dict = teams.find_teams_by_full_name(team)
+        team_abbreviation = team_dict[0]["abbreviation"]
+        team_id = team_dict[0]["id"]
+        team_roster = commonteamroster.CommonTeamRoster(team_id=team_id)
+        teamdf = team_roster.get_data_frames()
+        teamselection = teamdf[0][
+            ['PLAYER', 'NUM', 'POSITION', 'HEIGHT', 'WEIGHT', 'AGE', 'EXP', 'SCHOOL', 'HOW_ACQUIRED']]
+        teamselection = pandas.concat([teamselection], keys=["Team Roster"], axis=1)
+        team_table = teamselection.to_html(classes='table table-striped', index=False)
+        team_url = f'{team_abbreviation.lower()}.png'
+        return render_template('dataTable.html', save=flask_login.current_user.id, teamtable=zip([team_table], [team_url]), scoreboard=scoreboardData())
+    except IndexError:
+        return redirect(url_for('protected'))
 
 def scoreboardData():
     url = "http://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
