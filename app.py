@@ -15,11 +15,15 @@ import dcl
 import re
 import base64
 import rembg
+from dotenv import load_dotenv
+import os
 
-# Sets up the flask app
+load_dotenv()
+
+# Sets Up The Flask App
 app = Flask(__name__)
-app.config['RECAPTCHA_S8ITE_KEY'] = '6LcYcEohAAAAANVL5nwJ25oOM488BPaC9bujC-94'
-app.secret_key = '6LcYcEohAAAAAJ5JeDLnVKReHLj0ZIkeo7FgilZB'
+app.config['RECAPTCHA_SITE_KEY'] = os.getenv('RECAPTCHA_SITE_KEY')
+app.secret_key = os.getenv('FLASK_SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///login.db'
 db = SQLAlchemy(app)
 
