@@ -4,6 +4,8 @@ Basketball Oracle is the ultimate basketball website that allows users to view N
 
 **Link to Website:** COMING SOON
 
+---
+
 ## How It's Made 🔧
 
 **Tech Stack:** Flask, Python, HTML, CSS, JavaScript
@@ -14,6 +16,24 @@ To classify players into categories, I used KMeans clustering with scikit-learn.
 
 **Link to Dataset:** [Kaggle Dataset](https://www.kaggle.com/datasets/sumitrodatta/nba-aba-baa-stats)
 
-## Lessons Learned 📚
+---
 
-This project taught me how to create a Flask framework to display HTML templates. I also gained experience in web scraping using the BeautifulSoup and Requests libraries. Additionally, I learned the basics of machine learning, including testing and training data, using metrics such as scikit-learn's cross-validation score, and working with different models like KMeans and XGBoost. Furthermore, I improved my skills in creating visually appealing and functional HTML templates.
+## Usage 📚
+
+To use the features, first, you need to **log in** or **create an account** if you don't already have one. After logging in:
+
+- **Player Search:** Use the search bar to type in the name of any NBA player to see their current stats and future predictions for the upcoming season.
+- **Team Information:** You can click on any team name in the standings or scoreboard to view their **roster**, including player stats and career information.
+- **Scoreboard:** View the **live scores** of NBA games and click on the team names to see detailed roster information for each team playing today.
+
+---
+
+## Features ✨
+
+- **Player Stats & Predictions:** Access detailed player stats, including points, assists, rebounds, steals, and blocks. Predict future stats based on past performance using machine learning models.
+- **NBA Standings:** View the current NBA standings, sorted by conference and division.
+- **Today's Scores:** Stay up-to-date with live scores of today's NBA games.
+- **Team Rosters:** Click on any team in the standings or scoreboard to view detailed information about the team's roster.
+- **Player Search:** Quickly search for any player to view their current and past performance.
+- **Dark/Light Mode:** Switch between dark and light modes for a more personalized browsing experience.
+- **Password Protection:** A secure password feature ensures only authorized users can access certain data or sections of the site.
