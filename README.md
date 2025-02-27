@@ -16,6 +16,8 @@ To classify players into categories, I used KMeans clustering with scikit-learn.
 
 **Link to Dataset:** [Kaggle Dataset](https://www.kaggle.com/datasets/sumitrodatta/nba-aba-baa-stats)
 
+**NBA Data Source:** The player and team data is sourced from the [nba_api](https://github.com/swar/nba_api), a Python library that provides access to the NBA's official API.
+
 ---
 
 ## Usage 📚
