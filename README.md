@@ -25,7 +25,7 @@ To classify players into categories, I used KMeans clustering with scikit-learn.
 To use the features, first, you need to **log in** or **create an account** if you don't already have one. After logging in:
 
 - **Player Search:** Use the search bar to type in the name of any NBA player to see their current stats and future predictions for the upcoming season.
-- **Team Information:** You can click on any team name in the standings or scoreboard to view their **roster**, including player stats and career information.
+- **Team Information:** You can click on any team name in the standings or scoreboard to view their **roster**, which also includes basic player information such as height and weight.
 - **Scoreboard:** View the **live scores** of NBA games and click on the team names to see detailed roster information for each team playing today.
 
 ---
