@@ -74,9 +74,13 @@ else:
     advanced = f"https://www.basketball-reference.com/leagues/NBA_{yr}_advanced.html"
     season = yr
 
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+}
+
 # Requests the page based on the above urls
-basic_page = requests.get(basic)
-advanced_page = requests.get(advanced)
+basic_page = requests.get(basic, headers=headers)
+advanced_page = requests.get(advanced, headers=headers)
 
 # Sets up beautiful soup object
 basic_soup = BeautifulSoup(basic_page.content, "html.parser")
@@ -240,7 +244,7 @@ def protected():
                             playerCategoryZip.append("Retired")
                             player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False), 'Predictions': 'No'})
                         # Converts dataframe into a html table and adds it to the list
-                        url = f"https://www.basketball-reference.com/req/202106291/images/headshots/{playerLast + playerFirst}01.jpg"
+                        url = returnUrl(playerFirst, playerLast, player_name)
                         img = remove_background_ml(url)
                         playerNameZip.append(player_name)
                         player_url.append(f"data:image/png;base64,{img}")
@@ -297,7 +301,7 @@ def protected():
                             playerCategoryZip.append("Retired")
                             player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False), 'Predictions': 'No'})
                         # Converts dataframe into a html table and adds it to the list
-                        url = f"https://www.basketball-reference.com/req/202106291/images/headshots/{playerLast + playerFirst}01.jpg"
+                        url = returnUrl(playerFirst, playerLast, player_name)
                         img = remove_background_ml(url)
                         playerNameZip.append(player_name)
                         player_url.append(f"data:image/png;base64,{img}")
@@ -550,6 +554,19 @@ def createPlayerDf(player_id):
     playerselection = pandas.concat([playerselection], keys=["Player History"], axis=1)
 
     return playerselection
+
+def returnUrl(first, last, name):
+    for i in range(3):
+        playerUrl = f"https://www.basketball-reference.com/players/{last[0]}/{last + first}0{i + 1}.html"
+        response = requests.get(playerUrl, headers=headers)
+        soup = BeautifulSoup(response.text, 'html.parser')
+        h1_tag = soup.find('h1')
+        if h1_tag:
+            span_tag = h1_tag.find('span')
+            if span_tag:
+                fullName = span_tag.text.split(" ")[0]
+                if fullName == name.split(" ")[0]:
+                    return f"https://www.basketball-reference.com/req/202106291/images/headshots/{last + first}0{i + 1}.jpg"
 
 # Runs app in debug mode
 if __name__ == "__main__":

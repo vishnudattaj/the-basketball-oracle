@@ -172,12 +172,6 @@ tr {
     flex-shrink: 0;
 }
 
-.scorecard:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    background-color: #202124;
-}
-
 .scorecard-header {
     height: 20px;
     background-color: #666666;
@@ -350,8 +344,8 @@ tr {
 
 .theme-toggle {
   position: fixed;
-  bottom: 20px;
-  left: 20px;
+  bottom: 10px;
+  left: 10px;
   width: 36px;
   height: 36px;
   border-radius: 50%;

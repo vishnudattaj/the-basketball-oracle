@@ -36,11 +36,18 @@ body {
 .playerTable {
     grid-column: 2;
     grid-row: 1;
-    max-height: 40vh;
     overflow-y: auto;
     border: 1px solid #e0e0e0;
     border-radius: 4px;
     margin-bottom: 15px;
+}
+
+.table-vh-1 {
+  max-height: 48vh;
+}
+
+.table-vh-1_25 {
+  max-height: 40vh;
 }
 
 .playerTable *, .teamTable *, .futureTable * {
@@ -71,7 +78,7 @@ body {
 .teamTable {
     grid-column: 2;
     grid-row: 1;
-    max-height: 43vh;
+    max-height: 67vh;
     overflow-y: auto;
     border: 1px solid #e0e0e0;
     border-radius: 4px;
@@ -128,7 +135,17 @@ th:not([colspan]) {
 }
 
 #returnToSearchButton:hover {
-    background-color: #2F2F2F;
+    background-color: #9fa6b2;
+    color: white;
+}
+
+#returnToSearchButton {
+    color: #9fa6b2;
+    border: 1px solid #9fa6b2;
+    background-color: transparent;
+    position: fixed;
+    bottom: 10px;
+    left: 60px;
 }
 
 .closebtn {
@@ -185,6 +202,11 @@ th:not([colspan]) {
     position: relative;
 }
 
+.bottomSection {
+    max-height: 80vh;
+    overflow: scroll;
+}
+
 .scorecards-wrapper {
     display: flex;
     width: 100%;
@@ -219,12 +241,6 @@ th:not([colspan]) {
     position: relative;
     box-shadow: 0 1px 3px rgba(0,0,0,0.12);
     flex-shrink: 0;
-}
-
-.scorecard:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    background-color: #202124;
 }
 
 .scorecard-header {
@@ -399,8 +415,8 @@ th:not([colspan]) {
 
 .theme-toggle {
   position: fixed;
-  bottom: 20px;
-  left: 20px;
+  bottom: 10px;
+  left: 10px;
   width: 36px;
   height: 36px;
   border-radius: 50%;

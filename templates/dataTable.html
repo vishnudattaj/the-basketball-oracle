@@ -147,62 +147,65 @@
             <div class="carousel-indicators" id="carouselIndicators"></div>
         </div>
     </div>
+    <br>
+    <br>
+    <div class="bottomSection">
+        <div class="container-sm h-100">
+            {% block body %}
 
-    <div class="container-sm py-5 h-100">
-        {% block body %}
+            {% for player in badPlayer %}
+            <div class="alert">
+              <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
+              <strong>Unknown Player: </strong>{{player}}
+            </div>
+            {% endfor %}
 
-        {% for player in badPlayer %}
-        <div class="alert">
-          <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>
-          <strong>Unknown Player: </strong>{{player}}
-        </div>
-        {% endfor %}
-
-        <br>
-        {% for table, url, name, category in playertable %}
-            <div class="playerGrid mx-3">
-                <div class="playerHeadshot">
-                    <img src="{{ url }}" alt="Player Image" onerror="this.onerror=null;this.className='defaultImage';this.src='https://storage.googleapis.com/support-forums-api/attachment/thread-120988-16861902392288249134.png';" class="playerHeadshot">
+            <br>
+            {% for table, url, name, category in playertable %}
+                <div class="playerGrid mx-3">
+                    <div class="playerHeadshot">
+                        <img src="{{ url }}" alt="Player Image" onerror="this.onerror=null;this.className='defaultImage';this.src='https://storage.googleapis.com/support-forums-api/attachment/thread-120988-16861902392288249134.png';" class="playerHeadshot">
+                        <br>
+                        <h3 class="playerInfo">{{ name }}</h3>
+                        <h4 class="playerInfo">{{ category }}</h4>
+                    </div>
+                    <div class="playerTable">
+                        {{ table['Table']|safe }}
+                    </div>
+                    <div class="futureTable">
+                        {% if table['Predictions'] == 'Yes' %}
+                            {{ table['Future Predictions']|safe }}
+                        {% endif %}
+                    </div>
                     <br>
-                    <h3 class="playerInfo">{{ name }}</h3>
-                    <h4 class="playerInfo">{{ category }}</h4>
                 </div>
-                <div class="playerTable">
-                    {{ table['Table']|safe }}
-                </div>
-                <div class="futureTable">
-                    {% if table['Predictions'] == 'Yes' %}
-                        {{ table['Future Predictions']|safe }}
-                    {% endif %}
-                </div>
-                <br>
-            </div>
-        <br>
-        {% endfor %}
+            <br>
+            {% endfor %}
 
-        {% for table, url in teamtable %}
-            <div class="teamGrid mx-3">
-                <div class="teamHeadshot">
-                    <img src="{{ url_for('static', filename='img/' + url) }}" alt="Team Image" onerror="this.onerror=null; this.className='defaultImage'; this.src='https://storage.googleapis.com/support-forums-api/attachment/thread-120988-16861902392288249134.png';" class="teamHeadshot">
+            {% for table, url in teamtable %}
+                <div class="teamGrid mx-3">
+                    <div class="teamHeadshot">
+                        <img src="{{ url_for('static', filename='img/' + url) }}" alt="Team Image" onerror="this.onerror=null; this.className='defaultImage'; this.src='https://storage.googleapis.com/support-forums-api/attachment/thread-120988-16861902392288249134.png';" class="teamHeadshot">
+                    </div>
+                    <div class="teamTable">
+                        {{ table|safe }}
+                    </div>
+                    <br>
                 </div>
-                <div class="teamTable">
-                    {{ table|safe }}
-                </div>
-                <br>
-            </div>
-        <br>
-        {% endfor %}
+            <br>
+            {% endfor %}
 
-        <div class="mx-3">
-            <a href="/protected">
-                <button id="returnToSearchButton" class="btn btn-grayish btn-lg btn-block">Return to Search</button>
-                <form action="/protected" method="POST">
-                    <button type="submit" value="Log Out" name="Submit" class="btn btn-outline-danger fixed-element">Log Out</button>
-                </form>
-            </a>
+            <div class="mx-3">
+                <a href="/protected">
+                    <button id="returnToSearchButton" class="btn btn-grayish">Return to Search</button>
+                    <form action="/protected" method="POST">
+                        <button type="submit" value="Log Out" name="Submit" class="btn btn-outline-danger fixed-element">Log Out</button>
+                    </form>
+                </a>
+            </div>
+
+            {% endblock %}
         </div>
-
-        {% endblock %}
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
