@@ -1,3 +1,4 @@
+from PIL import UnidentifiedImageError
 import pandas as pd
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
@@ -236,20 +237,26 @@ def protected():
                         # Uses player id to get the stats of the player as an object
                         playerselection = createPlayerDf(player_id)
                         if active:
-                            playerCategoryZip.append(matched_category)
-                            futurePredictions = pandas.concat([newRow], keys=["Future Predictions"], axis=1)
-                            futurePredictions = futurePredictions.rename(columns={'SEASON_ID': 'YEAR', 'TEAM_ABBREVIATION': 'TEAM', 'PLAYER_AGE': 'AGE', 'FG_PCT': 'FG%', 'FG3_PCT': '3PT%', 'FT_PCT': 'FT%'})
-                            player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False), 'Predictions': 'Yes', 'Future Predictions': futurePredictions.to_html(classes="table table-striped tableFont", index=False)})
+                            try:
+                                playerCategoryZip.append(matched_category)
+                                futurePredictions = pandas.concat([newRow], keys=["Future Predictions"], axis=1)
+                                futurePredictions = futurePredictions.rename(
+                                    columns={'SEASON_ID': 'YEAR', 'TEAM_ABBREVIATION': 'TEAM', 'PLAYER_AGE': 'AGE','FG_PCT': 'FG%', 'FG3_PCT': '3PT%', 'FT_PCT': 'FT%'})
+                                player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False), 'Predictions': 'Yes','Future Predictions': futurePredictions.to_html(classes="table table-striped tableFont", index=False)})
+                            except UnboundLocalError:
+                                playerCategoryZip.append("Free Agent")
+                                player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False), 'Predictions': 'No'})
+                            except ValueError:
+                                playerCategoryZip.append("Free Agent")
+                                player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False), 'Predictions': 'No'})
                         else:
                             playerCategoryZip.append("Retired")
                             player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False), 'Predictions': 'No'})
                         # Converts dataframe into a html table and adds it to the list
-                        url = returnUrl(playerFirst, playerLast, player_name)
-                        img = remove_background_ml(url)
                         playerNameZip.append(player_name)
-                        player_url.append(f"data:image/png;base64,{img}")
+                        player_url.append(f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png")
                 # Runs if a player doesn't exist
-                except IndexError or re.error:
+                except (UnidentifiedImageError, IndexError, re.error) as e:
                     player_table = []
                     player_url = []
                     playerNameZip = []
@@ -297,20 +304,24 @@ def protected():
                                 player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False), 'Predictions': 'Yes','Future Predictions': futurePredictions.to_html(classes="table table-striped tableFont", index=False)})
                             except UnboundLocalError:
                                 playerCategoryZip.append("Free Agent")
+                                player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False), 'Predictions': 'No'})
+                            except ValueError:
+                                playerCategoryZip.append("Free Agent")
+                                player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False), 'Predictions': 'No'})
                         else:
                             playerCategoryZip.append("Retired")
                             player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False), 'Predictions': 'No'})
-                        # Converts dataframe into a html table and adds it to the list
-                        url = returnUrl(playerFirst, playerLast, player_name)
-                        img = remove_background_ml(url)
-                        playerNameZip.append(player_name)
-                        player_url.append(f"data:image/png;base64,{img}")
+                        try:
+                            playerNameZip.append(player_name)
+                            player_url.append(f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png")
+                        except UnidentifiedImageError:
+                            badRequestPlayer.append(player)
             if request.form['player'] == "":
                 return render_template('search.html', save=flask_login.current_user.id, standings=standingsHTML(), scoreboard=scoreboardData())
             else:
-                try:
+                if len(player_table) != 0:
                     return render_template('dataTable.html', save=flask_login.current_user.id, playertable=zip(player_table, player_url, playerNameZip, playerCategoryZip), badPlayer=badRequestPlayer, scoreboard=scoreboardData())
-                except:
+                else:
                     return render_template('search.html', save=flask_login.current_user.id, badPlayer=badRequestPlayer, standings=standingsHTML(), scoreboard=scoreboardData())
     # Returns search.html if method is GET instead of POST
     else:
@@ -424,115 +435,65 @@ def scoreboardData():
         gameData.append({'Status': 'No Games Scheduled Today'})
     return gameData
 
-
-def remove_background_ml(url):
-    response = requests.get(url)
-    img = Image.open(BytesIO(response.content))
-
-    img = img.convert("RGBA")
-
-    img = ImageEnhance.Contrast(img).enhance(1.05)
-    img = ImageEnhance.Color(img).enhance(1.02)
-
-    img_byte = BytesIO()
-    img.save(img_byte, format='PNG', quality=95)
-    img_byte.seek(0)
-
-    output = rembg.remove(
-        img_byte.getvalue(),
-        alpha_matting=True,
-        alpha_matting_foreground_threshold=250,
-        alpha_matting_background_threshold=15,
-        alpha_matting_erode_size=1
-    )
-
-    result = Image.open(BytesIO(output))
-    sharpener = ImageEnhance.Sharpness(result)
-    result = sharpener.enhance(1.1)
-
-    result = result.filter(ImageFilter.GaussianBlur(radius=0.2))
-
-    width, height = result.size
-    for y in range(height):
-        for x in range(width):
-            r, g, b, a = result.getpixel((x, y))
-            if a > 0 and a < 240:
-                new_alpha = min(a + 20, 255)
-                result.putpixel((x, y), (
-                    r,
-                    g,
-                    b,
-                    new_alpha
-                ))
-
-    result = ImageEnhance.Color(result).enhance(1.02)
-    result = ImageEnhance.Contrast(result).enhance(1.03)
-    result = ImageEnhance.Brightness(result).enhance(1.01)
-
-    output = BytesIO()
-    result.save(output, format="PNG")
-    output.seek(0)
-    base64_img = base64.b64encode(output.getvalue()).decode('utf-8')
-
-    return base64_img
-
 def predictPlayer(player_name):
-    player_basic = basic_df.loc[basic_df['Player'] == player_name].iloc[0]
-    player_advanced = advanced_df.loc[advanced_df['Player'] == player_name].iloc[0]
+    try:
+        player_basic = basic_df.loc[basic_df['Player'] == player_name].iloc[0]
+        player_advanced = advanced_df.loc[advanced_df['Player'] == player_name].iloc[0]
 
-    if player_basic['Pos'] in ["PG", "SG"]:
-        features = [player_basic['PTS'], player_basic['AST'], player_basic['STL'],
-                    player_advanced['DWS'], player_advanced['VORP']]
-        features = pandas.DataFrame([features])
-        scaled_features = scalerg.transform(features)
-        categorizing = kmg.predict(scaled_features)
-        role = ["Role Player", "Star Player", "Bench Warmer"]
-        matched_category = role[categorizing[0]]
-    elif player_basic['Pos'] in ["SF", "PF"]:
-        features = [player_basic['PTS'], player_basic['AST'], player_basic['STL'],
-                    player_advanced['DWS'], player_advanced['VORP']]
-        features = pandas.DataFrame([features])
-        scaled_features = scalerw.transform(features)
-        categorizing = kmw.predict(scaled_features)
-        role = ["Star Player", "Role Player", "Bench Warmer"]
-        matched_category = role[categorizing[0]]
-    elif player_basic['Pos'] == "C":
-        features = [player_basic['PTS'], player_basic['TRB'], player_basic['BLK'],
-                    player_advanced['DWS'], player_advanced['VORP']]
-        features = pandas.DataFrame([features])
-        scaled_features = scalerb.transform(features)
-        categorizing = kmb.predict(scaled_features)
-        role = ["Bench Warmer", "Star Player", "Role Player"]
-        matched_category = role[categorizing[0]]
-    else:
-        pass
+        if player_basic['Pos'] in ["PG", "SG"]:
+            features = [player_basic['PTS'], player_basic['AST'], player_basic['STL'],
+                        player_advanced['DWS'], player_advanced['VORP']]
+            features = pandas.DataFrame([features])
+            scaled_features = scalerg.transform(features)
+            categorizing = kmg.predict(scaled_features)
+            role = ["Role Player", "Star Player", "Bench Warmer"]
+            matched_category = role[categorizing[0]]
+        elif player_basic['Pos'] in ["SF", "PF"]:
+            features = [player_basic['PTS'], player_basic['AST'], player_basic['STL'],
+                        player_advanced['DWS'], player_advanced['VORP']]
+            features = pandas.DataFrame([features])
+            scaled_features = scalerw.transform(features)
+            categorizing = kmw.predict(scaled_features)
+            role = ["Star Player", "Role Player", "Bench Warmer"]
+            matched_category = role[categorizing[0]]
+        elif player_basic['Pos'] == "C":
+            features = [player_basic['PTS'], player_basic['TRB'], player_basic['BLK'],
+                        player_advanced['DWS'], player_advanced['VORP']]
+            features = pandas.DataFrame([features])
+            scaled_features = scalerb.transform(features)
+            categorizing = kmb.predict(scaled_features)
+            role = ["Bench Warmer", "Star Player", "Role Player"]
+            matched_category = role[categorizing[0]]
+        else:
+            pass
 
-    data = pd.DataFrame({
-        "PastPPG": [player_basic['PTS']],
-        "PastRPG": [player_basic['TRB']],
-        "PastAPG": [player_basic['AST']],
-        "PastSPG": [player_basic['STL']],
-        "PastBPG": [player_basic['BLK']],
-        "PastAGE": [player_basic['Age']]
-    })
-    predict = xgb.predict(data[['PastPPG', 'PastRPG', 'PastAPG', 'PastSPG', 'PastBPG', 'PastAGE']])
-    newRow = pd.DataFrame({
-        'SEASON_ID': [str(season) + "-" + str(season + 1)[2:4]],
-        'TEAM_ABBREVIATION': ['-'],
-        'PLAYER_AGE': [player_basic['Age'] + 1],
-        'GP': ['-'],
-        'GS': ['-'],
-        'PTS': [str(round(predict[0][0], 1))],
-        'REB': [str(round(predict[0][1], 1))],
-        'AST': [str(round(predict[0][2], 1))],
-        'STL': [str(round(predict[0][3], 1))],
-        'BLK': [str(round(predict[0][4], 1))],
-        'FG_PCT': ['-'],
-        'FG3_PCT': ['-'],
-        'FT_PCT': ['-']
-    })
-
-    return newRow, matched_category
+        data = pd.DataFrame({
+            "PastPPG": [player_basic['PTS']],
+            "PastRPG": [player_basic['TRB']],
+            "PastAPG": [player_basic['AST']],
+            "PastSPG": [player_basic['STL']],
+            "PastBPG": [player_basic['BLK']],
+            "PastAGE": [player_basic['Age']]
+        })
+        predict = xgb.predict(data[['PastPPG', 'PastRPG', 'PastAPG', 'PastSPG', 'PastBPG', 'PastAGE']])
+        newRow = pd.DataFrame({
+            'SEASON_ID': [str(season) + "-" + str(season + 1)[2:4]],
+            'TEAM_ABBREVIATION': ['-'],
+            'PLAYER_AGE': [player_basic['Age'] + 1],
+            'GP': ['-'],
+            'GS': ['-'],
+            'PTS': [str(round(predict[0][0], 1))],
+            'REB': [str(round(predict[0][1], 1))],
+            'AST': [str(round(predict[0][2], 1))],
+            'STL': [str(round(predict[0][3], 1))],
+            'BLK': [str(round(predict[0][4], 1))],
+            'FG_PCT': ['-'],
+            'FG3_PCT': ['-'],
+            'FT_PCT': ['-']
+        })
+        return newRow, matched_category
+    except:
+        return None, "Free Agent"
 
 def createPlayerDf(player_id):
     player_info = playercareerstats.PlayerCareerStats(player_id=player_id)
@@ -554,19 +515,6 @@ def createPlayerDf(player_id):
     playerselection = pandas.concat([playerselection], keys=["Player History"], axis=1)
 
     return playerselection
-
-def returnUrl(first, last, name):
-    for i in range(3):
-        playerUrl = f"https://www.basketball-reference.com/players/{last[0]}/{last + first}0{i + 1}.html"
-        response = requests.get(playerUrl, headers=headers)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        h1_tag = soup.find('h1')
-        if h1_tag:
-            span_tag = h1_tag.find('span')
-            if span_tag:
-                fullName = span_tag.text.split(" ")[0]
-                if fullName == name.split(" ")[0]:
-                    return f"https://www.basketball-reference.com/req/202106291/images/headshots/{last + first}0{i + 1}.jpg"
 
 # Runs app in debug mode
 if __name__ == "__main__":
