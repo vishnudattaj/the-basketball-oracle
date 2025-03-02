@@ -86,6 +86,7 @@ tr {
     border: none;
     background-color: #202124;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    color: white;
 }
 
 .form-control:focus {
@@ -330,6 +331,7 @@ tr {
     height: 100%;
     width: 100%;
     flex-grow: 1;
+    color: white;
 }
 
 .carousel-indicators {
@@ -384,4 +386,40 @@ tr {
 
 .theme-toggle.light .moon {
   opacity: 1;
+}
+
+/* Typeahead styles for dark mode */
+.suggestions-dropdown {
+    display: none;
+    position: absolute;
+    top: 55px;
+    left: 0;
+    width: 100%;
+    max-height: 300px;
+    overflow-y: auto;
+    background-color: #202124;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    z-index: 100;
+}
+
+.suggestion-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    color: #e0e0e0;
+    border-bottom: 1px solid #333;
+    transition: background-color 0.2s;
+}
+
+.suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.suggestion-item:hover, .suggestion-item.active {
+    background-color: #383838;
+}
+
+.suggestion-item strong {
+    color: #fff;
+    font-weight: bold;
 }

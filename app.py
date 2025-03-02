@@ -7,15 +7,11 @@ from nba_api.stats.endpoints import playercareerstats, commonteamroster, leagues
 from nba_api.stats.static import players, teams
 import pandas
 import joblib
-from PIL import Image, ImageFilter, ImageEnhance
 import requests
-from io import BytesIO
 import datetime
 from bs4 import BeautifulSoup
 import dcl
 import re
-import base64
-import rembg
 from dotenv import load_dotenv
 import os
 
@@ -60,6 +56,14 @@ kmb = joblib.load('kmeans_model_big.sav')
 scalerb = joblib.load('scaler_big.gz')
 
 xgb = joblib.load('statPrediction.sav')
+
+allPlayers = []
+
+for player in players.get_players():
+    allPlayers.append(player['full_name'])
+
+players_df = pd.DataFrame(allPlayers)
+players_df.to_json('static/data/players.json', orient='values')
 
 # Finds todays date
 yr = datetime.date.today().year
@@ -227,11 +231,6 @@ def protected():
                         player_id = player_dict[0]["id"]
                         player_name = player_dict[0]["full_name"]
                         active = player_dict[0]["is_active"]
-                        playerFirst = player_dict[0]["first_name"].replace("'", "")[0:2].lower()
-                        try:
-                            playerLast = player_dict[0]["last_name"].replace("'", "")[0:5].lower()
-                        except IndexError:
-                            playerLast = player_dict[0]["last_name"].lower().replace("'", "")
                         if active:
                             newRow, matched_category = predictPlayer(player_name)
                         # Uses player id to get the stats of the player as an object
@@ -282,11 +281,6 @@ def protected():
                         player_id = player_dict[0]["id"]
                         player_name = player_dict[0]["full_name"]
                         active = player_dict[0]["is_active"]
-                        playerFirst = player_dict[0]["first_name"].replace("'", "")[0:2].lower()
-                        try:
-                            playerLast = player_dict[0]["last_name"].replace("'", "")[0:5].lower()
-                        except IndexError:
-                            playerLast = player_dict[0]["last_name"].lower().replace("'", "")
                         if active:
                             try:
                                 newRow, matched_category = predictPlayer(player_name)
