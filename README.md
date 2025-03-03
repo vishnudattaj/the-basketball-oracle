@@ -1,6 +1,6 @@
-# Basketball Oracle 🏀📊
+# The Basketball Oracle 🏀📊
 
-Basketball Oracle is the ultimate basketball website that allows users to view NBA standings, today's scores, team roster info, player career information, and most importantly: player predictions for the next season.
+The Basketball Oracle is the ultimate basketball website that allows users to view NBA standings, today's scores, team roster info, player career information, and most importantly: player predictions for the next season.
 
 **Link to Website:** COMING SOON
 
@@ -39,3 +39,4 @@ To use the features, first, you need to **log in** or **create an account** if y
 - **Player Search:** Quickly search for any player to view their current and past performance.
 - **Dark/Light Mode:** Switch between dark and light modes for a more personalized browsing experience.
 - **Password Protection:** A secure password feature ensures only authorized users can access certain data or sections of the site.
+- **Typeahead Search:** Quickly find what you're looking for with real-time search suggestions that show matching player names, teams, and stats as you type.
