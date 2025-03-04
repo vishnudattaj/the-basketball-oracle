@@ -89,7 +89,7 @@ combined_df.dropna(inplace=True)
 X = combined_df[['PastPPG', 'PastRPG', 'PastAPG', 'PastSPG', 'PastBPG', 'PastMIN', 'PastAGE', 'PastTS%', 'PastFTR', 'PastPER', 'PastUSG', 'PastAS%', 'PastRB%', 'PastST%', 'PastBK%', 'Past3PA', 'PastDIST']]
 y = combined_df[['pts_per_game', 'trb_per_game', 'ast_per_game', 'stl_per_game', 'blk_per_game']]
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=5)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=15)
 
 model = MultiOutputRegressor(XGBRegressor(learning_rate=0.1, max_depth=3))
 
