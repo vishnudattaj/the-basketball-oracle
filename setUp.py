@@ -70,11 +70,23 @@ combined_df['PastRPG'] = combined_df.groupby('player')['trb_per_game'].shift(-1)
 combined_df['PastAPG'] = combined_df.groupby('player')['ast_per_game'].shift(-1)
 combined_df['PastSPG'] = combined_df.groupby('player')['stl_per_game'].shift(-1)
 combined_df['PastBPG'] = combined_df.groupby('player')['blk_per_game'].shift(-1)
+combined_df['PastMIN'] = combined_df.groupby('player')['mp_per_game'].shift(-1)
 combined_df['PastAGE'] = combined_df.groupby('player')['age'].shift(-1)
+combined_df['PastTS%'] = combined_df.groupby('player')['ts_percent'].shift(-1)
+combined_df['PastFTR'] = combined_df.groupby('player')['f_tr'].shift(-1)
+combined_df['PastPER'] = combined_df.groupby('player')['per'].shift(-1)
+combined_df['PastUSG'] = combined_df.groupby('player')['usg_percent'].shift(-1)
+combined_df['PastAS%'] = combined_df.groupby('player')['ast_percent'].shift(-1)
+combined_df['PastST%'] = combined_df.groupby('player')['stl_percent'].shift(-1)
+combined_df['PastBK%'] = combined_df.groupby('player')['blk_percent'].shift(-1)
+combined_df['PastRB%'] = combined_df.groupby('player')['trb_percent'].shift(-1)
+combined_df['Past3PA'] = combined_df.groupby('player')['x3pa_per_game'].shift(-1)
+combined_df['PastDIST'] = combined_df.groupby('player')['avg_dist_fga'].shift(-1)
+
 
 combined_df.dropna(inplace=True)
 
-X = combined_df[['PastPPG', 'PastRPG', 'PastAPG', 'PastSPG', 'PastBPG', 'PastAGE']]
+X = combined_df[['PastPPG', 'PastRPG', 'PastAPG', 'PastSPG', 'PastBPG', 'PastMIN', 'PastAGE', 'PastTS%', 'PastFTR', 'PastPER', 'PastUSG', 'PastAS%', 'PastRB%', 'PastST%', 'PastBK%', 'Past3PA', 'PastDIST']]
 y = combined_df[['pts_per_game', 'trb_per_game', 'ast_per_game', 'stl_per_game', 'blk_per_game']]
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=5)

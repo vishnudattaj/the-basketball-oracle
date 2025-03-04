@@ -10,7 +10,6 @@ import joblib
 import requests
 import datetime
 from bs4 import BeautifulSoup
-import dcl
 import re
 from dotenv import load_dotenv
 import os
@@ -73,10 +72,12 @@ month = datetime.date.today().month
 if month >= 11:
     basic = f"https://www.basketball-reference.com/leagues/NBA_{yr + 1}_per_game.html"
     advanced = f"https://www.basketball-reference.com/leagues/NBA_{yr + 1}_advanced.html"
+    shooting = f"https://www.basketball-reference.com/leagues/NBA_{yr + 1}_shooting.html"
     season = yr + 1
 else:
     basic = f"https://www.basketball-reference.com/leagues/NBA_{yr}_per_game.html"
     advanced = f"https://www.basketball-reference.com/leagues/NBA_{yr}_advanced.html"
+    shooting = f"https://www.basketball-reference.com/leagues/NBA_{yr}_shooting.html"
     season = yr
 
 headers = {
@@ -86,36 +87,29 @@ headers = {
 # Requests the page based on the above urls
 basic_page = requests.get(basic, headers=headers)
 advanced_page = requests.get(advanced, headers=headers)
+shooting_page = requests.get(shooting, headers=headers)
 
 # Sets up beautiful soup object
 basic_soup = BeautifulSoup(basic_page.content, "html.parser")
 advanced_soup = BeautifulSoup(advanced_page.content, "html.parser")
+shooting_soup = BeautifulSoup(shooting_page.content, "html.parser")
 
 # Finds the table based on the id
 basic_table = basic_soup.find(id='per_game_stats')
 advanced_table = advanced_soup.find(id='advanced')
+shooting_table = shooting_soup.find(id='shooting')
 
 # Converts the table to a dataframe
 basic_df = pandas.read_html(str(basic_table))[0]
 advanced_df = pandas.read_html(str(advanced_table))[0]
-
-# Converted accented characters to non-accented characters because the nba api in the flask doesn't have accents
-cleaned_players = []
-for player in basic_df['Player']:
-    cleaned_players.append(dcl.clean_diacritics(player))
-
-basic_df = basic_df.assign(Player=cleaned_players)
-
-cleaned_players = []
-for player in advanced_df['Player']:
-    cleaned_players.append(dcl.clean_diacritics(player))
-
-advanced_df = advanced_df.assign(Player=cleaned_players)
+shooting_df = pandas.read_html(str(shooting_table))[0]
 
 # Replaced all stats with a blank spot with 0 so I wouldn't have to remove some key nba players
 basic_df.fillna(0, inplace=True)
 advanced_df.fillna(0, inplace=True)
+shooting_df.fillna(0, inplace=True)
 
+shooting_df.columns = shooting_df.columns.droplevel(0)
 
 # 401 page if user tries to access material without logging in
 @login_manager.unauthorized_handler
@@ -433,6 +427,7 @@ def predictPlayer(player_name):
     try:
         player_basic = basic_df.loc[basic_df['Player'] == player_name].iloc[0]
         player_advanced = advanced_df.loc[advanced_df['Player'] == player_name].iloc[0]
+        player_shooting = shooting_df.loc[shooting_df['Player'] == player_name].iloc[0]
 
         if player_basic['Pos'] in ["PG", "SG"]:
             features = [player_basic['PTS'], player_basic['AST'], player_basic['STL'],
@@ -467,9 +462,20 @@ def predictPlayer(player_name):
             "PastAPG": [player_basic['AST']],
             "PastSPG": [player_basic['STL']],
             "PastBPG": [player_basic['BLK']],
-            "PastAGE": [player_basic['Age']]
+            "PastMIN": [player_basic['MP']],
+            "PastAGE": [player_basic['Age']],
+            "PastTS%": [player_advanced['TS%']],
+            "PastFTR": [player_advanced['FTr']],
+            "PastPER": [player_advanced['PER']],
+            "PastUSG": [player_advanced['USG%']],
+            "PastAS%": [player_advanced['AST%']],
+            "PastRB%": [player_advanced['TRB%']],
+            "PastST%": [player_advanced['STL%']],
+            "PastBK%": [player_advanced['BLK%']],
+            "Past3PA": [player_basic['3PA']],
+            "PastDIST": [player_shooting['Dist.']]
         })
-        predict = xgb.predict(data[['PastPPG', 'PastRPG', 'PastAPG', 'PastSPG', 'PastBPG', 'PastAGE']])
+        predict = xgb.predict(data[['PastPPG', 'PastRPG', 'PastAPG', 'PastSPG', 'PastBPG', 'PastMIN', 'PastAGE', 'PastTS%', 'PastFTR', 'PastPER', 'PastUSG', 'PastAS%', 'PastRB%', 'PastST%', 'PastBK%', 'Past3PA', 'PastDIST']])
         newRow = pd.DataFrame({
             'SEASON_ID': [str(season) + "-" + str(season + 1)[2:4]],
             'TEAM_ABBREVIATION': ['-'],
