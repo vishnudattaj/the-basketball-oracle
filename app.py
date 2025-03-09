@@ -364,7 +364,8 @@ def create_img_tag(link):
     return f'<img src="{link}" width="30"/>'
 
 def create_link(name):
-    return f'<a href="/teams/{name}">{name}</a>'
+    name = name.split(" ")
+    return f'<a href="/teams/{name[-1]}">{name[-1]}</a>'
 
 @app.route('/teams/<string:team>', methods=['GET', 'POST'])
 @flask_login.login_required
@@ -398,7 +399,8 @@ def boxScore(gameId):
         index = 0
         for team in boxscore['team.shortDisplayName']:
             team_dict = teams.find_teams_by_full_name(team)
-            team_name.append(team_dict[0]["full_name"])
+            fullName = team_dict[0]["full_name"]
+            team_name.append(create_link(fullName))
             team_abbreviation = team_dict[0]["abbreviation"]
             team_url.append(f'{team_abbreviation.lower()}.png')
 
@@ -427,7 +429,7 @@ def boxScore(gameId):
             bench_key = ['Bench'] + team[0]['names']
             bench_df = pd.DataFrame(bench + dnp, columns=bench_key)
 
-            teamBox_html = starters_df.to_html(classes='table table-striped', index=False) + bench_df.to_html(
+            teamBox_html = starters_df.to_html(classes='table table-striped', index=False, escape=False) + bench_df.to_html(
                 classes='table table-striped', index=False)
 
             team_table.append(teamBox_html)
@@ -473,9 +475,17 @@ def scoreboardData():
             team_abbreviation = team_dict[0]["abbreviation"]
             scoreDict[home_away_list[home_away] + ' Team'] = team_abbreviation
             scoreDict[home_away_list[home_away] + ' Link'] = teamName
-            scoreDict[home_away_list[home_away] + ' Logo'] = team['team']['logo']
             scoreDict[home_away_list[home_away] + ' Score'] = team['score']
             scoreDict[home_away_list[home_away] + ' Record'] = team['records'][0]['summary']
+            if team_abbreviation == "UTA":
+                team_abbreviation = 'UTAH'
+                user_theme = session.get('user_theme', 'dark')
+                if user_theme == "dark":
+                    scoreDict[home_away_list[home_away] + ' Logo'] = f"https://a.espncdn.com/i/teamlogos/nba/500-dark/scoreboard/{team_abbreviation}.png"
+                else:
+                    scoreDict[home_away_list[home_away] + ' Logo'] = f"https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/{team_abbreviation}.png"
+            else:
+                scoreDict[home_away_list[home_away] + ' Logo'] = team['team']['logo']
             home_away += 1
         dictIndex += 1
         scoreData.append(scoreDict)

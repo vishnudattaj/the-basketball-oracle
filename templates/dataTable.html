@@ -129,13 +129,13 @@
                                         <div class="quarter">VS</div>
                                     </div>
                                     <div class="team-container">
-                                        <div class="team-info">
-                                            <a href="/teams/{{ game['Away Link'] }}">
+                                        <a href="/teams/{{ game['Away Team'] }}">
+                                            <div class="team-info">
                                                 <div class="team-logo" style="background-image: url({{ game['Away Logo'] }});"></div>
                                                 <div class="team-name">{{ game['Away Team'] }}</div>
-                                            </a>
-                                                <div class="score">{{ game['Away Score'] }}</div>
-                                        </div>
+                                                <div class="score">{{ game['Away Record'] }}</div>
+                                            </div>
+                                        </a>
                                     </div>
                                 </div>
                             </div>

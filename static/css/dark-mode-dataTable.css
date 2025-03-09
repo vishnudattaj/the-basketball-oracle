@@ -210,11 +210,8 @@ th:not([colspan]) {
 }
 
 .bottomSection {
-    min-height: 80vh;
+    max-height: 80vh;
     overflow: scroll;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .scorecards-wrapper {
@@ -582,7 +579,11 @@ th:not([colspan]) {
   transition: background-color 0.2s ease;
 }
 
-.boxGrid {
-    max-height: 530px;
-    height: 50%;
+.boxGrid .playerGrid{
+    max-height: 700px;
+    overflow-y: auto;
+}
+
+a {
+    color: white;
 }
