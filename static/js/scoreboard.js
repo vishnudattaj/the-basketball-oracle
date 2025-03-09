@@ -103,3 +103,16 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+window.addEventListener('DOMContentLoaded', () => {
+  const pixelRatio = window.devicePixelRatio;
+  const boxscoreTables = document.querySelectorAll('.boxscore');
+
+  boxscoreTables.forEach((table) => {
+    // Check if device is running at 125% zoom (pixel ratio around 1.25)
+    if (pixelRatio >= 1.24 && pixelRatio <= 1.26) {
+      table.classList.remove('boxscore');
+      table.classList.add('boxscore-scaled');
+    }
+  });
+});

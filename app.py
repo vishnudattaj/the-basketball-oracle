@@ -1,6 +1,6 @@
 from PIL import UnidentifiedImageError
 import pandas as pd
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import flask_login
 from nba_api.stats.endpoints import playercareerstats, commonteamroster, leaguestandings
@@ -335,9 +335,14 @@ def standingsHTML():
         team_abbreviation = team_dict[0]["abbreviation"]
         if team_abbreviation == 'NOP':
             team_abbreviation = 'NO'
-        elif team_abbreviation == 'UTA':
+        if team_abbreviation == 'UTA':
             team_abbreviation = 'UTAH'
-        westIcon.append(f"https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/{team_abbreviation}.png")
+            if session['user_theme'] == "dark":
+                westIcon.append(f"https://a.espncdn.com/i/teamlogos/nba/500-dark/scoreboard/{team_abbreviation}.png")
+            else:
+                westIcon.append(f"https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/{team_abbreviation}.png")
+        else:
+            westIcon.append(f"https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/{team_abbreviation}.png")
     for team in eastStandings['Team']:
         team_dict = teams.find_teams_by_full_name(team)
         team_abbreviation = team_dict[0]["abbreviation"]
@@ -378,6 +383,60 @@ def teamHTML(team):
     except IndexError:
         return redirect(url_for('protected'))
 
+
+@app.route('/games/<int:gameId>', methods=['GET', 'POST'])
+@flask_login.login_required
+def boxScore(gameId):
+    try:
+        url = f"https://cdn.espn.com/core/nba/boxscore?xhr=1&gameId={gameId}"
+        response = requests.get(url).json()
+        boxscore = pd.json_normalize(response['gamepackageJSON']['boxscore']['players'])
+        team_table = []
+        team_url = []
+        team_name = []
+        index = 0
+        for team in boxscore['team.shortDisplayName']:
+            team_dict = teams.find_teams_by_full_name(team)
+            team_name.append(team_dict[0]["full_name"])
+            team_abbreviation = team_dict[0]["abbreviation"]
+            team_url.append(f'{team_abbreviation.lower()}.png')
+
+        for team in boxscore['statistics']:
+            key = ['Starter'] + team[0]['names']
+            starters = []
+            bench = []
+            dnp = []
+
+            for athlete in team[0]['athletes']:
+                if athlete['stats']:
+                    stats = [athlete['athlete']['displayName']] + athlete['stats']
+                    if athlete['starter']:
+                        starters.append(stats)
+                    else:
+                        bench.append(stats)
+                else:
+                    stats = [athlete['athlete']['displayName']] + ['DNP'] + ['-' for _ in range(13)]
+                    dnp.append(stats)
+
+            starters = sorted(starters, key=lambda x: x[key.index('MIN')], reverse=True)
+            bench = sorted(bench, key=lambda x: x[key.index('MIN')], reverse=True)
+
+            starters_df = pd.DataFrame(starters, columns=key)
+            starters_df = pandas.concat([starters_df], keys=[team_name[index]], axis=1)
+            bench_key = ['Bench'] + team[0]['names']
+            bench_df = pd.DataFrame(bench + dnp, columns=bench_key)
+
+            teamBox_html = starters_df.to_html(classes='table table-striped', index=False) + bench_df.to_html(
+                classes='table table-striped', index=False)
+
+            team_table.append(teamBox_html)
+            index += 1
+
+        return render_template('dataTable.html', save=flask_login.current_user.id, boxscore=zip(team_table, team_url),
+                               scoreboard=scoreboardData())
+    except IndexError:
+        return redirect(url_for('protected'))
+
 def scoreboardData():
     url = "http://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
     response = requests.get(url).json()
@@ -386,10 +445,15 @@ def scoreboardData():
 
     scoreboard = pd.DataFrame(events)
 
+    gameId = []
+    for id in scoreboard['id']:
+        gameId.append({'id': id})
+
     scoreData = []
+    dictIndex = 0
     home_away_list = ['Home', 'Away']
     for score in scoreboard['competitions']:
-        scoreDict = {}
+        scoreDict = gameId[dictIndex]
         home_away = 0
         for team in score[0]['competitors']:
             teamName = team['team']['name']
@@ -401,6 +465,7 @@ def scoreboardData():
             scoreDict[home_away_list[home_away] + ' Score'] = team['score']
             scoreDict[home_away_list[home_away] + ' Record'] = team['records'][0]['summary']
             home_away += 1
+        dictIndex += 1
         scoreData.append(scoreDict)
 
     gameData = []
@@ -423,11 +488,28 @@ def scoreboardData():
         gameData.append({'Status': 'No Games Scheduled Today'})
     return gameData
 
+def normalize_name(name):
+    return re.sub(r'\.', '', name)
+
+
 def predictPlayer(player_name):
     try:
-        player_basic = basic_df.loc[basic_df['Player'] == player_name].iloc[0]
-        player_advanced = advanced_df.loc[advanced_df['Player'] == player_name].iloc[0]
-        player_shooting = shooting_df.loc[shooting_df['Player'] == player_name].iloc[0]
+        # Normalize player names by removing dots
+        player_name_clean = normalize_name(player_name)
+
+        # Apply normalization to DataFrame 'Player' columns
+        basic_df['Player_clean'] = basic_df['Player'].apply(normalize_name)
+        advanced_df['Player_clean'] = advanced_df['Player'].apply(normalize_name)
+        shooting_df['Player_clean'] = shooting_df['Player'].apply(normalize_name)
+
+        # Locate the player using the cleaned names
+        player_basic = basic_df.loc[basic_df['Player_clean'] == player_name_clean]
+        player_advanced = advanced_df.loc[advanced_df['Player_clean'] == player_name_clean]
+        player_shooting = shooting_df.loc[shooting_df['Player_clean'] == player_name_clean]
+
+        player_basic = player_basic.iloc[0]
+        player_advanced = player_advanced.iloc[0]
+        player_shooting = player_shooting.iloc[0]
 
         if player_basic['Pos'] in ["PG", "SG"]:
             features = [player_basic['PTS'], player_basic['AST'], player_basic['STL'],
@@ -475,7 +557,9 @@ def predictPlayer(player_name):
             "Past3PA": [player_basic['3PA']],
             "PastDIST": [player_shooting['Dist.']]
         })
-        predict = xgb.predict(data[['PastPPG', 'PastRPG', 'PastAPG', 'PastSPG', 'PastBPG', 'PastMIN', 'PastAGE', 'PastTS%', 'PastFTR', 'PastPER', 'PastUSG', 'PastAS%', 'PastRB%', 'PastST%', 'PastBK%', 'Past3PA', 'PastDIST']])
+        predict = xgb.predict(data[['PastPPG', 'PastRPG', 'PastAPG', 'PastSPG', 'PastBPG', 'PastMIN', 'PastAGE',
+                                    'PastTS%', 'PastFTR', 'PastPER', 'PastUSG', 'PastAS%', 'PastRB%', 'PastST%',
+                                    'PastBK%', 'Past3PA', 'PastDIST']])
         newRow = pd.DataFrame({
             'SEASON_ID': [str(season) + "-" + str(season + 1)[2:4]],
             'TEAM_ABBREVIATION': ['-'],
@@ -492,8 +576,9 @@ def predictPlayer(player_name):
             'FT_PCT': ['-']
         })
         return newRow, matched_category
-    except:
+    except Exception as e:
         return None, "Free Agent"
+
 
 def createPlayerDf(player_id):
     player_info = playercareerstats.PlayerCareerStats(player_id=player_id)
@@ -515,6 +600,18 @@ def createPlayerDf(player_id):
     playerselection = pandas.concat([playerselection], keys=["Player History"], axis=1)
 
     return playerselection
+
+
+@app.route('/update_theme', methods=['POST'])
+@flask_login.login_required
+def update_theme():
+    theme_data = request.json
+    theme = theme_data.get('theme')
+
+    # Store the theme in the session for the current user
+    session['user_theme'] = theme
+
+    return jsonify({"status": "success", "theme": theme})
 
 # Runs app in debug mode
 if __name__ == "__main__":

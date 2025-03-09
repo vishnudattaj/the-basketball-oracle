@@ -24,6 +24,11 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error loading players data:', error);
         });
 
+    // Function to remove accents from text
+    function removeAccents(str) {
+        return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+
     // Function to get the current input term
     function getCurrentInputTerm() {
         const fullInput = searchInput.value;
@@ -41,11 +46,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Function to filter players based on input
+    // Improved function to filter players based on input - searches both first and last names
+    // Now also compares unaccented versions of text
     function filterPlayers(input) {
         if (!input || input.length < 2) return [];
 
         const inputLower = input.toLowerCase();
+        const inputLowerNoAccent = removeAccents(inputLower);
 
         return playersData
             .filter(player => {
@@ -59,7 +66,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     return false;
                 }
 
-                return playerName.toLowerCase().includes(inputLower);
+                // Convert player name to lowercase and create unaccented version
+                const playerNameLower = playerName.toLowerCase();
+                const playerNameLowerNoAccent = removeAccents(playerNameLower);
+
+                // Check if the unaccented input matches any part of the unaccented player name
+                return playerNameLower.includes(inputLower) ||
+                       playerNameLowerNoAccent.includes(inputLowerNoAccent);
             })
             .slice(0, 8); // Limit to 8 suggestions
     }
@@ -81,9 +94,20 @@ document.addEventListener('DOMContentLoaded', function() {
             const playerName = typeof player === 'string' ? player :
                               (player.name ? player.name : Object.values(player).find(val => typeof val === 'string'));
 
-            // Highlight the matching part of the text
+            // Get current term and create unaccented versions for matching
             const currentTerm = getCurrentInputTerm().toLowerCase();
-            const index = playerName.toLowerCase().indexOf(currentTerm);
+            const currentTermNoAccent = removeAccents(currentTerm);
+            const playerNameLower = playerName.toLowerCase();
+            const playerNameLowerNoAccent = removeAccents(playerNameLower);
+
+            // Try to find index in original text first
+            let index = playerNameLower.indexOf(currentTerm);
+
+            // If not found in original, try in unaccented version
+            if (index < 0) {
+                // Find match position in unaccented version
+                index = playerNameLowerNoAccent.indexOf(currentTermNoAccent);
+            }
 
             if (index >= 0) {
                 const beforeMatch = playerName.substring(0, index);

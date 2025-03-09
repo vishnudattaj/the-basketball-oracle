@@ -94,7 +94,7 @@ body {
 
 th[colspan] {
     text-align: center;
-    background-color: #ebebeb;
+    background-color: #212121 !important;
     position: sticky;
     top: 0;
     z-index: 11;
@@ -210,8 +210,11 @@ th:not([colspan]) {
 }
 
 .bottomSection {
-    max-height: 80vh;
+    min-height: 80vh;
     overflow: scroll;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .scorecards-wrapper {
@@ -462,4 +465,124 @@ th:not([colspan]) {
 
 .theme-toggle.light .moon {
   opacity: 1;
+}
+
+.boxscore {
+  width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+  margin-bottom: 15px;
+}
+
+.boxscore table {
+  width: 100%;
+  color: white;
+  border-collapse: collapse;
+}
+
+.boxscore thead th {
+  position: static;  /* Non-sticky headers */
+  background-color: #202124;
+  color: white;
+  border: 1px solid #636363;
+  padding: 6px 8px;
+  text-align: center;
+}
+
+.boxscore td {
+  background-color: #111111;
+  color: white !important;
+  border: 1px solid #636363;
+  padding: 6px 8px;
+  text-align: center;
+}
+
+/* Make first column (player names) left-aligned */
+.boxscore td:first-child {
+  text-align: left;
+}
+
+/* Optional: Add some padding for better readability */
+.boxscore th, .boxscore td {
+  min-width: 40px;
+  padding: 6px 8px;
+}
+
+/* Team header (Indiana Pacers) */
+.boxscore table caption,
+.boxscore table th[colspan] {
+  background-color: #202124;
+  color: white;
+  padding: 8px;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Hover effect for dark mode */
+.boxscore tbody tr:hover td {
+  background-color: #2a2a2a;
+  transition: background-color 0.2s ease;
+}
+
+.boxscore-scaled {
+  width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+  margin-bottom: 15px;
+  font-size: 80%;
+  max-height: 500px;
+}
+
+.boxscore-scaled table {
+  width: 100%;
+  color: white;
+  border-collapse: collapse;
+}
+
+.boxscore-scaled thead th {
+  position: static;
+  background-color: #202124;
+  color: white;
+  border: 1px solid #636363;
+  padding: 4px 6px; /* Smaller padding */
+  text-align: center;
+}
+
+.boxscore-scaled td {
+  background-color: #111111;
+  color: white !important;
+  border: 1px solid #636363;
+  padding: 4px 6px; /* Smaller padding */
+  text-align: center;
+}
+
+/* Make first column (player names) left-aligned */
+.boxscore-scaled td:first-child {
+  text-align: left;
+}
+
+/* Smaller minimum width for columns */
+.boxscore-scaled th, .boxscore-scaled td {
+  min-width: 32px; /* Reduced from 40px */
+}
+
+/* Team header */
+.boxscore-scaled table caption,
+.boxscore-scaled table th[colspan] {
+  background-color: #202124;
+  color: white;
+  padding: 6px; /* Smaller padding */
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Hover effect for dark mode */
+.boxscore-scaled tbody tr:hover td {
+  background-color: #2a2a2a;
+  transition: background-color 0.2s ease;
+}
+
+.boxGrid {
+    max-height: 530px;
+    height: 50%;
 }

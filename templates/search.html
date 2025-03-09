@@ -42,7 +42,7 @@
                     {% else %}
                         {# First display in-progress games #}
                         {% for game in scoreboard|selectattr('Status', 'equalto', 'in')|list %}
-                            <div class="scorecard">
+                            <div class="scorecard" onclick="location.href='/games/{{ game['id'] }}'">
                                 <div class="live-indicator"></div>
                                 <div class="scorecard-header">
                                     <span>NBA</span>
@@ -77,7 +77,7 @@
 
                         {# Then display finalized games #}
                         {% for game in scoreboard|selectattr('Status', 'equalto', 'post')|list %}
-                            <div class="scorecard final-game">
+                            <div class="scorecard final-game" onclick="location.href='/games/{{ game['id'] }}'">
                                 <div class="scorecard-header">
                                     <span>NBA</span>
                                     <span>FINAL</span>

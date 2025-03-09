@@ -63,11 +63,12 @@
     border-radius: 4px;
 }
 
-.playerTable thead th, .teamTable thead th {
+.playerTable thead th, .teamTable thead th, .futureTable thead th {
     position: sticky;
     top: -1px;
     z-index: 10;
     border-bottom: 2px solid #dee2e6;
+    text-align: center;
 }
 
 th[colspan] {
@@ -436,4 +437,125 @@ td {
 
 .theme-toggle.light .moon {
   opacity: 1;
+}
+
+/* Light mode boxscore styling */
+.boxscore {
+  width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+  margin-bottom: 15px;
+}
+
+.boxscore table {
+  width: 100%;
+  color: #333333;
+  border-collapse: collapse;
+}
+
+.boxscore thead th {
+  position: static;  /* Non-sticky headers */
+  background-color: #f0f0f0;
+  color: #333333;
+  border: 1px solid #cccccc;
+  padding: 6px 8px;
+  text-align: center;
+}
+
+.boxscore td {
+  background-color: #ffffff;
+  color: #333333 !important;
+  border: 1px solid #cccccc;
+  padding: 6px 8px;
+  text-align: center;
+}
+
+/* Make first column (player names) left-aligned */
+.boxscore td:first-child {
+  text-align: left;
+}
+
+/* Optional: Add some padding for better readability */
+.boxscore th, .boxscore-light td {
+  min-width: 40px;
+  padding: 6px 8px;
+}
+
+/* Team header (Indiana Pacers) */
+.boxscore table caption,
+.boxscore table th[colspan] {
+  background-color: #e6e6e6;
+  color: #333333;
+  padding: 8px;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Hover effect for rows */
+.boxscore tbody tr:hover td {
+  background-color: #f5f5f5;
+}.boxscore-scaled {
+  width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+  margin-bottom: 15px;
+  font-size: 80%; /* Scale down font size to compensate for 125% zoom */
+}
+
+.boxscore-scaled {
+  width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+  margin-bottom: 15px;
+  font-size: 80%;
+  max-height: 500px;
+}
+
+.boxscore-scaled table {
+  width: 100%;
+  color: #333333;
+  border-collapse: collapse;
+}
+
+.boxscore-scaled thead th {
+  position: static;
+  background-color: #f0f0f0;
+  color: #333333;
+  border: 1px solid #cccccc;
+  padding: 4px 6px; /* Smaller padding */
+  text-align: center;
+}
+
+.boxscore-scaled td {
+  background-color: #ffffff;
+  color: #333333 !important;
+  border: 1px solid #cccccc;
+  padding: 4px 6px; /* Smaller padding */
+  text-align: center;
+}
+
+/* Make first column (player names) left-aligned */
+.boxscore-scaled td:first-child {
+  text-align: left;
+}
+
+/* Smaller minimum width for columns */
+.boxscore-scaled th, .boxscore-scaled td {
+  min-width: 32px; /* Reduced from 40px */
+}
+
+/* Team header */
+.boxscore-scaled table caption,
+.boxscore-scaled table th[colspan] {
+  background-color: #e6e6e6;
+  color: #333333;
+  padding: 6px; /* Smaller padding */
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Hover effect for rows */
+.boxscore-scaled tbody tr:hover td {
+  background-color: #f5f5f5;
+  transition: background-color 0.2s ease;
 }
