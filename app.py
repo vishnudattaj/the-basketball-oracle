@@ -337,7 +337,8 @@ def standingsHTML():
             team_abbreviation = 'NO'
         if team_abbreviation == 'UTA':
             team_abbreviation = 'UTAH'
-            if session['user_theme'] == "dark":
+            user_theme = session.get('user_theme', 'dark')
+            if user_theme == "dark":
                 westIcon.append(f"https://a.espncdn.com/i/teamlogos/nba/500-dark/scoreboard/{team_abbreviation}.png")
             else:
                 westIcon.append(f"https://a.espncdn.com/i/teamlogos/nba/500/scoreboard/{team_abbreviation}.png")
@@ -436,6 +437,17 @@ def boxScore(gameId):
                                scoreboard=scoreboardData())
     except IndexError:
         return redirect(url_for('protected'))
+
+@app.route('/update_theme', methods=['POST'])
+@flask_login.login_required
+def update_theme():
+    theme_data = request.json
+    theme = theme_data.get('theme')
+
+    # Store the theme in the session for the current user
+    session['user_theme'] = theme
+
+    return jsonify({"status": "success", "theme": theme})
 
 def scoreboardData():
     url = "http://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
@@ -600,18 +612,6 @@ def createPlayerDf(player_id):
     playerselection = pandas.concat([playerselection], keys=["Player History"], axis=1)
 
     return playerselection
-
-
-@app.route('/update_theme', methods=['POST'])
-@flask_login.login_required
-def update_theme():
-    theme_data = request.json
-    theme = theme_data.get('theme')
-
-    # Store the theme in the session for the current user
-    session['user_theme'] = theme
-
-    return jsonify({"status": "success", "theme": theme})
 
 # Runs app in debug mode
 if __name__ == "__main__":
