@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     console.log("Visible Cards:", visibleCards);
-
+    document.documentElement.style.setProperty('--visible-cards', visibleCards);
     const totalCards = scorecards.length;
 
     if (totalCards <= visibleCards) {

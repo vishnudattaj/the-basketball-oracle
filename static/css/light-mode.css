@@ -152,8 +152,8 @@ tr {
 }
 
 .scorecard {
-    min-width: calc(100% / 5 - 12px);
-    max-width: calc(100% / 5 - 12px);
+    min-width: calc(100% / var(--visible-cards, 5) - 12px);
+    max-width: calc(100% / var(--visible-cards, 5) - 12px);
     height: 65px;
     margin-right: 15px;
     background-color: white;

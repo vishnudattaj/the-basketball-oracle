@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let playersData = [];
 
     // Fetch players data from JSON file using a relative path
-    fetch('./static/data/players.json')
+    fetch('./static/data/total.json')
         .then(response => response.json())
         .then(data => {
             playersData = data;

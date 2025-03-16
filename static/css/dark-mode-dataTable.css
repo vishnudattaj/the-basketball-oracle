@@ -63,6 +63,12 @@ body {
     background-color: #111111;
 }
 
+/* Add hover effect for team table rows */
+.teamTable tbody tr:hover {
+    background-color: #2a2a2a;
+    transition: background-color 0.2s ease;
+}
+
 .btn-grayish {
     background-color: #202124;
 }
@@ -235,8 +241,8 @@ th:not([colspan]) {
 }
 
 .scorecard {
-    min-width: calc(100% / 5 - 12px);
-    max-width: calc(100% / 5 - 12px);
+    min-width: calc(100% / var(--visible-cards, 5) - 12px);
+    max-width: calc(100% / var(--visible-cards, 5) - 12px);
     height: 65px;
     margin-right: 15px;
     background-color: #202124;
@@ -521,13 +527,15 @@ th:not([colspan]) {
   transition: background-color 0.2s ease;
 }
 
+/* Update the boxscore-scaled class to ensure it shows all rows */
 .boxscore-scaled {
   width: 100%;
   overflow-x: auto;
+  overflow-y: visible; /* Change from default to ensure all content shows */
   white-space: nowrap;
   margin-bottom: 15px;
   font-size: 80%;
-  max-height: 500px;
+  max-height: none; /* Remove or increase this - it might be cutting off content */
 }
 
 .boxscore-scaled table {
@@ -584,6 +592,21 @@ th:not([colspan]) {
     overflow-y: auto;
 }
 
+/* Update link styles */
 a {
     color: white;
+    text-decoration: none;
+    transition: color 0.2s ease;
 }
+
+/* Add hover effect for links */
+a:hover {
+    color: #3498db !important;
+}
+
+/* Add hover effect for player table rows */
+.playerTable tbody tr:hover {
+    background-color: #2a2a2a;
+    transition: background-color 0.2s ease;
+}
+

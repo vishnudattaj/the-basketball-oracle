@@ -42,7 +42,7 @@
                     {% else %}
                         {# First display in-progress games #}
                         {% for game in scoreboard|selectattr('Status', 'equalto', 'in')|list %}
-                            <div class="scorecard" onclick="location.href='/games/{{ game['id'] }}'">
+                            <div class="scorecard" onclick="location.href='/protected/games/{{ game['id'] }}'">
                                 <div class="live-indicator"></div>
                                 <div class="scorecard-header">
                                     <span>NBA</span>
@@ -50,7 +50,7 @@
                                 </div>
                                 <div class="scorecard-body">
                                     <div class="team-container">
-                                        <a href="/teams/{{ game['Home Link'] }}">
+                                        <a href="/protected/teams/{{ game['Home Link'] }}">
                                             <div class="team-info">
                                                 <div class="team-logo" style="background-image: url({{ game['Home Logo'] }});"></div>
                                                 <div class="team-name">{{ game['Home Team'] }}</div>
@@ -63,7 +63,7 @@
                                         <div class="time">{{ game['Clock'] }}</div>
                                     </div>
                                     <div class="team-container">
-                                        <a href="/teams/{{ game['Away Link'] }}">
+                                        <a href="/protected/teams/{{ game['Away Link'] }}">
                                             <div class="team-info">
                                                 <div class="team-logo" style="background-image: url({{ game['Away Logo'] }});"></div>
                                                 <div class="team-name">{{ game['Away Team'] }}</div>
@@ -77,14 +77,14 @@
 
                         {# Then display finalized games #}
                         {% for game in scoreboard|selectattr('Status', 'equalto', 'post')|list %}
-                            <div class="scorecard final-game" onclick="location.href='/games/{{ game['id'] }}'">
+                            <div class="scorecard final-game" onclick="location.href='/protected/games/{{ game['id'] }}'">
                                 <div class="scorecard-header">
                                     <span>NBA</span>
                                     <span>FINAL</span>
                                 </div>
                                 <div class="scorecard-body">
                                     <div class="team-container">
-                                        <a href="/teams/{{ game['Home Link'] }}">
+                                        <a href="/protected/teams/{{ game['Home Link'] }}">
                                             <div class="team-info">
                                                 <div class="team-logo" style="background-image: url({{ game['Home Logo'] }});"></div>
                                                 <div class="team-name">{{ game['Home Team'] }}</div>
@@ -96,7 +96,7 @@
                                         <div class="quarter">F</div>
                                     </div>
                                     <div class="team-container">
-                                        <a href="/teams/{{ game['Away Link'] }}">
+                                        <a href="/protected/teams/{{ game['Away Link'] }}">
                                             <div class="team-info">
                                                 <div class="team-logo" style="background-image: url({{ game['Away Logo'] }});"></div>
                                                 <div class="team-name">{{ game['Away Team'] }}</div>
@@ -117,7 +117,7 @@
                                 </div>
                                 <div class="scorecard-body">
                                     <div class="team-container">
-                                        <a href="/teams/{{ game['Home Link'] }}">
+                                        <a href="/protected/teams/{{ game['Home Link'] }}">
                                             <div class="team-info">
                                                 <div class="team-logo" style="background-image: url({{ game['Home Logo'] }});"></div>
                                                 <div class="team-name">{{ game['Home Team'] }}</div>
@@ -129,7 +129,7 @@
                                         <div class="quarter">VS</div>
                                     </div>
                                     <div class="team-container">
-                                        <a href="/teams/{{ game['Away Link'] }}">
+                                        <a href="/protected/teams/{{ game['Away Link'] }}">
                                             <div class="team-info">
                                                 <div class="team-logo" style="background-image: url({{ game['Away Logo'] }});"></div>
                                                 <div class="team-name">{{ game['Away Team'] }}</div>

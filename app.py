@@ -1,3 +1,4 @@
+import flask
 from PIL import UnidentifiedImageError
 import pandas as pd
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
@@ -13,6 +14,7 @@ from bs4 import BeautifulSoup
 import re
 from dotenv import load_dotenv
 import os
+import json
 
 load_dotenv()
 
@@ -55,14 +57,6 @@ kmb = joblib.load('kmeans_model_big.sav')
 scalerb = joblib.load('scaler_big.gz')
 
 xgb = joblib.load('statPrediction.sav')
-
-allPlayers = []
-
-for player in players.get_players():
-    allPlayers.append(player['full_name'])
-
-players_df = pd.DataFrame(allPlayers)
-players_df.to_json('static/data/players.json', orient='values')
 
 # Finds todays date
 yr = datetime.date.today().year
@@ -111,6 +105,8 @@ shooting_df.fillna(0, inplace=True)
 
 shooting_df.columns = shooting_df.columns.droplevel(0)
 
+with open('static/data/teams.json', 'r') as file:
+    teamDictionary = json.load(file)
 # 401 page if user tries to access material without logging in
 @login_manager.unauthorized_handler
 def unauthorized_handler():
@@ -202,118 +198,174 @@ def protected():
             return redirect(url_for('logout'))
         # Runs if user presses search
         elif request.form['Submit'] == "Submit":
-            # Checks are used to determine what tables the flask app sends to the html template
-            # Following lists are used to hold the players/teams user requested that don't exist
-            badRequestPlayer = []
             # Runs if player field isn't blank when submitted
             if request.form['player'] != "":
-                # Separates players by comma and a space
-                desired_players = request.form['player']
-                player_list = desired_players.split(', ')
-                player_list = list(dict.fromkeys(player_list))
-                try:
-                    # Lists hold the players table
-                    player_table = []
-                    player_url = []
-                    playerNameZip = []
-                    playerCategoryZip = []
-                    for player in player_list:
-                        player = player.replace("\\", "")
-                        # Uses api to get player id and full name for each player in list
-                        # The program runs even if you type part of a players name (Like Bron instead of LeBron James) so we still need to get their full name
-                        player_dict = players.find_players_by_full_name(player)
-                        player_id = player_dict[0]["id"]
-                        player_name = player_dict[0]["full_name"]
-                        active = player_dict[0]["is_active"]
-                        if active:
-                            newRow, matched_category = predictPlayer(player_name)
-                        # Uses player id to get the stats of the player as an object
-                        playerselection = createPlayerDf(player_id)
-                        if active:
-                            try:
-                                playerCategoryZip.append(matched_category)
-                                futurePredictions = pandas.concat([newRow], keys=["Future Predictions"], axis=1)
-                                futurePredictions = futurePredictions.rename(
-                                    columns={'SEASON_ID': 'YEAR', 'TEAM_ABBREVIATION': 'TEAM', 'PLAYER_AGE': 'AGE','FG_PCT': 'FG%', 'FG3_PCT': '3PT%', 'FT_PCT': 'FT%'})
-                                player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False), 'Predictions': 'Yes','Future Predictions': futurePredictions.to_html(classes="table table-striped tableFont", index=False)})
-                            except UnboundLocalError:
-                                playerCategoryZip.append("Free Agent")
-                                player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False), 'Predictions': 'No'})
-                            except ValueError:
-                                playerCategoryZip.append("Free Agent")
-                                player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False), 'Predictions': 'No'})
-                        else:
-                            playerCategoryZip.append("Retired")
-                            player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False), 'Predictions': 'No'})
-                        # Converts dataframe into a html table and adds it to the list
-                        playerNameZip.append(player_name)
-                        player_url.append(f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png")
-                # Runs if a player doesn't exist
-                except (UnidentifiedImageError, IndexError, re.error) as e:
-                    player_table = []
-                    player_url = []
-                    playerNameZip = []
-                    playerCategoryZip = []
-                    # List keeps track of all players who exist
-                    valid_players = []
-                    for player in player_list:
-                        player = player.replace("\\", "")
-                        try:
-                            player_dict = players.find_players_by_full_name(player)
-                            # Player_id used to trigger index error if player doesn't exist
-                            player_id = player_dict[0]["id"]
-                            # If index error doesn't occur, player is added to list of valid players
-                            valid_players.append(player)
-                        # If index error occurs, player is added to list of unknown players
-                        except IndexError:
-                            badRequestPlayer.append(player)
-                    # Creates dataframe for each valid player (code reused from above)
-                    for player in valid_players:
-                        # Uses api to get player id and full name for each player in list
-                        # The program runs even if you type part of a players name (Like Bron instead of LeBron James) so we still need to get their full name
-                        player_dict = players.find_players_by_full_name(player)
-                        player_id = player_dict[0]["id"]
-                        player_name = player_dict[0]["full_name"]
-                        active = player_dict[0]["is_active"]
-                        if active:
-                            try:
-                                newRow, matched_category = predictPlayer(player_name)
-                            except IndexError:
-                                pass
-
-                        # Uses player id to get the stats of the player as an object
-                        playerselection = createPlayerDf(player_id)
-                        if active:
-                            try:
-                                playerCategoryZip.append(matched_category)
-                                futurePredictions = pandas.concat([newRow], keys=["Future Predictions"], axis=1)
-                                futurePredictions = futurePredictions.rename(
-                                    columns={'SEASON_ID': 'YEAR', 'TEAM_ABBREVIATION': 'TEAM', 'PLAYER_AGE': 'AGE','FG_PCT': 'FG%', 'FG3_PCT': '3PT%', 'FT_PCT': 'FT%'})
-                                player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False), 'Predictions': 'Yes','Future Predictions': futurePredictions.to_html(classes="table table-striped tableFont", index=False)})
-                            except UnboundLocalError:
-                                playerCategoryZip.append("Free Agent")
-                                player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False), 'Predictions': 'No'})
-                            except ValueError:
-                                playerCategoryZip.append("Free Agent")
-                                player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False), 'Predictions': 'No'})
-                        else:
-                            playerCategoryZip.append("Retired")
-                            player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False), 'Predictions': 'No'})
-                        try:
-                            playerNameZip.append(player_name)
-                            player_url.append(f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png")
-                        except UnidentifiedImageError:
-                            badRequestPlayer.append(player)
-            if request.form['player'] == "":
-                return render_template('search.html', save=flask_login.current_user.id, standings=standingsHTML(), scoreboard=scoreboardData())
+                flask.session['items'] = request.form['player']
+                return(redirect(url_for('search')))
             else:
-                if len(player_table) != 0:
-                    return render_template('dataTable.html', save=flask_login.current_user.id, playertable=zip(player_table, player_url, playerNameZip, playerCategoryZip), badPlayer=badRequestPlayer, scoreboard=scoreboardData())
-                else:
-                    return render_template('search.html', save=flask_login.current_user.id, badPlayer=badRequestPlayer, standings=standingsHTML(), scoreboard=scoreboardData())
+                return render_template('search.html', save=flask_login.current_user.id, standings=standingsHTML(), scoreboard=scoreboardData())
     # Returns search.html if method is GET instead of POST
     else:
         return render_template('search.html', save=flask_login.current_user.id, standings=standingsHTML(), scoreboard=scoreboardData())
+
+@app.route('/protected/search', methods=['GET', 'POST'])
+@flask_login.login_required
+def search():
+    badRequestPlayer = []
+    desired_players = flask.session['items']
+    player_list = desired_players.split(', ')
+    player_list = list(dict.fromkeys(player_list))
+    try:
+        # Lists hold the players table
+        player_table = []
+        player_url = []
+        playerNameZip = []
+        playerCategoryZip = []
+        team_table = []
+        team_url = []
+        for player in player_list:
+            if [player] in teamDictionary:
+                team = player
+                team_dict = teams.find_teams_by_full_name(team)
+                team_abbreviation = team_dict[0]["abbreviation"]
+                team_id = team_dict[0]["id"]
+                team_roster = commonteamroster.CommonTeamRoster(team_id=team_id)
+                teamdf = team_roster.get_data_frames()
+                teamselection = teamdf[0][
+                    ['PLAYER', 'NUM', 'POSITION', 'HEIGHT', 'WEIGHT', 'AGE', 'EXP', 'SCHOOL',
+                     'HOW_ACQUIRED']]
+                teamselection['PLAYER'] = teamselection['PLAYER'].apply(player_link)
+                teamselection = pandas.concat([teamselection], keys=["Team Roster"], axis=1)
+                team_table.append(teamselection.to_html(classes='table table-striped', index=False, escape=False))
+                team_url.append(f'{team_abbreviation.lower()}.png')
+            else:
+                player = player.replace("\\", "")
+                # Uses api to get player id and full name for each player in list
+                # The program runs even if you type part of a players name (Like Bron instead of LeBron James) so we still need to get their full name
+                player_dict = players.find_players_by_full_name(player)
+                player_id = player_dict[0]["id"]
+                player_name = player_dict[0]["full_name"]
+                active = player_dict[0]["is_active"]
+                if active:
+                    newRow, matched_category = predictPlayer(player_name)
+                # Uses player id to get the stats of the player as an object
+                playerselection = createPlayerDf(player_id)
+                if active:
+                    try:
+                        playerCategoryZip.append(matched_category)
+                        futurePredictions = pandas.concat([newRow], keys=["Future Predictions"], axis=1)
+                        futurePredictions = futurePredictions.rename(
+                            columns={'SEASON_ID': 'YEAR', 'TEAM_ABBREVIATION': 'TEAM', 'PLAYER_AGE': 'AGE',
+                                     'FG_PCT': 'FG%', 'FG3_PCT': '3PT%', 'FT_PCT': 'FT%'})
+                        player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont",
+                                                                              index=False, escape=False),
+                                             'Predictions': 'Yes', 'Future Predictions': futurePredictions.to_html(
+                                classes="table table-striped tableFont", index=False)})
+                    except UnboundLocalError:
+                        playerCategoryZip.append("Free Agent")
+                        player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont",
+                                                                              index=False, escape=False),
+                                             'Predictions': 'No'})
+                    except ValueError:
+                        playerCategoryZip.append("Free Agent")
+                        player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont",
+                                                                              index=False, escape=False),
+                                             'Predictions': 'No'})
+                else:
+                    playerCategoryZip.append("Retired")
+                    player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont",
+                                                                          index=False, escape=False),
+                                         'Predictions': 'No'})
+                # Converts dataframe into a html table and adds it to the list
+                playerNameZip.append(player_name)
+                player_url.append(f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png")
+    # Runs if a player doesn't exist
+    except (UnidentifiedImageError, IndexError, re.error) as e:
+        player_table = []
+        player_url = []
+        playerNameZip = []
+        playerCategoryZip = []
+        team_table = []
+        team_url = []
+        # List keeps track of all players who exist
+        valid_players = []
+        for player in player_list:
+            player = player.replace("\\", "")
+            try:
+                if [player] in teamDictionary:
+                    valid_players.append(player)
+                else:
+                    player_dict = players.find_players_by_full_name(player)
+                    # Player_id used to trigger index error if player doesn't exist
+                    player_id = player_dict[0]["id"]
+                    # If index error doesn't occur, player is added to list of valid players
+                    valid_players.append(player)
+            # If index error occurs, player is added to list of unknown players
+            except IndexError:
+                badRequestPlayer.append(player)
+        # Creates dataframe for each valid player (code reused from above)
+        for player in valid_players:
+            if [player] in teamDictionary:
+                team = player
+                team_dict = teams.find_teams_by_full_name(team)
+                team_abbreviation = team_dict[0]["abbreviation"]
+                team_id = team_dict[0]["id"]
+                team_roster = commonteamroster.CommonTeamRoster(team_id=team_id)
+                teamdf = team_roster.get_data_frames()
+                teamselection = teamdf[0][
+                    ['PLAYER', 'NUM', 'POSITION', 'HEIGHT', 'WEIGHT', 'AGE', 'EXP', 'SCHOOL',
+                     'HOW_ACQUIRED']]
+                teamselection['PLAYER'] = teamselection['PLAYER'].apply(player_link)
+                teamselection = pandas.concat([teamselection], keys=["Team Roster"], axis=1)
+                team_table.append(teamselection.to_html(classes='table table-striped', index=False, escape=False))
+                team_url.append(f'{team_abbreviation.lower()}.png')
+            else:
+                # Uses api to get player id and full name for each player in list
+                # The program runs even if you type part of a players name (Like Bron instead of LeBron James) so we still need to get their full name
+                player_dict = players.find_players_by_full_name(player)
+                player_id = player_dict[0]["id"]
+                player_name = player_dict[0]["full_name"]
+                active = player_dict[0]["is_active"]
+                if active:
+                    try:
+                        newRow, matched_category = predictPlayer(player_name)
+                    except IndexError:
+                        pass
+
+                # Uses player id to get the stats of the player as an object
+                playerselection = createPlayerDf(player_id)
+                if active:
+                    try:
+                        playerCategoryZip.append(matched_category)
+                        futurePredictions = pandas.concat([newRow], keys=["Future Predictions"], axis=1)
+                        futurePredictions = futurePredictions.rename(
+                            columns={'SEASON_ID': 'YEAR', 'TEAM_ABBREVIATION': 'TEAM', 'PLAYER_AGE': 'AGE',
+                                     'FG_PCT': 'FG%', 'FG3_PCT': '3PT%', 'FT_PCT': 'FT%'})
+                        player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont",
+                                                                              index=False, escape=False),
+                                             'Predictions': 'Yes', 'Future Predictions': futurePredictions.to_html(
+                                classes="table table-striped tableFont", index=False)})
+                    except UnboundLocalError:
+                        playerCategoryZip.append("Free Agent")
+                        player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont",
+                                                                              index=False, escape=False),
+                                             'Predictions': 'No'})
+                    except ValueError:
+                        playerCategoryZip.append("Free Agent")
+                        player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont",
+                                                                              index=False, escape=False),
+                                             'Predictions': 'No'})
+                else:
+                    playerCategoryZip.append("Retired")
+                    player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont",
+                                                                          index=False, escape=False),
+                                         'Predictions': 'No'})
+                try:
+                    playerNameZip.append(player_name)
+                    player_url.append(f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png")
+                except UnidentifiedImageError:
+                    badRequestPlayer.append(player)
+    return render_template('dataTable.html', save=flask_login.current_user.id, playertable=zip(player_table, player_url, playerNameZip, playerCategoryZip), teamtable=zip(team_table, team_url), badPlayer=badRequestPlayer, scoreboard=scoreboardData())
 
 def standingsHTML():
     standings = leaguestandings.LeagueStandings()
@@ -365,9 +417,58 @@ def create_img_tag(link):
 
 def create_link(name):
     name = name.split(" ")
-    return f'<a href="/teams/{name[-1]}">{name[-1]}</a>'
+    return f'<a href="/protected/teams/{name[-1]}">{name[-1]}</a>'\
 
-@app.route('/teams/<string:team>', methods=['GET', 'POST'])
+def create_link_full(name):
+    return f'<a href="/protected/teams/{name}">{name}</a>'
+
+def player_link(name):
+    newName = name.replace(" ", "+")
+    return f'<a href="/protected/players/{newName}">{name}</a>'
+@app.route('/protected/players/<string:player>', methods=['GET', 'POST'])
+@flask_login.login_required
+def playerHTML(player):
+    playerCategoryZip = []
+    player_table = []
+    playerNameZip = []
+    player_url = []
+    player = player.replace("+", " ")
+    player_dict = players.find_players_by_full_name(player)
+    player_id = player_dict[0]["id"]
+    player_name = player_dict[0]["full_name"]
+    active = player_dict[0]["is_active"]
+    if active:
+        newRow, matched_category = predictPlayer(player_name)
+    # Uses player id to get the stats of the player as an object
+    playerselection = createPlayerDf(player_id)
+    if active:
+        try:
+            playerCategoryZip.append(matched_category)
+            futurePredictions = pandas.concat([newRow], keys=["Future Predictions"], axis=1)
+            futurePredictions = futurePredictions.rename(
+                columns={'SEASON_ID': 'YEAR', 'TEAM_ABBREVIATION': 'TEAM', 'PLAYER_AGE': 'AGE', 'FG_PCT': 'FG%',
+                         'FG3_PCT': '3PT%', 'FT_PCT': 'FT%'})
+            player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False, escape=False),
+                                 'Predictions': 'Yes', 'Future Predictions': futurePredictions.to_html(
+                    classes="table table-striped tableFont", index=False)})
+        except UnboundLocalError:
+            playerCategoryZip.append("Free Agent")
+            player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False, escape=False),
+                                 'Predictions': 'No'})
+        except ValueError:
+            playerCategoryZip.append("Free Agent")
+            player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False, escape=False),
+                                 'Predictions': 'No'})
+    else:
+        playerCategoryZip.append("Retired")
+        player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False, escape=False),
+                             'Predictions': 'No'})
+    # Converts dataframe into a html table and adds it to the list
+    playerNameZip.append(player_name)
+    player_url.append(f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png")
+    return render_template('dataTable.html', save=flask_login.current_user.id, playertable=zip(player_table, player_url, playerNameZip, playerCategoryZip), scoreboard=scoreboardData())
+
+@app.route('/protected/teams/<string:team>', methods=['GET', 'POST'])
 @flask_login.login_required
 def teamHTML(team):
     try:
@@ -378,67 +479,80 @@ def teamHTML(team):
         teamdf = team_roster.get_data_frames()
         teamselection = teamdf[0][
             ['PLAYER', 'NUM', 'POSITION', 'HEIGHT', 'WEIGHT', 'AGE', 'EXP', 'SCHOOL', 'HOW_ACQUIRED']]
+        teamselection['PLAYER'] = teamselection['PLAYER'].apply(player_link)
         teamselection = pandas.concat([teamselection], keys=["Team Roster"], axis=1)
-        team_table = teamselection.to_html(classes='table table-striped', index=False)
+        team_table = teamselection.to_html(classes='table table-striped', index=False, escape=False)
         team_url = f'{team_abbreviation.lower()}.png'
         return render_template('dataTable.html', save=flask_login.current_user.id, teamtable=zip([team_table], [team_url]), scoreboard=scoreboardData())
-    except IndexError:
+    except:
         return redirect(url_for('protected'))
 
 
-@app.route('/games/<int:gameId>', methods=['GET', 'POST'])
+@app.route('/protected/games/<int:gameId>', methods=['GET', 'POST'])
 @flask_login.login_required
 def boxScore(gameId):
-    try:
-        url = f"https://cdn.espn.com/core/nba/boxscore?xhr=1&gameId={gameId}"
-        response = requests.get(url).json()
-        boxscore = pd.json_normalize(response['gamepackageJSON']['boxscore']['players'])
-        team_table = []
-        team_url = []
-        team_name = []
-        index = 0
-        for team in boxscore['team.shortDisplayName']:
-            team_dict = teams.find_teams_by_full_name(team)
-            fullName = team_dict[0]["full_name"]
-            team_name.append(create_link(fullName))
-            team_abbreviation = team_dict[0]["abbreviation"]
-            team_url.append(f'{team_abbreviation.lower()}.png')
+    url = f"https://cdn.espn.com/core/nba/boxscore?xhr=1&gameId={gameId}"
+    response = requests.get(url).json()
+    boxscore = pd.json_normalize(response['gamepackageJSON']['boxscore']['players'])
+    team_table = []
+    team_url = []
+    team_name = []
+    names = []
+    for team in boxscore['team.shortDisplayName']:
+        team_dict = teams.find_teams_by_full_name(team)
+        fullName = team_dict[0]["full_name"]
+        team_name.append(create_link(fullName))
+        team_abbreviation = team_dict[0]["abbreviation"]
+        team_url.append(f'{team_abbreviation.lower()}.png')
+        names.append(create_link_full(fullName))
 
-        for team in boxscore['statistics']:
-            key = ['Starter'] + team[0]['names']
-            starters = []
-            bench = []
-            dnp = []
+    teamIndex = 0
+    for team in boxscore['statistics']:
+        key = ['Starter'] + team[0]['names']
+        starters = []
+        bench = []
+        dnp = []
+        teamTotals = [names[teamIndex]]
 
-            for athlete in team[0]['athletes']:
-                if athlete['stats']:
-                    stats = [athlete['athlete']['displayName']] + athlete['stats']
-                    if athlete['starter']:
-                        starters.append(stats)
-                    else:
-                        bench.append(stats)
+        for athlete in team[0]['athletes']:
+            displayName = player_link(athlete['athlete']['displayName'])
+            if athlete['stats']:
+                stats = [displayName] + athlete['stats']
+                if athlete['starter']:
+                    starters.append(stats)
                 else:
-                    stats = [athlete['athlete']['displayName']] + ['DNP'] + ['-' for _ in range(13)]
-                    dnp.append(stats)
+                    bench.append(stats)
+            else:
+                stats = [displayName] + ['DNP'] + ['-' for _ in range(13)]
+                dnp.append(stats)
+            index = 1
+            for stats in athlete['stats']:
+                if len(teamTotals) < 15:
+                    teamTotals.append(stats)
+                else:
+                    if "-" not in teamTotals[index] or teamTotals[index][0] == "-":
+                        teamTotals[index] = str(int(teamTotals[index]) + int(stats))
+                    else:
+                        made = int(teamTotals[index].split("-")[0])
+                        attempted = int(teamTotals[index].split("-")[1])
+                        teamTotals[index] = str(made + int(stats.split("-")[0])) + "-" + str(attempted + int(stats.split("-")[1]))
+                index += 1
+        starters = sorted(starters, key=lambda x: x[key.index('MIN')], reverse=True)
+        bench = sorted(bench, key=lambda x: x[key.index('MIN')], reverse=True)
 
-            starters = sorted(starters, key=lambda x: x[key.index('MIN')], reverse=True)
-            bench = sorted(bench, key=lambda x: x[key.index('MIN')], reverse=True)
+        starters_df = pd.DataFrame(starters, columns=key)
+        starters_df = pandas.concat([starters_df], keys=[team_name[teamIndex]], axis=1)
+        bench_key = ['Bench'] + team[0]['names']
+        bench_df = pd.DataFrame(bench + dnp, columns=bench_key)
+        total_key = ['Total'] + team[0]['names']
+        total_df = pd.DataFrame([teamTotals], columns=total_key, index=[0])
+        team_table.append(starters_df.to_html(classes='table table-striped', index=False, escape=False) + bench_df.to_html(
+            classes='table table-striped', index=False, escape=False) + total_df.to_html(
+            classes='table table-striped', index=False, escape=False))
+        teamIndex += 1
 
-            starters_df = pd.DataFrame(starters, columns=key)
-            starters_df = pandas.concat([starters_df], keys=[team_name[index]], axis=1)
-            bench_key = ['Bench'] + team[0]['names']
-            bench_df = pd.DataFrame(bench + dnp, columns=bench_key)
-
-            teamBox_html = starters_df.to_html(classes='table table-striped', index=False, escape=False) + bench_df.to_html(
-                classes='table table-striped', index=False)
-
-            team_table.append(teamBox_html)
-            index += 1
-
-        return render_template('dataTable.html', save=flask_login.current_user.id, boxscore=zip(team_table, team_url),
-                               scoreboard=scoreboardData())
-    except IndexError:
-        return redirect(url_for('protected'))
+    return render_template('dataTable.html', save=flask_login.current_user.id, boxscore=zip(team_table, team_url),
+                           scoreboard=scoreboardData())
 
 @app.route('/update_theme', methods=['POST'])
 @flask_login.login_required
@@ -613,6 +727,11 @@ def createPlayerDf(player_id):
     stl_avg = playerdf['STL'].fillna(0).div(playerdf['GP'].fillna(1)).to_frame('STL').round(1)
     blk_avg = playerdf['BLK'].fillna(0).div(playerdf['GP'].fillna(1)).to_frame('BLK').round(1)
     # Selects what stats to display in the html
+    for index, row in playerdf.iterrows():
+        if row['TEAM_ABBREVIATION'] != "TOT":
+            team_dict = teams.find_team_by_abbreviation(row['TEAM_ABBREVIATION'])
+            teamName = team_dict["full_name"]
+            playerdf.loc[index, 'TEAM_ABBREVIATION'] = create_link_abbreviation(teamName, row['TEAM_ABBREVIATION'])
     playerselection = pandas.concat(
         [playerdf[['SEASON_ID', 'TEAM_ABBREVIATION', 'PLAYER_AGE', 'GP', 'GS']], pts_avg, reb_avg,
          ast_avg, stl_avg, blk_avg, playerdf[['FG_PCT', 'FG3_PCT', 'FT_PCT']]], axis=1)
@@ -622,6 +741,10 @@ def createPlayerDf(player_id):
     playerselection = pandas.concat([playerselection], keys=["Player History"], axis=1)
 
     return playerselection
+
+def create_link_abbreviation(name, abbreviation):
+    name = name.split(" ")
+    return f'<a href="/protected/teams/{name[-1]}">{abbreviation}</a>'
 
 # Runs app in debug mode
 if __name__ == "__main__":

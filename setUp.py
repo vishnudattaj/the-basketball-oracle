@@ -1,4 +1,5 @@
 import pandas as pd
+from nba_api.stats.static import players, teams
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
@@ -89,10 +90,26 @@ combined_df.dropna(inplace=True)
 X = combined_df[['PastPPG', 'PastRPG', 'PastAPG', 'PastSPG', 'PastBPG', 'PastMIN', 'PastAGE', 'PastTS%', 'PastFTR', 'PastPER', 'PastUSG', 'PastAS%', 'PastRB%', 'PastST%', 'PastBK%', 'Past3PA', 'PastDIST']]
 y = combined_df[['pts_per_game', 'trb_per_game', 'ast_per_game', 'stl_per_game', 'blk_per_game']]
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=15)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=5)
 
 model = MultiOutputRegressor(XGBRegressor(learning_rate=0.1, max_depth=3))
 
 model.fit(X_train, y_train)
 
 joblib.dump(model, filename='statPrediction.sav')
+
+allPlayers = []
+
+for player in players.get_players():
+    allPlayers.append(player['full_name'])
+
+allTeams = []
+
+for team in teams.get_teams():
+    allTeams.append(team['full_name'])
+
+teams_df = pd.DataFrame(allTeams)
+teams_df.to_json('static/data/teams.json', orient='values')
+
+total_df = pd.DataFrame(allPlayers + allTeams)
+total_df.to_json('static/data/total.json', orient='values')
