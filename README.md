@@ -1,6 +1,6 @@
 # The Basketball Oracle 🏀📊
 
-The Basketball Oracle is the ultimate basketball website that allows users to view NBA standings, today's scores, team roster info, player career information, and most importantly: player predictions for the next season.
+The Basketball Oracle is the ultimate basketball website that allows users to view NBA standings, today's scores, team roster info, player career information, boxscores, and most importantly: player predictions for the next season.
 
 **Link to Website:** COMING SOON
 
@@ -27,6 +27,7 @@ To use the features, first, you need to **log in** or **create an account** if y
 - **Player Search:** Use the search bar to type in the name of any NBA player to see their current stats and future predictions for the upcoming season.
 - **Team Information:** You can click on any team name in the standings or scoreboard to view their **roster**, which also includes basic player information such as height and weight.
 - **Scoreboard:** View the **live scores** of NBA games and click on the team names to see detailed roster information for each team playing today.
+- **Boxscores:** Dive into the **boxscores** of NBA games to explore detailed statistics such as individual player performances, team comparisons, and game highlights.
 
 ---
 
@@ -37,6 +38,7 @@ To use the features, first, you need to **log in** or **create an account** if y
 - **Today's Scores:** Stay up-to-date with live scores of today's NBA games.
 - **Team Rosters:** Click on any team in the standings or scoreboard to view detailed information about the team's roster.
 - **Player Search:** Quickly search for any player to view their current and past performance.
+- **Boxscores:** Get a deeper look into game statistics, including individual player stats, team comparisons, and detailed game analysis.
 - **Dark/Light Mode:** Switch between dark and light modes for a more personalized browsing experience.
 - **Password Protection:** A secure password feature ensures only authorized users can access certain data or sections of the site.
 - **Typeahead Search:** Quickly find what you're looking for with real-time search suggestions that show matching player names, teams, and stats as you type.
