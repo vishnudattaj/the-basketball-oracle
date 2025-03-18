@@ -15,6 +15,9 @@ import re
 from dotenv import load_dotenv
 import os
 import json
+import numpy as np
+from sklearn.preprocessing import MinMaxScaler
+import traceback
 
 load_dotenv()
 
@@ -105,8 +108,37 @@ shooting_df.fillna(0, inplace=True)
 
 shooting_df.columns = shooting_df.columns.droplevel(0)
 
+totalDF = pandas.merge(pandas.merge(basic_df, advanced_df, on='Player'), shooting_df, on='Player')
+
+totalDF = pandas.merge(pandas.merge(basic_df, advanced_df, on='Player'), shooting_df, on='Player')
+
+metrics = ['PTS', 'AST', 'TRB', 'BLK', 'STL', 'TS%', 'WS', 'USG%', 'PER', 'G']
+weights = np.array([0.3, 0.15, 0.15, 0.05, 0.05, 0.15, 0.1, 0.1, 0.1, 0.1])
+weights = weights / np.sum(weights)
+
+
+# Normalize metrics using MinMaxScaler
+scaler = MinMaxScaler()
+totalDF[metrics] = scaler.fit_transform(totalDF[metrics])
+
+# Calculate weighted scores
+totalDF['Score'] = np.dot(totalDF[metrics], weights)
+totalDF['Score'] = totalDF['Score'] * 10
+
+totalDF = totalDF.drop_duplicates(subset='Player', keep='first')
+
+# Sort players by their scores
+totalDF = totalDF.sort_values(by='Score', ascending=False)
+
+# Add a ranking column
+totalDF['Rank'] = np.arange(1, len(totalDF) + 1)
+
+# Export the ranked players to a new Excel file
+totalDF[['Rank', 'Player', 'Score']].to_excel('ranked_players.xlsx', index=False)
+
 with open('static/data/teams.json', 'r') as file:
     teamDictionary = json.load(file)
+
 # 401 page if user tries to access material without logging in
 @login_manager.unauthorized_handler
 def unauthorized_handler():
@@ -203,10 +235,10 @@ def protected():
                 flask.session['items'] = request.form['player']
                 return(redirect(url_for('search')))
             else:
-                return render_template('search.html', save=flask_login.current_user.id, standings=standingsHTML(), scoreboard=scoreboardData())
+                return render_template('search.html', save=flask_login.current_user.id, standings=standingsHTML(), scoreboard=scoreboardData(), top_players = PRI())
     # Returns search.html if method is GET instead of POST
     else:
-        return render_template('search.html', save=flask_login.current_user.id, standings=standingsHTML(), scoreboard=scoreboardData())
+        return render_template('search.html', save=flask_login.current_user.id, standings=standingsHTML(), scoreboard=scoreboardData(), top_players = PRI())
 
 @app.route('/protected/search', methods=['GET', 'POST'])
 @flask_login.login_required
@@ -221,6 +253,7 @@ def search():
         player_url = []
         playerNameZip = []
         playerCategoryZip = []
+        playerScore = []
         team_table = []
         team_url = []
         for player in player_list:
@@ -247,11 +280,12 @@ def search():
                 player_name = player_dict[0]["full_name"]
                 active = player_dict[0]["is_active"]
                 if active:
-                    newRow, matched_category = predictPlayer(player_name)
+                    newRow, matched_category, score = predictPlayer(player_name)
                 # Uses player id to get the stats of the player as an object
                 playerselection = createPlayerDf(player_id)
                 if active:
                     try:
+                        playerScore.append(score)
                         playerCategoryZip.append(matched_category)
                         futurePredictions = pandas.concat([newRow], keys=["Future Predictions"], axis=1)
                         futurePredictions = futurePredictions.rename(
@@ -262,16 +296,19 @@ def search():
                                              'Predictions': 'Yes', 'Future Predictions': futurePredictions.to_html(
                                 classes="table table-striped tableFont", index=False)})
                     except UnboundLocalError:
+                        playerScore.append(False)
                         playerCategoryZip.append("Free Agent")
                         player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont",
                                                                               index=False, escape=False),
                                              'Predictions': 'No'})
                     except ValueError:
+                        playerScore.append(False)
                         playerCategoryZip.append("Free Agent")
                         player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont",
                                                                               index=False, escape=False),
                                              'Predictions': 'No'})
                 else:
+                    playerScore.append(False)
                     playerCategoryZip.append("Retired")
                     player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont",
                                                                           index=False, escape=False),
@@ -285,6 +322,7 @@ def search():
         player_url = []
         playerNameZip = []
         playerCategoryZip = []
+        playerScore = []
         team_table = []
         team_url = []
         # List keeps track of all players who exist
@@ -328,7 +366,7 @@ def search():
                 active = player_dict[0]["is_active"]
                 if active:
                     try:
-                        newRow, matched_category = predictPlayer(player_name)
+                        newRow, matched_category, score = predictPlayer(player_name)
                     except IndexError:
                         pass
 
@@ -336,6 +374,7 @@ def search():
                 playerselection = createPlayerDf(player_id)
                 if active:
                     try:
+                        playerScore.append(score)
                         playerCategoryZip.append(matched_category)
                         futurePredictions = pandas.concat([newRow], keys=["Future Predictions"], axis=1)
                         futurePredictions = futurePredictions.rename(
@@ -346,16 +385,19 @@ def search():
                                              'Predictions': 'Yes', 'Future Predictions': futurePredictions.to_html(
                                 classes="table table-striped tableFont", index=False)})
                     except UnboundLocalError:
+                        playerScore.append(False)
                         playerCategoryZip.append("Free Agent")
                         player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont",
                                                                               index=False, escape=False),
                                              'Predictions': 'No'})
                     except ValueError:
+                        playerScore.append(False)
                         playerCategoryZip.append("Free Agent")
                         player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont",
                                                                               index=False, escape=False),
                                              'Predictions': 'No'})
                 else:
+                    playerScore.append(False)
                     playerCategoryZip.append("Retired")
                     player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont",
                                                                           index=False, escape=False),
@@ -365,7 +407,7 @@ def search():
                     player_url.append(f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png")
                 except UnidentifiedImageError:
                     badRequestPlayer.append(player)
-    return render_template('dataTable.html', save=flask_login.current_user.id, playertable=zip(player_table, player_url, playerNameZip, playerCategoryZip), teamtable=zip(team_table, team_url), badPlayer=badRequestPlayer, scoreboard=scoreboardData())
+    return render_template('dataTable.html', save=flask_login.current_user.id, playertable=zip(player_table, player_url, playerNameZip, playerCategoryZip, playerScore), teamtable=zip(team_table, team_url), badPlayer=badRequestPlayer, scoreboard=scoreboardData(), top_players = PRI())
 
 def standingsHTML():
     standings = leaguestandings.LeagueStandings()
@@ -428,45 +470,49 @@ def player_link(name):
 @app.route('/protected/players/<string:player>', methods=['GET', 'POST'])
 @flask_login.login_required
 def playerHTML(player):
-    playerCategoryZip = []
-    player_table = []
-    playerNameZip = []
-    player_url = []
-    player = player.replace("+", " ")
-    player_dict = players.find_players_by_full_name(player)
-    player_id = player_dict[0]["id"]
-    player_name = player_dict[0]["full_name"]
-    active = player_dict[0]["is_active"]
-    if active:
-        newRow, matched_category = predictPlayer(player_name)
-    # Uses player id to get the stats of the player as an object
-    playerselection = createPlayerDf(player_id)
-    if active:
-        try:
-            playerCategoryZip.append(matched_category)
-            futurePredictions = pandas.concat([newRow], keys=["Future Predictions"], axis=1)
-            futurePredictions = futurePredictions.rename(
-                columns={'SEASON_ID': 'YEAR', 'TEAM_ABBREVIATION': 'TEAM', 'PLAYER_AGE': 'AGE', 'FG_PCT': 'FG%',
-                         'FG3_PCT': '3PT%', 'FT_PCT': 'FT%'})
-            player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False, escape=False),
-                                 'Predictions': 'Yes', 'Future Predictions': futurePredictions.to_html(
-                    classes="table table-striped tableFont", index=False)})
-        except UnboundLocalError:
-            playerCategoryZip.append("Free Agent")
+    try:
+        playerCategoryZip = []
+        player_table = []
+        playerNameZip = []
+        player_url = []
+        player = player.replace("+", " ")
+        player_dict = players.find_players_by_full_name(player)
+        player_id = player_dict[0]["id"]
+        player_name = player_dict[0]["full_name"]
+        active = player_dict[0]["is_active"]
+        if active:
+            newRow, matched_category, score = predictPlayer(player_name)
+        # Uses player id to get the stats of the player as an object
+        playerselection = createPlayerDf(player_id)
+        if active:
+            try:
+                playerCategoryZip.append(matched_category)
+                futurePredictions = pandas.concat([newRow], keys=["Future Predictions"], axis=1)
+                futurePredictions = futurePredictions.rename(
+                    columns={'SEASON_ID': 'YEAR', 'TEAM_ABBREVIATION': 'TEAM', 'PLAYER_AGE': 'AGE', 'FG_PCT': 'FG%',
+                             'FG3_PCT': '3PT%', 'FT_PCT': 'FT%'})
+                player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False, escape=False),
+                                     'Predictions': 'Yes', 'Future Predictions': futurePredictions.to_html(
+                        classes="table table-striped tableFont", index=False)})
+            except UnboundLocalError:
+                playerCategoryZip.append("Free Agent")
+                player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False, escape=False),
+                                     'Predictions': 'No'})
+            except ValueError:
+                playerCategoryZip.append("Free Agent")
+                player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False, escape=False),
+                                     'Predictions': 'No'})
+        else:
+            playerCategoryZip.append("Retired")
             player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False, escape=False),
                                  'Predictions': 'No'})
-        except ValueError:
-            playerCategoryZip.append("Free Agent")
-            player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False, escape=False),
-                                 'Predictions': 'No'})
-    else:
-        playerCategoryZip.append("Retired")
-        player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False, escape=False),
-                             'Predictions': 'No'})
-    # Converts dataframe into a html table and adds it to the list
-    playerNameZip.append(player_name)
-    player_url.append(f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png")
-    return render_template('dataTable.html', save=flask_login.current_user.id, playertable=zip(player_table, player_url, playerNameZip, playerCategoryZip), scoreboard=scoreboardData())
+        # Converts dataframe into a html table and adds it to the list
+        playerNameZip.append(player_name)
+        player_url.append(f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png")
+        return render_template('dataTable.html', save=flask_login.current_user.id, playertable=zip(player_table, player_url, playerNameZip, playerCategoryZip, [score]), scoreboard=scoreboardData(), top_players = PRI())
+    except:
+        traceback.print_exc()
+        return redirect(url_for('protected'))
 
 @app.route('/protected/teams/<string:team>', methods=['GET', 'POST'])
 @flask_login.login_required
@@ -483,7 +529,7 @@ def teamHTML(team):
         teamselection = pandas.concat([teamselection], keys=["Team Roster"], axis=1)
         team_table = teamselection.to_html(classes='table table-striped', index=False, escape=False)
         team_url = f'{team_abbreviation.lower()}.png'
-        return render_template('dataTable.html', save=flask_login.current_user.id, teamtable=zip([team_table], [team_url]), scoreboard=scoreboardData())
+        return render_template('dataTable.html', save=flask_login.current_user.id, teamtable=zip([team_table], [team_url]), scoreboard=scoreboardData(), top_players = PRI())
     except:
         return redirect(url_for('protected'))
 
@@ -552,7 +598,7 @@ def boxScore(gameId):
         teamIndex += 1
 
     return render_template('dataTable.html', save=flask_login.current_user.id, boxscore=zip(team_table, team_url),
-                           scoreboard=scoreboardData())
+                           scoreboard=scoreboardData(), top_players = PRI())
 
 @app.route('/update_theme', methods=['POST'])
 @flask_login.login_required
@@ -630,22 +676,15 @@ def normalize_name(name):
 
 def predictPlayer(player_name):
     try:
-        # Normalize player names by removing dots
-        player_name_clean = normalize_name(player_name)
-
-        # Apply normalization to DataFrame 'Player' columns
-        basic_df['Player_clean'] = basic_df['Player'].apply(normalize_name)
-        advanced_df['Player_clean'] = advanced_df['Player'].apply(normalize_name)
-        shooting_df['Player_clean'] = shooting_df['Player'].apply(normalize_name)
-
-        # Locate the player using the cleaned names
-        player_basic = basic_df.loc[basic_df['Player_clean'] == player_name_clean]
-        player_advanced = advanced_df.loc[advanced_df['Player_clean'] == player_name_clean]
-        player_shooting = shooting_df.loc[shooting_df['Player_clean'] == player_name_clean]
+        player_basic = basic_df.loc[basic_df['Player'] == player_name]
+        player_advanced = advanced_df.loc[advanced_df['Player'] == player_name]
+        player_shooting = shooting_df.loc[shooting_df['Player'] == player_name]
+        playerScore = totalDF.loc[totalDF['Player'] == player_name]
 
         player_basic = player_basic.iloc[0]
         player_advanced = player_advanced.iloc[0]
         player_shooting = player_shooting.iloc[0]
+        score = round(playerScore.iloc[0]['Score'], 2)
 
         if player_basic['Pos'] in ["PG", "SG"]:
             features = [player_basic['PTS'], player_basic['AST'], player_basic['STL'],
@@ -711,8 +750,9 @@ def predictPlayer(player_name):
             'FG3_PCT': ['-'],
             'FT_PCT': ['-']
         })
-        return newRow, matched_category
-    except Exception as e:
+        return newRow, matched_category, score
+    except:
+        traceback.print_exc()
         return None, "Free Agent"
 
 
@@ -729,9 +769,11 @@ def createPlayerDf(player_id):
     # Selects what stats to display in the html
     for index, row in playerdf.iterrows():
         if row['TEAM_ABBREVIATION'] != "TOT":
-            team_dict = teams.find_team_by_abbreviation(row['TEAM_ABBREVIATION'])
-            teamName = team_dict["full_name"]
-            playerdf.loc[index, 'TEAM_ABBREVIATION'] = create_link_abbreviation(teamName, row['TEAM_ABBREVIATION'])
+            abbreviation = row['TEAM_ABBREVIATION']
+            team_dict = teams.find_team_by_abbreviation(abbreviation)
+            if team_dict:
+                teamName = team_dict["full_name"]
+                playerdf.loc[index, 'TEAM_ABBREVIATION'] = create_link_abbreviation(teamName, abbreviation)
     playerselection = pandas.concat(
         [playerdf[['SEASON_ID', 'TEAM_ABBREVIATION', 'PLAYER_AGE', 'GP', 'GS']], pts_avg, reb_avg,
          ast_avg, stl_avg, blk_avg, playerdf[['FG_PCT', 'FG3_PCT', 'FT_PCT']]], axis=1)
@@ -745,6 +787,20 @@ def createPlayerDf(player_id):
 def create_link_abbreviation(name, abbreviation):
     name = name.split(" ")
     return f'<a href="/protected/teams/{name[-1]}">{abbreviation}</a>'
+
+def PRI():
+    playerName = []
+    playerScore = []
+    playerURL = []
+    topDF = totalDF.head(10)
+    for index, row in topDF.iterrows():
+        playername = row['Player']
+        playerName.append(player_link(row['Player']))
+        playerScore.append(round(row['Score'], 2))
+        player_dict = players.find_players_by_full_name(playername)
+        player_id = player_dict[0]["id"]
+        playerURL.append(f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png")
+    return list(zip(playerName, playerScore, playerURL))
 
 # Runs app in debug mode
 if __name__ == "__main__":

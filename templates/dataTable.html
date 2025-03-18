@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="{{ url_for('static',filename='css/light-mode-dataTable.css') }}" id="light-theme" disabled />
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static',filename='img/favicon.ico') }}">
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap"
@@ -147,7 +148,44 @@
             <div class="carousel-indicators" id="carouselIndicators"></div>
         </div>
     </div>
-    <br>
+
+    <div class="navbar-oracle">
+        <div class="navbar-container">
+            <a href="/protected" class="navbar-brand-oracle">
+                <div class="logo-container">
+                    <div class="logo-slant-background"></div>
+                    <img src="{{ url_for('static',filename='img/logo.png') }}" alt="Basketball Oracle Logo" class="navbar-logo">
+                    <span class="navbar-title">THE BASKETBALL ORACLE</span>
+                </div>
+            </a>
+
+            <!-- Top Players Carousel -->
+            <div class="players-carousel-container">
+                <div class="players-carousel">
+                    {% for player_name, player_score, player_url in top_players %}
+                    <div class="player-card">
+                        <img src="{{ player_url }}" alt="{{ player_name }}" class="player-image">
+                        <div class="player-info">
+                            <span class="player-name">{{ player_name | safe}}</span>
+                            <span class="player-score">PRI: {{ player_score }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <!-- Duplicate the first few items to create a seamless loop -->
+                    {% for player_name, player_score, player_url in top_players %}
+                    <div class="player-card">
+                        <img src="{{ player_url }}" alt="{{ player_name }}" class="player-image">
+                        <div class="player-info">
+                            <span class="player-name">{{ player_name | safe }}</span>
+                            <span class="player-score">PRI: {{ player_score }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="bottomSection">
         <div class="container-sm h-100">
             {% block body %}
@@ -160,13 +198,16 @@
             {% endfor %}
 
             <br>
-            {% for table, url, name, category in playertable %}
+            {% for table, url, name, category, score in playertable %}
                 <div class="playerGrid mx-3">
                     <div class="playerHeadshot">
                         <img src="{{ url }}" alt="Player Image" onerror="this.onerror=null;this.className='defaultImage';this.src='https://storage.googleapis.com/support-forums-api/attachment/thread-120988-16861902392288249134.png';" class="playerHeadshot">
                         <br>
                         <h3 class="playerInfo">{{ name }}</h3>
                         <h4 class="playerInfo">{{ category }}</h4>
+                        {% if score != false %}
+                            <h4 class="playerInfo">PRI: {{ score }}</h4>
+                        {% endif %}
                     </div>
                     <div class="playerTable">
                         {{ table['Table']|safe }}
