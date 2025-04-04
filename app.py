@@ -18,6 +18,7 @@ import json
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 import traceback
+from replace_accents import replace_accents_characters
 
 load_dotenv()
 
@@ -673,13 +674,12 @@ def scoreboardData():
 def normalize_name(name):
     return re.sub(r'\.', '', name)
 
-
 def predictPlayer(player_name):
     try:
-        player_basic = basic_df.loc[basic_df['Player'] == player_name]
-        player_advanced = advanced_df.loc[advanced_df['Player'] == player_name]
-        player_shooting = shooting_df.loc[shooting_df['Player'] == player_name]
-        playerScore = totalDF.loc[totalDF['Player'] == player_name]
+        player_basic = basic_df[basic_df['Player'].apply(replace_accents_characters) == replace_accents_characters(player_name)]
+        player_advanced = advanced_df[advanced_df['Player'].apply(replace_accents_characters) == replace_accents_characters(player_name)]
+        player_shooting = shooting_df[shooting_df['Player'].apply(replace_accents_characters) == replace_accents_characters(player_name)]
+        playerScore = totalDF[totalDF['Player'].apply(replace_accents_characters) == replace_accents_characters(player_name)]
 
         player_basic = player_basic.iloc[0]
         player_advanced = player_advanced.iloc[0]
@@ -688,7 +688,7 @@ def predictPlayer(player_name):
 
         if player_basic['Pos'] in ["PG", "SG"]:
             features = [player_basic['PTS'], player_basic['AST'], player_basic['STL'],
-                        player_advanced['DWS'], player_advanced['VORP']]
+                        player_advanced['WS'], player_advanced['VORP']]
             features = pandas.DataFrame([features])
             scaled_features = scalerg.transform(features)
             categorizing = kmg.predict(scaled_features)
@@ -696,7 +696,7 @@ def predictPlayer(player_name):
             matched_category = role[categorizing[0]]
         elif player_basic['Pos'] in ["SF", "PF"]:
             features = [player_basic['PTS'], player_basic['AST'], player_basic['STL'],
-                        player_advanced['DWS'], player_advanced['VORP']]
+                        player_advanced['WS'], player_advanced['VORP']]
             features = pandas.DataFrame([features])
             scaled_features = scalerw.transform(features)
             categorizing = kmw.predict(scaled_features)
@@ -704,7 +704,7 @@ def predictPlayer(player_name):
             matched_category = role[categorizing[0]]
         elif player_basic['Pos'] == "C":
             features = [player_basic['PTS'], player_basic['TRB'], player_basic['BLK'],
-                        player_advanced['DWS'], player_advanced['VORP']]
+                        player_advanced['WS'], player_advanced['VORP']]
             features = pandas.DataFrame([features])
             scaled_features = scalerb.transform(features)
             categorizing = kmb.predict(scaled_features)
