@@ -111,30 +111,22 @@ shooting_df.columns = shooting_df.columns.droplevel(0)
 
 totalDF = pandas.merge(pandas.merge(basic_df, advanced_df, on='Player'), shooting_df, on='Player')
 
-totalDF = pandas.merge(pandas.merge(basic_df, advanced_df, on='Player'), shooting_df, on='Player')
-
 metrics = ['PTS', 'AST', 'TRB', 'BLK', 'STL', 'TS%', 'WS', 'USG%', 'PER', 'G']
 weights = np.array([0.3, 0.15, 0.15, 0.05, 0.05, 0.15, 0.1, 0.1, 0.1, 0.1])
 weights = weights / np.sum(weights)
 
-
-# Normalize metrics using MinMaxScaler
 scaler = MinMaxScaler()
 totalDF[metrics] = scaler.fit_transform(totalDF[metrics])
 
-# Calculate weighted scores
 totalDF['Score'] = np.dot(totalDF[metrics], weights)
 totalDF['Score'] = totalDF['Score'] * 10
 
 totalDF = totalDF.drop_duplicates(subset='Player', keep='first')
 
-# Sort players by their scores
 totalDF = totalDF.sort_values(by='Score', ascending=False)
 
-# Add a ranking column
 totalDF['Rank'] = np.arange(1, len(totalDF) + 1)
 
-# Export the ranked players to a new Excel file
 totalDF[['Rank', 'Player', 'Score']].to_excel('ranked_players.xlsx', index=False)
 
 with open('static/data/teams.json', 'r') as file:
