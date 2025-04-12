@@ -651,8 +651,15 @@ def scoreboardData():
         displayClock = time['displayClock']
         date = time['type']['shortDetail']
         status = time['type']['state']
+        date_format = "%m/%d"
+        today = datetime.datetime.strptime(f"{datetime.date.today().month}/{datetime.date.today().day}", date_format)
+        gameDay = datetime.datetime.strptime(date.split(" - ")[0], date_format)
+        difference = gameDay - today
         if status == "pre":
-            date = "TODAY, " + date.split(" - ")[1]
+            if difference.days == 0:
+                date = "TODAY, " + date.split(" - ")[1]
+            if difference.days == 1:
+                date = "TOMORROW, " + date.split(" - ")[1]
         scoreDict['Quarter'] = 'Q' + str(period)
         scoreDict['Clock'] = displayClock
         scoreDict['Date'] = date
