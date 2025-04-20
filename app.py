@@ -275,7 +275,7 @@ def search():
                 if active:
                     newRow, matched_category, score = predictPlayer(player_name)
                 # Uses player id to get the stats of the player as an object
-                playerselection = createPlayerDf(player_id)
+                playerselection, playoffselection = createPlayerDf(player_id)  # Now unpacking both return values
                 if active:
                     try:
                         playerScore.append(score)
@@ -284,28 +284,36 @@ def search():
                         futurePredictions = futurePredictions.rename(
                             columns={'SEASON_ID': 'YEAR', 'TEAM_ABBREVIATION': 'TEAM', 'PLAYER_AGE': 'AGE',
                                      'FG_PCT': 'FG%', 'FG3_PCT': '3PT%', 'FT_PCT': 'FT%'})
-                        player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont",
-                                                                              index=False, escape=False),
-                                             'Predictions': 'Yes', 'Future Predictions': futurePredictions.to_html(
-                                classes="table table-striped tableFont", index=False)})
+                        player_table.append({
+                            'Table': playerselection.to_html(classes="table table-striped tableFont", index=False, escape=False),
+                            'PlayoffTable': playoffselection.to_html(classes="table table-striped tableFont", index=False, escape=False) if not playoffselection.empty else None,
+                            'Predictions': 'Yes',
+                            'Future Predictions': futurePredictions.to_html(classes="table table-striped tableFont", index=False)
+                        })
                     except UnboundLocalError:
                         playerScore.append(False)
                         playerCategoryZip.append("Free Agent")
-                        player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont",
-                                                                              index=False, escape=False),
-                                             'Predictions': 'No'})
+                        player_table.append({
+                            'Table': playerselection.to_html(classes="table table-striped tableFont", index=False, escape=False),
+                            'PlayoffTable': playoffselection.to_html(classes="table table-striped tableFont", index=False, escape=False) if not playoffselection.empty else None,
+                            'Predictions': 'No'
+                        })
                     except ValueError:
                         playerScore.append(False)
                         playerCategoryZip.append("Free Agent")
-                        player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont",
-                                                                              index=False, escape=False),
-                                             'Predictions': 'No'})
+                        player_table.append({
+                            'Table': playerselection.to_html(classes="table table-striped tableFont", index=False, escape=False),
+                            'PlayoffTable': playoffselection.to_html(classes="table table-striped tableFont", index=False, escape=False) if not playoffselection.empty else None,
+                            'Predictions': 'No'
+                        })
                 else:
                     playerScore.append(False)
                     playerCategoryZip.append("Retired")
-                    player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont",
-                                                                          index=False, escape=False),
-                                         'Predictions': 'No'})
+                    player_table.append({
+                        'Table': playerselection.to_html(classes="table table-striped tableFont", index=False, escape=False),
+                        'PlayoffTable': playoffselection.to_html(classes="table table-striped tableFont", index=False, escape=False) if not playoffselection.empty else None,
+                        'Predictions': 'No'
+                    })
                 # Converts dataframe into a html table and adds it to the list
                 playerNameZip.append(player_name)
                 player_url.append(f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png")
@@ -364,7 +372,7 @@ def search():
                         pass
 
                 # Uses player id to get the stats of the player as an object
-                playerselection = createPlayerDf(player_id)
+                playerselection, playoffselection = createPlayerDf(player_id)  # Now unpacking both return values
                 if active:
                     try:
                         playerScore.append(score)
@@ -373,35 +381,42 @@ def search():
                         futurePredictions = futurePredictions.rename(
                             columns={'SEASON_ID': 'YEAR', 'TEAM_ABBREVIATION': 'TEAM', 'PLAYER_AGE': 'AGE',
                                      'FG_PCT': 'FG%', 'FG3_PCT': '3PT%', 'FT_PCT': 'FT%'})
-                        player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont",
-                                                                              index=False, escape=False),
-                                             'Predictions': 'Yes', 'Future Predictions': futurePredictions.to_html(
-                                classes="table table-striped tableFont", index=False)})
+                        player_table.append({
+                            'Table': playerselection.to_html(classes="table table-striped tableFont", index=False, escape=False),
+                            'PlayoffTable': playoffselection.to_html(classes="table table-striped tableFont", index=False, escape=False) if not playoffselection.empty else None,
+                            'Predictions': 'Yes',
+                            'Future Predictions': futurePredictions.to_html(classes="table table-striped tableFont", index=False)
+                        })
                     except UnboundLocalError:
                         playerScore.append(False)
                         playerCategoryZip.append("Free Agent")
-                        player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont",
-                                                                              index=False, escape=False),
-                                             'Predictions': 'No'})
+                        player_table.append({
+                            'Table': playerselection.to_html(classes="table table-striped tableFont", index=False, escape=False),
+                            'PlayoffTable': playoffselection.to_html(classes="table table-striped tableFont", index=False, escape=False) if not playoffselection.empty else None,
+                            'Predictions': 'No'
+                        })
                     except ValueError:
                         playerScore.append(False)
                         playerCategoryZip.append("Free Agent")
-                        player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont",
-                                                                              index=False, escape=False),
-                                             'Predictions': 'No'})
+                        player_table.append({
+                            'Table': playerselection.to_html(classes="table table-striped tableFont", index=False, escape=False),
+                            'PlayoffTable': playoffselection.to_html(classes="table table-striped tableFont", index=False, escape=False) if not playoffselection.empty else None,
+                            'Predictions': 'No'
+                        })
                 else:
                     playerScore.append(False)
                     playerCategoryZip.append("Retired")
-                    player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont",
-                                                                          index=False, escape=False),
-                                         'Predictions': 'No'})
+                    player_table.append({
+                        'Table': playerselection.to_html(classes="table table-striped tableFont", index=False, escape=False),
+                        'PlayoffTable': playoffselection.to_html(classes="table table-striped tableFont", index=False, escape=False) if not playoffselection.empty else None,
+                        'Predictions': 'No'
+                    })
                 try:
                     playerNameZip.append(player_name)
                     player_url.append(f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png")
                 except UnidentifiedImageError:
                     badRequestPlayer.append(player)
     return render_template('dataTable.html', save=flask_login.current_user.id, playertable=zip(player_table, player_url, playerNameZip, playerCategoryZip, playerScore), teamtable=zip(team_table, team_url), badPlayer=badRequestPlayer, scoreboard=scoreboardData(), top_players = PRI())
-
 def standingsHTML():
     standings = leaguestandings.LeagueStandings()
     standings_df = standings.get_data_frames()[0]
@@ -476,7 +491,7 @@ def playerHTML(player):
         if active:
             newRow, matched_category, score = predictPlayer(player_name)
         # Uses player id to get the stats of the player as an object
-        playerselection = createPlayerDf(player_id)
+        playerselection, playoffselection = createPlayerDf(player_id)  # Now unpacking both return values
         if active:
             try:
                 playerCategoryZip.append(matched_category)
@@ -484,21 +499,33 @@ def playerHTML(player):
                 futurePredictions = futurePredictions.rename(
                     columns={'SEASON_ID': 'YEAR', 'TEAM_ABBREVIATION': 'TEAM', 'PLAYER_AGE': 'AGE', 'FG_PCT': 'FG%',
                              'FG3_PCT': '3PT%', 'FT_PCT': 'FT%'})
-                player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False, escape=False),
-                                     'Predictions': 'Yes', 'Future Predictions': futurePredictions.to_html(
-                        classes="table table-striped tableFont", index=False)})
+                player_table.append({
+                    'Table': playerselection.to_html(classes="table table-striped tableFont", index=False, escape=False),
+                    'PlayoffTable': playoffselection.to_html(classes="table table-striped tableFont", index=False, escape=False) if not playoffselection.empty else None,
+                    'Predictions': 'Yes',
+                    'Future Predictions': futurePredictions.to_html(classes="table table-striped tableFont", index=False)
+                })
             except UnboundLocalError:
                 playerCategoryZip.append("Free Agent")
-                player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False, escape=False),
-                                     'Predictions': 'No'})
+                player_table.append({
+                    'Table': playerselection.to_html(classes="table table-striped tableFont", index=False, escape=False),
+                    'PlayoffTable': playoffselection.to_html(classes="table table-striped tableFont", index=False, escape=False) if not playoffselection.empty else None,
+                    'Predictions': 'No'
+                })
             except ValueError:
                 playerCategoryZip.append("Free Agent")
-                player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False, escape=False),
-                                     'Predictions': 'No'})
+                player_table.append({
+                    'Table': playerselection.to_html(classes="table table-striped tableFont", index=False, escape=False),
+                    'PlayoffTable': playoffselection.to_html(classes="table table-striped tableFont", index=False, escape=False) if not playoffselection.empty else None,
+                    'Predictions': 'No'
+                })
         else:
             playerCategoryZip.append("Retired")
-            player_table.append({'Table': playerselection.to_html(classes="table table-striped tableFont", index=False, escape=False),
-                                 'Predictions': 'No'})
+            player_table.append({
+                'Table': playerselection.to_html(classes="table table-striped tableFont", index=False, escape=False),
+                'PlayoffTable': playoffselection.to_html(classes="table table-striped tableFont", index=False, escape=False) if not playoffselection.empty else None,
+                'Predictions': 'No'
+            })
         # Converts dataframe into a html table and adds it to the list
         playerNameZip.append(player_name)
         player_url.append(f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png")
@@ -603,6 +630,17 @@ def update_theme():
     session['user_theme'] = theme
 
     return jsonify({"status": "success", "theme": theme})
+
+@app.route('/update_stats_mode', methods=['POST'])
+@flask_login.login_required
+def update_stats_mode():
+    mode_data = request.json
+    mode = mode_data.get('mode')
+
+    # Store the stats mode in the session for the current user
+    session['stats_mode'] = mode
+
+    return jsonify({"status": "success", "mode": mode})
 
 def scoreboardData():
     url = "http://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
@@ -772,15 +810,19 @@ def predictPlayer(player_name):
 
 def createPlayerDf(player_id):
     player_info = playercareerstats.PlayerCareerStats(player_id=player_id)
+    player = playercareerstats.PlayerCareerStats(player_id=player_id)
+    df = player.get_data_frames()
     # Converts object into a dataframe
     playerdf = player_info.get_data_frames()[0]
-    # Dataframe only returns total pts, reb, and ast, so we need to calculate the avg per game
+    playoffDF = pandas.DataFrame(df[2])
+
+    # Process regular season stats
     pts_avg = playerdf['PTS'].fillna(0).div(playerdf['GP'].fillna(1)).to_frame('PTS').round(1)
     reb_avg = playerdf['REB'].fillna(0).div(playerdf['GP'].fillna(1)).to_frame('REB').round(1)
     ast_avg = playerdf['AST'].fillna(0).div(playerdf['GP'].fillna(1)).to_frame('AST').round(1)
     stl_avg = playerdf['STL'].fillna(0).div(playerdf['GP'].fillna(1)).to_frame('STL').round(1)
     blk_avg = playerdf['BLK'].fillna(0).div(playerdf['GP'].fillna(1)).to_frame('BLK').round(1)
-    # Selects what stats to display in the html
+
     for index, row in playerdf.iterrows():
         if row['TEAM_ABBREVIATION'] != "TOT":
             abbreviation = row['TEAM_ABBREVIATION']
@@ -788,6 +830,7 @@ def createPlayerDf(player_id):
             if team_dict:
                 teamName = team_dict["full_name"]
                 playerdf.loc[index, 'TEAM_ABBREVIATION'] = create_link_abbreviation(teamName, abbreviation)
+
     playerselection = pandas.concat(
         [playerdf[['SEASON_ID', 'TEAM_ABBREVIATION', 'PLAYER_AGE', 'GP', 'GS']], pts_avg, reb_avg,
          ast_avg, stl_avg, blk_avg, playerdf[['FG_PCT', 'FG3_PCT', 'FT_PCT']]], axis=1)
@@ -796,7 +839,30 @@ def createPlayerDf(player_id):
                  'FG3_PCT': '3PT%', 'FT_PCT': 'FT%'})
     playerselection = pandas.concat([playerselection], keys=["Player History"], axis=1)
 
-    return playerselection
+    # Process playoff stats in the same way
+    playoff_pts_avg = playoffDF['PTS'].fillna(0).div(playoffDF['GP'].fillna(1)).to_frame('PTS').round(1)
+    playoff_reb_avg = playoffDF['REB'].fillna(0).div(playoffDF['GP'].fillna(1)).to_frame('REB').round(1)
+    playoff_ast_avg = playoffDF['AST'].fillna(0).div(playoffDF['GP'].fillna(1)).to_frame('AST').round(1)
+    playoff_stl_avg = playoffDF['STL'].fillna(0).div(playoffDF['GP'].fillna(1)).to_frame('STL').round(1)
+    playoff_blk_avg = playoffDF['BLK'].fillna(0).div(playoffDF['GP'].fillna(1)).to_frame('BLK').round(1)
+
+    for index, row in playoffDF.iterrows():
+        if row['TEAM_ABBREVIATION'] != "TOT":
+            abbreviation = row['TEAM_ABBREVIATION']
+            team_dict = teams.find_team_by_abbreviation(abbreviation)
+            if team_dict:
+                teamName = team_dict["full_name"]
+                playoffDF.loc[index, 'TEAM_ABBREVIATION'] = create_link_abbreviation(teamName, abbreviation)
+
+    playoffselection = pandas.concat(
+        [playoffDF[['SEASON_ID', 'TEAM_ABBREVIATION', 'PLAYER_AGE', 'GP', 'GS']], playoff_pts_avg, playoff_reb_avg,
+         playoff_ast_avg, playoff_stl_avg, playoff_blk_avg, playoffDF[['FG_PCT', 'FG3_PCT', 'FT_PCT']]], axis=1)
+    playoffselection = playoffselection.rename(
+        columns={'SEASON_ID': 'YEAR', 'TEAM_ABBREVIATION': 'TEAM', 'PLAYER_AGE': 'AGE', 'FG_PCT': 'FG%',
+                 'FG3_PCT': '3PT%', 'FT_PCT': 'FT%'})
+    playoffselection = pandas.concat([playoffselection], keys=["Playoff History"], axis=1)
+
+    return playerselection, playoffselection
 
 def create_link_abbreviation(name, abbreviation):
     name = name.split(" ")

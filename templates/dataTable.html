@@ -24,6 +24,10 @@
       <div class="toggle-icon sun">☀</div>
       <div class="toggle-icon moon">☾</div>
     </div>
+    <div class="theme-toggle">
+      <img src="{{ url_for('static',filename='img/nba-logo.png') }}" class="toggle-icon sun">
+      <img src="{{ url_for('static',filename='img/nba-finals.png') }}" class="toggle-icon moon">
+    </div>
 
     <div class="topBar">
         <div class="scorecards-wrapper">
@@ -214,6 +218,11 @@
                     </div>
                     <div class="playerTable">
                         {{ table['Table']|safe }}
+                    </div>
+                    <div class="playerTable">
+                        {% if table['PlayoffTable'] %}
+                            {{ table['PlayoffTable']|safe }}
+                        {% endif %}
                     </div>
                     <div class="futureTable">
                         {% if table['Predictions'] == 'Yes' %}

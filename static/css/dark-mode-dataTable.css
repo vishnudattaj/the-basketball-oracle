@@ -810,3 +810,74 @@ a:hover {
     overflow: hidden;
     max-width: 100vw;
 }
+
+.tables-container {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.playerTable {
+  flex: 1;
+  min-width: 300px; /* Prevents tables from becoming too narrow */
+}
+
+/* Add these styles to your existing CSS */
+
+/* NBA Stats Toggle Button */
+.theme-toggle:not(#themeToggle) {
+  position: fixed;
+  bottom: 60px; /* Position it above the theme toggle */
+  left: 10px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #17408B; /* NBA blue for regular season */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  z-index: 1000;
+  overflow: hidden;
+  transition: background-color 0.3s ease;
+}
+
+.theme-toggle:not(#themeToggle).playoff-mode {
+  background-color: #FFD700; /* Gold for playoff mode */
+}
+
+/* NBA logos in the toggle */
+.theme-toggle:not(#themeToggle) .toggle-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  transition: opacity 0.3s ease;
+  position: absolute;
+}
+
+.theme-toggle:not(#themeToggle) .sun {
+  opacity: 1; /* Regular season logo visible by default */
+}
+
+.theme-toggle:not(#themeToggle) .moon {
+  opacity: 0; /* Playoff logo hidden by default */
+}
+
+.theme-toggle:not(#themeToggle).playoff-mode .sun {
+  opacity: 0; /* Hide regular season logo in playoff mode */
+}
+
+.theme-toggle:not(#themeToggle).playoff-mode .moon {
+  opacity: 1; /* Show playoff logo in playoff mode */
+}
+
+/* Stats mode indicator */
+#statsIndicator {
+  transition: all 0.3s ease;
+}
+
+/* Initially hide playoff tables */
+.playerGrid .playerTable:nth-child(3) {
+  display: none;
+}
