@@ -232,46 +232,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (sunIcon && moonIcon) {
                 if (mode === 'playoff') {
-                    sunIcon.style.opacity = '0';
-                    moonIcon.style.opacity = '1';
-                } else {
                     sunIcon.style.opacity = '1';
                     moonIcon.style.opacity = '0';
+                } else {
+                    sunIcon.style.opacity = '0';
+                    moonIcon.style.opacity = '1';
                 }
             }
-        }
-
-        // Add a visual indicator on the page
-        updateModeIndicator(mode);
-    }
-
-    // Function to create or update the stats mode indicator
-    function updateModeIndicator(mode) {
-        let indicator = document.getElementById('statsIndicator');
-
-        // If no playoff tables or if regular mode and indicator exists, remove it
-        if (!checkForMeaningfulPlayoffTables() || (mode === 'regular' && indicator)) {
-            if (indicator) {
-                indicator.remove();
-            }
-            return;
-        }
-
-        // Create indicator if it doesn't exist and we're in playoff mode
-        if (!indicator && mode === 'playoff') {
-            indicator = document.createElement('div');
-            indicator.id = 'statsIndicator';
-            indicator.style.position = 'fixed';
-            indicator.style.bottom = '70px';
-            indicator.style.left = '70px';
-            indicator.style.padding = '5px 10px';
-            indicator.style.borderRadius = '4px';
-            indicator.style.fontSize = '12px';
-            indicator.style.fontWeight = 'bold';
-            indicator.style.zIndex = '1000';
-            indicator.style.boxShadow = '0 1px 3px rgba(0,0,0,0.3)';
-            indicator.style.transition = 'all 0.3s ease';
-            document.body.appendChild(indicator);
         }
     }
 });

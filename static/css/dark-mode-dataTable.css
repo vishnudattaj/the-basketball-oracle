@@ -832,7 +832,7 @@ a:hover {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background-color: #17408B; /* NBA blue for regular season */
+  background-color: #FFD700;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -844,7 +844,7 @@ a:hover {
 }
 
 .theme-toggle:not(#themeToggle).playoff-mode {
-  background-color: #FFD700; /* Gold for playoff mode */
+  background-color: #17408B;
 }
 
 /* NBA logos in the toggle */
@@ -857,19 +857,19 @@ a:hover {
 }
 
 .theme-toggle:not(#themeToggle) .sun {
-  opacity: 1; /* Regular season logo visible by default */
+  opacity: 0;
 }
 
 .theme-toggle:not(#themeToggle) .moon {
-  opacity: 0; /* Playoff logo hidden by default */
+  opacity: 1;
 }
 
 .theme-toggle:not(#themeToggle).playoff-mode .sun {
-  opacity: 0; /* Hide regular season logo in playoff mode */
+  opacity: 1;
 }
 
 .theme-toggle:not(#themeToggle).playoff-mode .moon {
-  opacity: 1; /* Show playoff logo in playoff mode */
+  opacity: 0;
 }
 
 /* Stats mode indicator */
