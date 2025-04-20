@@ -630,7 +630,7 @@ a:hover {
     left: -65px;
     width: 600px;
     height: 100%;
-    background: linear-gradient(135deg, rgba(220,220,220,0.9) 0%, rgba(220,220,220,0.6) 50%, rgba(220,220,220,0) 100%);
+    background: linear-gradient(135deg, rgba(240,240,240,0.9) 0%, rgba(240,240,240,0.6) 50%, rgba(240,240,240,0) 100%);
     transform: skew(-20deg, 0deg);
     z-index: -1;
 }

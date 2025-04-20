@@ -622,6 +622,22 @@ def scoreboardData():
     for score in scoreboard['competitions']:
         scoreDict = gameId[dictIndex]
         home_away = 0
+        gameType = score[0]['notes']
+        series = score[0]['series']
+        if series['type'] == 'playoff':
+            series = series['summary']
+        else:
+            series = ""
+        scoreDict['series'] = series
+        if gameType:
+            gameType = gameType[0]['headline']
+            if "Play-In" in gameType:
+                gameType = gameType[3:]
+                scoreDict['gameType'] = gameType.split(" - ")[1] + gameType.split(" - ")[0]
+            else:
+                scoreDict['gameType'] = gameType.split(" - ")[0]
+        else:
+            scoreDict['gameType'] = "NBA"
         for team in score[0]['competitors']:
             teamName = team['team']['name']
             team_dict = teams.find_teams_by_full_name(teamName)
@@ -642,7 +658,6 @@ def scoreboardData():
             home_away += 1
         dictIndex += 1
         scoreData.append(scoreDict)
-
     gameData = []
     dictIndex = 0
     for time in scoreboard['status']:
@@ -651,11 +666,11 @@ def scoreboardData():
         displayClock = time['displayClock']
         date = time['type']['shortDetail']
         status = time['type']['state']
-        date_format = "%m/%d"
-        today = datetime.datetime.strptime(f"{datetime.date.today().month}/{datetime.date.today().day}", date_format)
-        gameDay = datetime.datetime.strptime(date.split(" - ")[0], date_format)
-        difference = gameDay - today
         if status == "pre":
+            date_format = "%m/%d"
+            today = datetime.datetime.strptime(f"{datetime.date.today().month}/{datetime.date.today().day}", date_format)
+            gameDay = datetime.datetime.strptime(date.split(" - ")[0], date_format)
+            difference = gameDay - today
             if difference.days == 0:
                 date = "TODAY, " + date.split(" - ")[1]
             if difference.days == 1:
