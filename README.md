@@ -43,3 +43,9 @@ To use the features, first, you need to **log in** or **create an account** if y
 - **Regular/Playoff Stats:** Switch between seeing regular and playoff stats for a better user experience.
 - **Password Protection:** A secure password feature ensures only authorized users can access certain data or sections of the site.
 - **Typeahead Search:** Quickly find what you're looking for with real-time search suggestions that show matching player names, teams, and stats as you type.
+
+---
+
+## Demo 🔨
+
+**Link to Demo** [Link](https://youtu.be/Uz3WYmtiEr4)
