@@ -260,6 +260,8 @@ def search():
                 teamselection = teamdf[0][
                     ['PLAYER', 'NUM', 'POSITION', 'HEIGHT', 'WEIGHT', 'AGE', 'EXP', 'SCHOOL',
                      'HOW_ACQUIRED']]
+                teamselection = teamselection.rename(columns={'HOW_ACQUIRED': 'HOW ACQUIRED'})
+                teamselection['HOW ACQUIRED'] = teamselection['HOW ACQUIRED'].apply(create_link_abbreviation_acquisition)
                 teamselection['PLAYER'] = teamselection['PLAYER'].apply(player_link)
                 teamselection = pandas.concat([teamselection], keys=["Team Roster"], axis=1)
                 team_table.append(teamselection.to_html(classes='table table-striped', index=False, escape=False))
@@ -354,6 +356,8 @@ def search():
                 teamselection = teamdf[0][
                     ['PLAYER', 'NUM', 'POSITION', 'HEIGHT', 'WEIGHT', 'AGE', 'EXP', 'SCHOOL',
                      'HOW_ACQUIRED']]
+                teamselection = teamselection.rename(columns={'HOW_ACQUIRED': 'HOW ACQUIRED'})
+                teamselection['HOW ACQUIRED'] = teamselection['HOW ACQUIRED'].apply(create_link_abbreviation_acquisition)
                 teamselection['PLAYER'] = teamselection['PLAYER'].apply(player_link)
                 teamselection = pandas.concat([teamselection], keys=["Team Roster"], axis=1)
                 team_table.append(teamselection.to_html(classes='table table-striped', index=False, escape=False))
@@ -545,7 +549,9 @@ def teamHTML(team):
         teamdf = team_roster.get_data_frames()
         teamselection = teamdf[0][
             ['PLAYER', 'NUM', 'POSITION', 'HEIGHT', 'WEIGHT', 'AGE', 'EXP', 'SCHOOL', 'HOW_ACQUIRED']]
+        teamselection = teamselection.rename(columns={'HOW_ACQUIRED': 'HOW ACQUIRED'})
         teamselection['PLAYER'] = teamselection['PLAYER'].apply(player_link)
+        teamselection['HOW ACQUIRED'] = teamselection['HOW ACQUIRED'].apply(create_link_abbreviation_acquisition)
         teamselection = pandas.concat([teamselection], keys=["Team Roster"], axis=1)
         team_table = teamselection.to_html(classes='table table-striped', index=False, escape=False)
         team_url = f'{team_abbreviation.lower()}.png'
@@ -553,6 +559,16 @@ def teamHTML(team):
     except:
         return redirect(url_for('protected'))
 
+def create_link_abbreviation_acquisition(string):
+    if string:
+        for abbreviation in string.split(" "):
+            if abbreviation == abbreviation.upper() and len(abbreviation) == 3 and abbreviation.isalpha():
+                team_dict = teams.find_team_by_abbreviation(abbreviation)
+                team_name = team_dict['full_name']
+                team_name = team_name.split(" ")
+                string = string.split(abbreviation)
+                return f'{string[0]}<a href="/protected/teams/{team_name[-1]}">{abbreviation}</a>{string[-1]}'
+    return string
 
 @app.route('/protected/games/<int:gameId>', methods=['GET', 'POST'])
 @flask_login.login_required
