@@ -154,13 +154,13 @@
 
     <div class="navbar-oracle">
         <div class="navbar-container">
-            <a href="/protected" class="navbar-brand-oracle">
+            <div class="navbar-brand-oracle">
                 <div class="logo-container">
                     <div class="logo-slant-background"></div>
-                    <img src="{{ url_for('static',filename='img/logo.png') }}" alt="Basketball Oracle Logo" class="navbar-logo">
-                    <span class="navbar-title">THE BASKETBALL ORACLE</span>
+                    <img src="{{ url_for('static',filename='img/logo.png') }}" alt="Basketball Oracle Logo" class="navbar-logo" onclick="location.href='/protected'">
+                    <span class="navbar-title" onclick="location.href='/protected'">THE BASKETBALL ORACLE</span>
                 </div>
-            </a>
+            </div>
 
             <!-- Top Players Carousel -->
             <div class="players-carousel-container">

@@ -597,7 +597,8 @@ def boxScore(gameId):
                     teamTotals.append(stats)
                 else:
                     if "-" not in teamTotals[index] or teamTotals[index][0] == "-":
-                        teamTotals[index] = str(int(teamTotals[index]) + int(stats))
+                        if stats != "-":
+                            teamTotals[index] = str(int(teamTotals[index]) + int(stats))
                     else:
                         made = int(teamTotals[index].split("-")[0])
                         attempted = int(teamTotals[index].split("-")[1])
