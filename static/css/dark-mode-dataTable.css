@@ -881,3 +881,11 @@ a:hover {
 .playerGrid .playerTable:nth-child(3) {
   display: none;
 }
+
+.linkify:hover {
+    color: #3498db !important;
+}
+
+.scorecard:hover {
+    transform: translateY(-2px);
+}

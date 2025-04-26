@@ -642,3 +642,11 @@ a {
 a:hover {
     color: #3498db !important;
 }
+
+.linkify:hover {
+    color: #3498db !important;
+}
+
+.scorecard:hover {
+    transform: translateY(-2px);
+}

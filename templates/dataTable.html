@@ -56,26 +56,22 @@
                                 </div>
                                 <div class="scorecard-body">
                                     <div class="team-container">
-                                        <a href="/protected/teams/{{ game['Home Link'] }}">
-                                            <div class="team-info">
-                                                <div class="team-logo" style="background-image: url({{ game['Home Logo'] }});"></div>
-                                                <div class="team-name">{{ game['Home Team'] }}</div>
-                                                <div class="score">{{ game['Home Score'] }}</div>
-                                            </div>
-                                        </a>
+                                        <div class="team-info">
+                                            <div class="team-logo" style="background-image: url({{ game['Home Logo'] }});" onclick="location.href='/protected/teams/{{ game['Home Link'] }}'"></div>
+                                            <div class="team-name linkify" onclick="location.href='/protected/teams/{{ game['Home Link'] }}'">{{ game['Home Team'] }}</div>
+                                            <div class="score">{{ game['Home Score'] }}</div>
+                                        </div>
                                     </div>
                                     <div class="game-info">
                                         <div class="quarter">{{ game['Quarter'] }}</div>
                                         <div class="time">{{ game['Clock'] }}</div>
                                     </div>
                                     <div class="team-container">
-                                        <a href="/protected/teams/{{ game['Away Link'] }}">
-                                            <div class="team-info">
-                                                <div class="team-logo" style="background-image: url({{ game['Away Logo'] }});"></div>
-                                                <div class="team-name">{{ game['Away Team'] }}</div>
-                                                <div class="score">{{ game['Away Score'] }}</div>
-                                            </div>
-                                        </a>
+                                        <div class="team-info">
+                                            <div class="team-logo" style="background-image: url({{ game['Away Logo'] }});" onclick="location.href='/protected/teams/{{ game['Away Link'] }}'"></div>
+                                            <div class="team-name linkify" onclick="location.href='/protected/teams/{{ game['Away Link'] }}'">{{ game['Away Team'] }}</div>
+                                            <div class="score">{{ game['Away Score'] }}</div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -91,25 +87,21 @@
                                 </div>
                                 <div class="scorecard-body">
                                     <div class="team-container">
-                                        <a href="/protected/teams/{{ game['Home Link'] }}">
-                                            <div class="team-info">
-                                                <div class="team-logo" style="background-image: url({{ game['Home Logo'] }});"></div>
-                                                <div class="team-name">{{ game['Home Team'] }}</div>
-                                                <div class="score">{{ game['Home Score'] }}</div>
-                                            </div>
-                                        </a>
+                                        <div class="team-info">
+                                            <div class="team-logo" style="background-image: url({{ game['Home Logo'] }});" onclick="location.href='/protected/teams/{{ game['Home Link'] }}'"></div>
+                                            <div class="team-name linkify" onclick="location.href='/protected/teams/{{ game['Home Link'] }}'">{{ game['Home Team'] }}</div>
+                                            <div class="score">{{ game['Home Score'] }}</div>
+                                        </div>
                                     </div>
                                     <div class="game-info">
                                         <div class="quarter">F</div>
                                     </div>
                                     <div class="team-container">
-                                        <a href="/protected/teams/{{ game['Away Link'] }}">
-                                            <div class="team-info">
-                                                <div class="team-logo" style="background-image: url({{ game['Away Logo'] }});"></div>
-                                                <div class="team-name">{{ game['Away Team'] }}</div>
-                                                <div class="score">{{ game['Away Score'] }}</div>
-                                            </div>
-                                        </a>
+                                        <div class="team-info">
+                                            <div class="team-logo" style="background-image: url({{ game['Away Logo'] }});" onclick="location.href='/protected/teams/{{ game['Away Link'] }}'"></div>
+                                            <div class="team-name linkify" onclick="location.href='/protected/teams/{{ game['Away Link'] }}'">{{ game['Away Team'] }}</div>
+                                            <div class="score">{{ game['Away Score'] }}</div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -125,25 +117,21 @@
                                 </div>
                                 <div class="scorecard-body">
                                     <div class="team-container">
-                                        <a href="/protected/teams/{{ game['Home Link'] }}">
-                                            <div class="team-info">
-                                                <div class="team-logo" style="background-image: url({{ game['Home Logo'] }});"></div>
-                                                <div class="team-name">{{ game['Home Team'] }}</div>
-                                                <div class="score">{{ game['Home Record'] }}</div>
-                                            </div>
-                                        </a>
+                                        <div class="team-info">
+                                            <div class="team-logo" style="background-image: url({{ game['Home Logo'] }});" onclick="location.href='/protected/teams/{{ game['Home Link'] }}'"></div>
+                                            <div class="team-name linkify" onclick="location.href='/protected/teams/{{ game['Home Link'] }}'">{{ game['Home Team'] }}</div>
+                                            <div class="score" onclick="location.href='/protected/teams/{{ game['Home Link'] }}'">{{ game['Home Record'] }}</div>
+                                        </div>
                                     </div>
                                     <div class="game-info">
                                         <div class="quarter">VS</div>
                                     </div>
                                     <div class="team-container">
-                                        <a href="/protected/teams/{{ game['Away Link'] }}">
-                                            <div class="team-info">
-                                                <div class="team-logo" style="background-image: url({{ game['Away Logo'] }});"></div>
-                                                <div class="team-name">{{ game['Away Team'] }}</div>
-                                                <div class="score">{{ game['Away Record'] }}</div>
-                                            </div>
-                                        </a>
+                                        <div class="team-info">
+                                            <div class="team-logo" style="background-image: url({{ game['Away Logo'] }});" onclick="location.href='/protected/teams/{{ game['Away Link'] }}'"></div>
+                                            <div class="team-name linkify" onclick="location.href='/protected/teams/{{ game['Away Link'] }}'">{{ game['Away Team'] }}</div>
+                                            <div class="score" onclick="location.href='/protected/teams/{{ game['Away Link'] }}'">{{ game['Away Record'] }}</div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

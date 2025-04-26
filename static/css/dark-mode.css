@@ -628,7 +628,14 @@ a {
     transition: color 0.2s ease;
 }
 
-/* Add hover effect for links */
 a:hover {
     color: #3498db !important;
+}
+
+.linkify:hover {
+    color: #3498db !important;
+}
+
+.scorecard:hover {
+    transform: translateY(-2px);
 }
