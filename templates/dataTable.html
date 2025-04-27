@@ -47,7 +47,7 @@
                     {% else %}
                         {# First display in-progress games #}
                         {% for game in scoreboard|selectattr('Status', 'equalto', 'in')|list %}
-                            <div class="scorecard" onclick="location.href='/protected/games/{{ game['id'] }}'">
+                            <div class="scorecard cardHover" onclick="location.href='/protected/games/{{ game['id'] }}'">
                                 <div class="live-indicator"></div>
                                 <div class="scorecard-header">
                                     <span>{{ game['gameType'] }}</span>
@@ -79,7 +79,7 @@
 
                         {# Then display finalized games #}
                         {% for game in scoreboard|selectattr('Status', 'equalto', 'post')|list %}
-                            <div class="scorecard final-game" onclick="location.href='/protected/games/{{ game['id'] }}'">
+                            <div class="scorecard final-game cardHover" onclick="location.href='/protected/games/{{ game['id'] }}'">
                                 <div class="scorecard-header">
                                     <span>{{ game['gameType'] }}</span>
                                     <span>{{ game['series'] }}</span>

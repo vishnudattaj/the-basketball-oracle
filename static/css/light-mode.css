@@ -647,6 +647,6 @@ a:hover {
     color: #3498db !important;
 }
 
-.scorecard:hover {
+.cardHover:hover {
     transform: translateY(-2px);
 }

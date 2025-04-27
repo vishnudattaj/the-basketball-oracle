@@ -43,7 +43,7 @@
 }
 
 .table-vh-1_25 {
-  max-height: 42vh;
+  max-height: 39vh;
 }
 
 .futureTable {
@@ -810,7 +810,7 @@ body.light-mode .navbar-title {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background-color: #FFD700;
+  background-color: #17408B;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -822,7 +822,7 @@ body.light-mode .navbar-title {
 }
 
 .theme-toggle:not(#themeToggle).playoff-mode {
-  background-color: #17408B;
+  background-color: #FFD700;
 }
 
 /* NBA logos in the toggle */
@@ -835,19 +835,19 @@ body.light-mode .navbar-title {
 }
 
 .theme-toggle:not(#themeToggle) .sun {
-  opacity: 0;
+  opacity: 1;
 }
 
 .theme-toggle:not(#themeToggle) .moon {
-  opacity: 1;
+  opacity: 0;
 }
 
 .theme-toggle:not(#themeToggle).playoff-mode .sun {
-  opacity: 1;
+  opacity: 0;
 }
 
 .theme-toggle:not(#themeToggle).playoff-mode .moon {
-  opacity: 0;
+  opacity: 1;
 }
 
 /* Stats mode indicator */
@@ -864,6 +864,12 @@ body.light-mode .navbar-title {
     color: #3498db !important;
 }
 
-.scorecard:hover {
+.cardHover:hover {
     transform: translateY(-2px);
+}
+
+#statTypeIndicator {
+  transition: all 0.3s ease;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }

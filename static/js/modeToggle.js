@@ -232,12 +232,43 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (sunIcon && moonIcon) {
                 if (mode === 'playoff') {
-                    sunIcon.style.opacity = '1';
-                    moonIcon.style.opacity = '0';
-                } else {
                     sunIcon.style.opacity = '0';
                     moonIcon.style.opacity = '1';
+                } else {
+                    sunIcon.style.opacity = '1';
+                    moonIcon.style.opacity = '0';
                 }
+
+                updateModeIndicator(mode);
+            }
+        }
+
+        function updateModeIndicator(mode) {
+            let indicator = document.getElementById('statsIndicator');
+
+            if (!indicator) {
+                indicator = document.createElement('div');
+                indicator.id = 'statsIndicator';
+                indicator.style.position = 'fixed';
+                indicator.style.bottom = '65px';
+                indicator.style.left = '65px';
+                indicator.style.padding = '5px 10px';
+                indicator.style.borderRadius = '4px';
+                indicator.style.fontSize = '12px';
+                indicator.style.fontWeight = 'bold';
+                indicator.style.zIndex = '1000';
+                indicator.style.boxShadow = '0 1px 3px rgba(0,0,0,0.3)';
+                document.body.appendChild(indicator);
+            }
+
+            if (mode === 'playoff') {
+                indicator.textContent = 'Playoff Stats';
+                indicator.style.backgroundColor = '#FFD700';
+                indicator.style.color = '#000';
+            } else {
+                indicator.textContent = 'Regular Season';
+                indicator.style.backgroundColor = '#17408B';
+                indicator.style.color = '#fff';
             }
         }
     }
