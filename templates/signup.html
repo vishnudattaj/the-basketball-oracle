@@ -40,6 +40,7 @@
 
                 <h3 class="mb-5">Sign Up</h3>
               <form action="/signup" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <div class="form-outline mb-4">
                   <input style="border: 1px solid #000000" type="text" id="typeEmailX-2" name="username" class="form-control form-control-lg" placeholder="Username"/>
                 </div>
@@ -58,11 +59,18 @@
                 <label class="form-check-label" for="form1Example3"> Show Password </label>
               </div>
 
-                <button class="btn btn-danger btn-lg btn-block" type="submit" value="LOGIN">Sign Up</button>
+                <button class="btn btn-danger btn-lg btn-block" type="submit" value="LOGIN">Login</button>
 
-                <hr class="my-4">
+                  <hr class="my-4">
 
-                <h7> Already have an account? Click <a href="/">here</a>! </h7>
+                {% if error %}
+                  <h5 style="color: #ac000060">{{ error }}</h5>
+                {% endif %}
+
+
+                  <hr class="my-4">
+
+                  <h7> Already have an account? Click <a href="/">here</a>! </h7>
               </form>
 
               </div>

@@ -10,6 +10,7 @@ import pandas
 import joblib
 import requests
 import datetime
+from datetime import timedelta
 from bs4 import BeautifulSoup
 import re
 from dotenv import load_dotenv
@@ -19,19 +20,32 @@ import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 import traceback
 from replace_accents import replace_accents_characters
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_wtf.csrf import CSRFProtect
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 load_dotenv()
+
+limiter = Limiter(
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"]
+)
 
 # Sets Up The Flask App
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///login.db'
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
-
+csrf = CSRFProtect(app)
 # Sets up the login manager
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
-
+limiter.init_app(app)
 
 class User(flask_login.UserMixin):
     pass
@@ -158,6 +172,7 @@ def logout():
 
 # App route for login page
 @app.route('/', methods=['GET', 'POST'])
+@limiter.limit("5 per minute, 20 per hour")
 def login():
     # Runs when user presses log in on the login page
     if request.method == 'POST':
@@ -169,16 +184,17 @@ def login():
             id_checker = id_checker.id
             id_tester = LoginScreen.query.get(id_checker).passwords
             # Checks if username and password match
-            if password == id_tester:
+            if check_password_hash(id_tester, password):
                 user = User()
                 user.id = username
                 flask_login.login_user(user)
+                session.permanent = True
                 return redirect(url_for('protected'))
 
             else:
-                return render_template('wrongCredentials.html')
+                return render_template('login.html', error="User does not exist")
         else:
-            return render_template('wrongCredentials.html')
+            return render_template('login.html', error="User does not exist")
     else:
         return render_template('login.html')
 
@@ -191,12 +207,23 @@ def signup():
         username = request.form['username']
         password = request.form['password']
         confirm = request.form['confirmpassword']
+
+        if len(password) < 8:
+            return render_template('signup.html', error="Password must be at least 8 characters long")
+
+        if not re.search(r'[A-Z]', password):
+            return render_template('signup.html', error="Password must contain at least one uppercase letter")
+
+        if not re.search(r'[0-9]', password):
+            return render_template('signup.html', error="Password must contain at least one number")
+
         # Ensures both password fields match
         if password == confirm:
-            signin = LoginScreen(usernames=username, passwords=password)
+            hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+            signin = LoginScreen(usernames=username, passwords=hashed_password)
             # Checks if username already exists
             if bool(LoginScreen.query.filter_by(usernames=username).first()):
-                return render_template('existingUser.html')
+                return render_template('signup.html', error="Username already exists")
             else:
                 db.session.add(signin)
                 db.session.commit()
@@ -207,7 +234,7 @@ def signup():
                 flask_login.login_user(user)
                 return redirect(url_for('protected'))
         else:
-            return render_template('confirmPassword.html')
+            return render_template('signup.html', error="Passwords must match")
     else:
         return render_template('signup.html')
 
@@ -222,13 +249,17 @@ def protected():
         if request.form['Submit'] == "Log Out":
             return redirect(url_for('logout'))
         # Runs if user presses search
-        elif request.form['Submit'] == "Submit":
-            # Runs if player field isn't blank when submitted
-            if request.form['player'] != "":
-                flask.session['items'] = request.form['player']
-                return(redirect(url_for('search')))
+        if request.form['Submit'] == "Submit":
+            player_input = request.form['player']
+            # Validate input - example: limit length, check for valid characters
+            if player_input and len(player_input) <= 100 and re.match(r'^[a-zA-Z0-9\s,\'.()-]+$', player_input):
+                flask.session['items'] = player_input
+                return redirect(url_for('search'))
             else:
-                return render_template('search.html', save=flask_login.current_user.id, standings=standingsHTML(), scoreboard=scoreboardData(), top_players = PRI())
+                # Return error for invalid input
+                return render_template('search.html', save=flask_login.current_user.id,
+                                       standings=standingsHTML(), scoreboard=scoreboardData(),
+                                       top_players=PRI(), error="Invalid search input")
     # Returns search.html if method is GET instead of POST
     else:
         return render_template('search.html', save=flask_login.current_user.id, standings=standingsHTML(), scoreboard=scoreboardData(), top_players = PRI())
@@ -827,11 +858,9 @@ def predictPlayer(player_name):
 
 def createPlayerDf(player_id):
     player_info = playercareerstats.PlayerCareerStats(player_id=player_id)
-    player = playercareerstats.PlayerCareerStats(player_id=player_id)
-    df = player.get_data_frames()
     # Converts object into a dataframe
     playerdf = player_info.get_data_frames()[0]
-    playoffDF = pandas.DataFrame(df[2])
+    playoffDF = player_info.get_data_frames()[2]
 
     # Process regular season stats
     pts_avg = playerdf['PTS'].fillna(0).div(playerdf['GP'].fillna(1)).to_frame('PTS').round(1)
@@ -898,6 +927,30 @@ def PRI():
         player_id = player_dict[0]["id"]
         playerURL.append(f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png")
     return list(zip(playerName, playerScore, playerURL))
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('500.html'), 500
+
+@app.after_request
+def add_security_headers(response):
+    response.headers['Content-Security-Policy'] = (
+        "default-src 'self'; "
+        "script-src 'self' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net 'unsafe-inline'; "
+        "style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline'; "
+        "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; "
+        "img-src 'self' https://cdn.nba.com https://a.espncdn.com; "
+        "frame-ancestors 'none'; "
+        "object-src 'none'"
+    )
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    return response
 
 # Runs app in debug mode
 if __name__ == "__main__":

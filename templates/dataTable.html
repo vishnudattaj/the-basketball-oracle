@@ -254,6 +254,7 @@
                 <a href="/protected">
                     <button id="returnToSearchButton" class="btn btn-grayish">Return to Search</button>
                     <form action="/protected" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         <button type="submit" value="Log Out" name="Submit" class="btn btn-outline-danger fixed-element">Log Out</button>
                     </form>
                 </a>
