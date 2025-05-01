@@ -800,7 +800,7 @@ def predictPlayer(player_name):
             features = pandas.DataFrame([features])
             scaled_features = scalerw.transform(features)
             categorizing = kmw.predict(scaled_features)
-            role = ["Star Player", "Role Player", "Bench Warmer"]
+            role = ["Role Player", "Bench Warmer", "Star Player"]
             matched_category = role[categorizing[0]]
         elif player_basic['Pos'] == "C":
             features = [player_basic['PTS'], player_basic['TRB'], player_basic['BLK'],
