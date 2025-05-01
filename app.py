@@ -9,8 +9,7 @@ from nba_api.stats.static import players, teams
 import pandas
 import joblib
 import requests
-import datetime
-from datetime import timedelta
+from datetime import timedelta, datetime, date
 from bs4 import BeautifulSoup
 import re
 from dotenv import load_dotenv
@@ -29,7 +28,8 @@ load_dotenv()
 
 limiter = Limiter(
     key_func=get_remote_address,
-    default_limits=["200 per day", "50 per hour"]
+    default_limits=["200 per day", "50 per hour"],
+    headers_enabled=True
 )
 
 # Sets Up The Flask App
@@ -77,8 +77,8 @@ scalerb = joblib.load('scaler_big.gz')
 xgb = joblib.load('statPrediction.sav')
 
 # Finds todays date
-yr = datetime.date.today().year
-month = datetime.date.today().month
+yr = date.today().year
+month = date.today().month
 
 # Scrapes basketball reference, uses today's date to determine what season we are in right now
 if month >= 11:
@@ -169,34 +169,33 @@ def logout():
     flask_login.logout_user()
     return redirect(url_for('login'))
 
-
-# App route for login page
 @app.route('/', methods=['GET', 'POST'])
-@limiter.limit("5 per minute, 20 per hour")
 def login():
-    # Runs when user presses log in on the login page
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        # Checks if username is in database
-        if bool(LoginScreen.query.filter_by(usernames=username).first()):
-            id_checker = LoginScreen.query.filter_by(usernames=username).first()
-            id_checker = id_checker.id
-            id_tester = LoginScreen.query.get(id_checker).passwords
-            # Checks if username and password match
-            if check_password_hash(id_tester, password):
+
+        user_data = LoginScreen.query.filter_by(usernames=username).first()
+
+        if user_data:
+            stored_password = LoginScreen.query.get(user_data.id).passwords
+
+            if check_password_hash(stored_password, password):
                 user = User()
                 user.id = username
                 flask_login.login_user(user)
                 session.permanent = True
                 return redirect(url_for('protected'))
 
-            else:
-                return render_template('login.html', error="User does not exist")
-        else:
-            return render_template('login.html', error="User does not exist")
-    else:
-        return render_template('login.html')
+            @limiter.limit("5 per 5 minutes")
+            def failed_attempt():
+                return render_template('login.html', error="Incorrect password")
+
+            return failed_attempt()
+
+        return render_template('login.html', error="User does not exist")
+
+    return render_template('login.html')
 
 
 # App route for sign up page
@@ -750,20 +749,20 @@ def scoreboardData():
         scoreDict = scoreData[dictIndex]
         period = time['period']
         displayClock = time['displayClock']
-        date = time['type']['shortDetail']
+        eventdate = time['type']['shortDetail']
         status = time['type']['state']
         if status == "pre":
             date_format = "%m/%d"
-            today = datetime.datetime.strptime(f"{datetime.date.today().month}/{datetime.date.today().day}", date_format)
-            gameDay = datetime.datetime.strptime(date.split(" - ")[0], date_format)
+            today = datetime.strptime(f"{date.today().month}/{date.today().day}", date_format)
+            gameDay = datetime.strptime(eventdate.split(" - ")[0], date_format)
             difference = gameDay - today
             if difference.days == 0:
-                date = "TODAY, " + date.split(" - ")[1]
+                eventdate = "TODAY, " + eventdate.split(" - ")[1]
             if difference.days == 1:
-                date = "TOMORROW, " + date.split(" - ")[1]
+                eventdate = "TOMORROW, " + eventdate.split(" - ")[1]
         scoreDict['Quarter'] = 'Q' + str(period)
         scoreDict['Clock'] = displayClock
-        scoreDict['Date'] = date
+        scoreDict['Date'] = eventdate
         scoreDict['Status'] = status
         gameData.append(scoreDict)
         dictIndex += 1
@@ -930,11 +929,43 @@ def PRI():
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template('404.html'), 404
+    return render_template('error.html',
+                          error_code="404",
+                          error_title="Page Not Found",
+                          error_message="The page you are looking for doesn't exist or has been moved.",
+                          current_year=datetime.now().year), 404
 
 @app.errorhandler(500)
 def internal_server_error(e):
-    return render_template('500.html'), 500
+    return render_template('error.html',
+                          error_code="500",
+                          error_title="Internal Server Error",
+                          error_message="Something went wrong on our end. Please try again later.",
+                          current_year=datetime.now().year), 500
+
+@app.errorhandler(429)
+def ratelimit_handler(e):
+    """Handle rate limit errors by extracting from headers"""
+    error_message = "You have issued too many requests"
+    if hasattr(e, 'description'):
+        error_message = str(e.description)
+
+    # Try to get retry-after from response headers
+    rate_reset_seconds = 60  # Default
+    if hasattr(e, 'get_response'):
+        response = e.get_response()
+        if 'Retry-After' in response.headers:
+            try:
+                rate_reset_seconds = int(response.headers['Retry-After'])
+            except (ValueError, TypeError):
+                pass
+
+    return render_template('error.html',
+                           error_code="429",
+                           error_title="Rate Limit Exceeded",
+                           error_message=error_message,
+                           rate_reset_seconds=rate_reset_seconds,
+                           current_year=datetime.now().year), 429
 
 @app.after_request
 def add_security_headers(response):

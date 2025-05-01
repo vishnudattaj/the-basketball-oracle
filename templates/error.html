@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - {{ error_code }}</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --error-color: #e74c3c;
+            --text-color: #2c3e50;
+            --background-color: #f9f9f9;
+            --card-background: #ffffff;
+            --accent-color: #2980b9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .error-container {
+            max-width: 800px;
+            width: 100%;
+            background-color: var(--card-background);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Rate limit specific styles */
+        .rate-limit-info {
+            background-color: rgba(52, 152, 219, 0.1);
+            border-left: 4px solid var(--primary-color);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .countdown {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-top: 10px;
+        }
+
+        .error-header {
+            background-color: var(--error-color);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .error-header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .error-code {
+            font-size: 64px;
+            font-weight: 800;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+
+        .error-message {
+            padding: 30px;
+            text-align: center;
+        }
+
+        .error-details {
+            font-size: 18px;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .error-actions {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .error-footer {
+            padding: 20px;
+            text-align: center;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            font-size: 14px;
+            color: #777;
+        }
+
+        .animated-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .animated-bg svg {
+            width: 100%;
+            height: 100%;
+            opacity: 0.15;
+        }
+
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+        }
+
+        @media (max-width: 600px) {
+            .error-header h1 {
+                font-size: 28px;
+            }
+
+            .error-code {
+                font-size: 48px;
+            }
+
+            .error-details {
+                font-size: 16px;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-header">
+            <div class="animated-bg">
+                <svg viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <path d="M0,0 L100,0 L100,100 L0,100 Z" stroke="white" stroke-width="0.5" fill="none" stroke-dasharray="5,5"></path>
+                    <path d="M0,50 Q25,25 50,50 T100,50" stroke="white" stroke-width="1" fill="none" stroke-dasharray="5,5">
+                        <animate attributeName="d" dur="10s" repeatCount="indefinite"
+                        values="M0,50 Q25,25 50,50 T100,50;
+                                M0,50 Q25,75 50,50 T100,50;
+                                M0,50 Q25,25 50,50 T100,50"></animate>
+                    </path>
+                </svg>
+            </div>
+            <div class="content-wrapper">
+                <div class="error-code">{{ error_code }}</div>
+                <h1>{{ error_title }}</h1>
+            </div>
+        </div>
+
+        <div class="error-message">
+            {% if error_code == '429' %}
+            <div class="rate-limit-info">
+                <p>You've reached the rate limit for this action. Please wait before trying again.</p>
+                {% if rate_reset_seconds is defined and rate_reset_seconds > 0 %}
+                <p>You can try again in: <span id="countdown" class="countdown">calculating...</span></p>
+                {% else %}
+                <p>Please try again in a few moments.</p>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <div class="error-actions">
+                {% if error_code != '429' %}
+                <a href="{{ url_for('login') }}" class="btn">Go Home</a>
+                {% endif %}
+                {% if error_code == '429' %}
+                <button id="retry-btn" onclick="window.location.href = window.location.href + '?refresh=' + new Date().getTime()" class="btn" {% if rate_reset_seconds is defined and rate_reset_seconds > 0 %}disabled{% endif %}>Try Again</button>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="error-footer">
+            &copy; {{ current_year }} Your Application Name. All rights reserved.
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Error page loaded');
+
+            // Check if this is a rate limit error and if we need to display a countdown
+            const isRateLimitError = {{ 'true' if error_code == '429' else 'false' }};
+            const rateResetSeconds = {{ rate_reset_seconds|default(0) if rate_reset_seconds is defined else 0 }};
+
+            if (isRateLimitError && rateResetSeconds > 0) {
+                const countdownEl = document.getElementById('countdown');
+                if (countdownEl) {
+                    let timeLeft = rateResetSeconds;
+
+                    const updateCountdown = () => {
+                        const minutes = Math.floor(timeLeft / 60);
+                        const seconds = timeLeft % 60;
+                        countdownEl.textContent = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+
+                        if (timeLeft <= 0) {
+                            clearInterval(timer);
+                            countdownEl.textContent = 'You can try again now';
+                            document.getElementById('retry-btn').disabled = false;
+                        }
+                        timeLeft--;
+                    };
+
+                    updateCountdown();
+                    const timer = setInterval(updateCountdown, 1000);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
