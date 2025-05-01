@@ -219,7 +219,7 @@
         </div>
 
         <div class="error-footer">
-            &copy; {{ current_year }} Your Application Name. All rights reserved.
+            &copy; {{ current_year }} The Basketball Oracle. All rights reserved.
         </div>
     </div>
 
@@ -227,26 +227,28 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Error page loaded');
 
-            // Check if this is a rate limit error and if we need to display a countdown
-            const isRateLimitError = {{ 'true' if error_code == '429' else 'false' }};
-            const rateResetSeconds = {{ rate_reset_seconds|default(0) if rate_reset_seconds is defined else 0 }};
+            const isRateLimitError = true; // Simulating a rate limit error for testing
+            let rateResetSeconds = localStorage.getItem('rateResetSeconds')
+                                  ? parseInt(localStorage.getItem('rateResetSeconds'))
+                                  : 60; // Default 60 seconds if not stored
 
             if (isRateLimitError && rateResetSeconds > 0) {
                 const countdownEl = document.getElementById('countdown');
                 if (countdownEl) {
-                    let timeLeft = rateResetSeconds;
-
                     const updateCountdown = () => {
-                        const minutes = Math.floor(timeLeft / 60);
-                        const seconds = timeLeft % 60;
+                        const minutes = Math.floor(rateResetSeconds / 60);
+                        const seconds = rateResetSeconds % 60;
                         countdownEl.textContent = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
 
-                        if (timeLeft <= 0) {
+                        if (rateResetSeconds <= 0) {
                             clearInterval(timer);
                             countdownEl.textContent = 'You can try again now';
                             document.getElementById('retry-btn').disabled = false;
+                            localStorage.removeItem('rateResetSeconds'); // Clear storage
+                        } else {
+                            rateResetSeconds--;
+                            localStorage.setItem('rateResetSeconds', rateResetSeconds); // Store updated value
                         }
-                        timeLeft--;
                     };
 
                     updateCountdown();

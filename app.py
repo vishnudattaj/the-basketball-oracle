@@ -6,7 +6,6 @@ from flask_sqlalchemy import SQLAlchemy
 import flask_login
 from nba_api.stats.endpoints import playercareerstats, commonteamroster, leaguestandings
 from nba_api.stats.static import players, teams
-import pandas
 import joblib
 import requests
 from datetime import timedelta, datetime, date
@@ -23,6 +22,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf.csrf import CSRFProtect
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from io import StringIO
 
 load_dotenv()
 
@@ -31,7 +31,6 @@ limiter = Limiter(
     default_limits=["200 per day", "50 per hour"],
     headers_enabled=True
 )
-
 # Sets Up The Flask App
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY')
@@ -112,9 +111,9 @@ advanced_table = advanced_soup.find(id='advanced')
 shooting_table = shooting_soup.find(id='shooting')
 
 # Converts the table to a dataframe
-basic_df = pandas.read_html(str(basic_table))[0]
-advanced_df = pandas.read_html(str(advanced_table))[0]
-shooting_df = pandas.read_html(str(shooting_table))[0]
+basic_df = pd.read_html(StringIO(str(basic_table)))[0]
+advanced_df = pd.read_html(StringIO(str(advanced_table)))[0]
+shooting_df = pd.read_html(StringIO(str(shooting_table)))[0]
 
 # Replaced all stats with a blank spot with 0 so I wouldn't have to remove some key nba players
 basic_df.fillna(0, inplace=True)
@@ -123,7 +122,7 @@ shooting_df.fillna(0, inplace=True)
 
 shooting_df.columns = shooting_df.columns.droplevel(0)
 
-totalDF = pandas.merge(pandas.merge(basic_df, advanced_df, on='Player'), shooting_df, on='Player')
+totalDF = pd.merge(pd.merge(basic_df, advanced_df, on='Player'), shooting_df, on='Player')
 
 metrics = ['PTS', 'AST', 'TRB', 'BLK', 'STL', 'TS%', 'WS', 'USG%', 'PER', 'G']
 weights = np.array([0.3, 0.15, 0.15, 0.05, 0.05, 0.15, 0.1, 0.1, 0.1, 0.1])
@@ -293,7 +292,7 @@ def search():
                 teamselection = teamselection.rename(columns={'HOW_ACQUIRED': 'HOW ACQUIRED'})
                 teamselection['HOW ACQUIRED'] = teamselection['HOW ACQUIRED'].apply(create_link_abbreviation_acquisition)
                 teamselection['PLAYER'] = teamselection['PLAYER'].apply(player_link)
-                teamselection = pandas.concat([teamselection], keys=["Team Roster"], axis=1)
+                teamselection = pd.concat([teamselection], keys=["Team Roster"], axis=1)
                 team_table.append(teamselection.to_html(classes='table table-striped', index=False, escape=False))
                 team_url.append(f'{team_abbreviation.lower()}.png')
             else:
@@ -312,7 +311,7 @@ def search():
                     try:
                         playerScore.append(score)
                         playerCategoryZip.append(matched_category)
-                        futurePredictions = pandas.concat([newRow], keys=["Future Predictions"], axis=1)
+                        futurePredictions = pd.concat([newRow], keys=["Future Predictions"], axis=1)
                         futurePredictions = futurePredictions.rename(
                             columns={'SEASON_ID': 'YEAR', 'TEAM_ABBREVIATION': 'TEAM', 'PLAYER_AGE': 'AGE',
                                      'FG_PCT': 'FG%', 'FG3_PCT': '3PT%', 'FT_PCT': 'FT%'})
@@ -389,7 +388,7 @@ def search():
                 teamselection = teamselection.rename(columns={'HOW_ACQUIRED': 'HOW ACQUIRED'})
                 teamselection['HOW ACQUIRED'] = teamselection['HOW ACQUIRED'].apply(create_link_abbreviation_acquisition)
                 teamselection['PLAYER'] = teamselection['PLAYER'].apply(player_link)
-                teamselection = pandas.concat([teamselection], keys=["Team Roster"], axis=1)
+                teamselection = pd.concat([teamselection], keys=["Team Roster"], axis=1)
                 team_table.append(teamselection.to_html(classes='table table-striped', index=False, escape=False))
                 team_url.append(f'{team_abbreviation.lower()}.png')
             else:
@@ -411,7 +410,7 @@ def search():
                     try:
                         playerScore.append(score)
                         playerCategoryZip.append(matched_category)
-                        futurePredictions = pandas.concat([newRow], keys=["Future Predictions"], axis=1)
+                        futurePredictions = pd.concat([newRow], keys=["Future Predictions"], axis=1)
                         futurePredictions = futurePredictions.rename(
                             columns={'SEASON_ID': 'YEAR', 'TEAM_ABBREVIATION': 'TEAM', 'PLAYER_AGE': 'AGE',
                                      'FG_PCT': 'FG%', 'FG3_PCT': '3PT%', 'FT_PCT': 'FT%'})
@@ -529,7 +528,7 @@ def playerHTML(player):
         if active:
             try:
                 playerCategoryZip.append(matched_category)
-                futurePredictions = pandas.concat([newRow], keys=["Future Predictions"], axis=1)
+                futurePredictions = pd.concat([newRow], keys=["Future Predictions"], axis=1)
                 futurePredictions = futurePredictions.rename(
                     columns={'SEASON_ID': 'YEAR', 'TEAM_ABBREVIATION': 'TEAM', 'PLAYER_AGE': 'AGE', 'FG_PCT': 'FG%',
                              'FG3_PCT': '3PT%', 'FT_PCT': 'FT%'})
@@ -582,7 +581,7 @@ def teamHTML(team):
         teamselection = teamselection.rename(columns={'HOW_ACQUIRED': 'HOW ACQUIRED'})
         teamselection['PLAYER'] = teamselection['PLAYER'].apply(player_link)
         teamselection['HOW ACQUIRED'] = teamselection['HOW ACQUIRED'].apply(create_link_abbreviation_acquisition)
-        teamselection = pandas.concat([teamselection], keys=["Team Roster"], axis=1)
+        teamselection = pd.concat([teamselection], keys=["Team Roster"], axis=1)
         team_table = teamselection.to_html(classes='table table-striped', index=False, escape=False)
         team_url = f'{team_abbreviation.lower()}.png'
         return render_template('dataTable.html', save=flask_login.current_user.id, teamtable=zip([team_table], [team_url]), scoreboard=scoreboardData(), top_players = PRI())
@@ -654,7 +653,7 @@ def boxScore(gameId):
         bench = sorted(bench, key=lambda x: x[key.index('MIN')], reverse=True)
 
         starters_df = pd.DataFrame(starters, columns=key)
-        starters_df = pandas.concat([starters_df], keys=[team_name[teamIndex]], axis=1)
+        starters_df = pd.concat([starters_df], keys=[team_name[teamIndex]], axis=1)
         bench_key = ['Bench'] + team[0]['names']
         bench_df = pd.DataFrame(bench + dnp, columns=bench_key)
         total_key = ['Total'] + team[0]['names']
@@ -788,7 +787,7 @@ def predictPlayer(player_name):
         if player_basic['Pos'] in ["PG", "SG"]:
             features = [player_basic['PTS'], player_basic['AST'], player_basic['STL'],
                         player_advanced['WS'], player_advanced['VORP']]
-            features = pandas.DataFrame([features])
+            features = pd.DataFrame([features])
             scaled_features = scalerg.transform(features)
             categorizing = kmg.predict(scaled_features)
             role = ["Role Player", "Star Player", "Bench Warmer"]
@@ -796,7 +795,7 @@ def predictPlayer(player_name):
         elif player_basic['Pos'] in ["SF", "PF"]:
             features = [player_basic['PTS'], player_basic['AST'], player_basic['STL'],
                         player_advanced['WS'], player_advanced['VORP']]
-            features = pandas.DataFrame([features])
+            features = pd.DataFrame([features])
             scaled_features = scalerw.transform(features)
             categorizing = kmw.predict(scaled_features)
             role = ["Role Player", "Bench Warmer", "Star Player"]
@@ -804,7 +803,7 @@ def predictPlayer(player_name):
         elif player_basic['Pos'] == "C":
             features = [player_basic['PTS'], player_basic['TRB'], player_basic['BLK'],
                         player_advanced['WS'], player_advanced['VORP']]
-            features = pandas.DataFrame([features])
+            features = pd.DataFrame([features])
             scaled_features = scalerb.transform(features)
             categorizing = kmb.predict(scaled_features)
             role = ["Bench Warmer", "Star Player", "Role Player"]
@@ -876,13 +875,13 @@ def createPlayerDf(player_id):
                 teamName = team_dict["full_name"]
                 playerdf.loc[index, 'TEAM_ABBREVIATION'] = create_link_abbreviation(teamName, abbreviation)
 
-    playerselection = pandas.concat(
+    playerselection = pd.concat(
         [playerdf[['SEASON_ID', 'TEAM_ABBREVIATION', 'PLAYER_AGE', 'GP', 'GS']], pts_avg, reb_avg,
          ast_avg, stl_avg, blk_avg, playerdf[['FG_PCT', 'FG3_PCT', 'FT_PCT']]], axis=1)
     playerselection = playerselection.rename(
         columns={'SEASON_ID': 'YEAR', 'TEAM_ABBREVIATION': 'TEAM', 'PLAYER_AGE': 'AGE', 'FG_PCT': 'FG%',
                  'FG3_PCT': '3PT%', 'FT_PCT': 'FT%'})
-    playerselection = pandas.concat([playerselection], keys=["Player History"], axis=1)
+    playerselection = pd.concat([playerselection], keys=["Player History"], axis=1)
 
     # Process playoff stats in the same way
     playoff_pts_avg = playoffDF['PTS'].fillna(0).div(playoffDF['GP'].fillna(1)).to_frame('PTS').round(1)
@@ -899,13 +898,13 @@ def createPlayerDf(player_id):
                 teamName = team_dict["full_name"]
                 playoffDF.loc[index, 'TEAM_ABBREVIATION'] = create_link_abbreviation(teamName, abbreviation)
 
-    playoffselection = pandas.concat(
+    playoffselection = pd.concat(
         [playoffDF[['SEASON_ID', 'TEAM_ABBREVIATION', 'PLAYER_AGE', 'GP', 'GS']], playoff_pts_avg, playoff_reb_avg,
          playoff_ast_avg, playoff_stl_avg, playoff_blk_avg, playoffDF[['FG_PCT', 'FG3_PCT', 'FT_PCT']]], axis=1)
     playoffselection = playoffselection.rename(
         columns={'SEASON_ID': 'YEAR', 'TEAM_ABBREVIATION': 'TEAM', 'PLAYER_AGE': 'AGE', 'FG_PCT': 'FG%',
                  'FG3_PCT': '3PT%', 'FT_PCT': 'FT%'})
-    playoffselection = pandas.concat([playoffselection], keys=["Playoff History"], axis=1)
+    playoffselection = pd.concat([playoffselection], keys=["Playoff History"], axis=1)
 
     return playerselection, playoffselection
 
