@@ -197,6 +197,7 @@
         </div>
 
         <div class="error-message">
+            {{ error_message }}
             {% if error_code == '429' %}
             <div class="rate-limit-info">
                 <p>You've reached the rate limit for this action. Please wait before trying again.</p>
@@ -229,10 +230,10 @@
 
             const isRateLimitError = true; // Simulating a rate limit error for testing
             let rateResetSeconds = localStorage.getItem('rateResetSeconds')
-                                  ? parseInt(localStorage.getItem('rateResetSeconds'))
-                                  : 60; // Default 60 seconds if not stored
+                                      ? parseInt(localStorage.getItem('rateResetSeconds'))
+                                      : 60; // Default 60 seconds if not stored
 
-            if (isRateLimitError && rateResetSeconds > 0) {
+            if (isRateLimitError) {
                 const countdownEl = document.getElementById('countdown');
                 if (countdownEl) {
                     const updateCountdown = () => {
@@ -253,6 +254,11 @@
 
                     updateCountdown();
                     const timer = setInterval(updateCountdown, 1000);
+
+                    // Ensure the storage disappears in one minute
+                    setTimeout(() => {
+                        localStorage.removeItem('rateResetSeconds');
+                    }, 60000);
                 }
             }
         });

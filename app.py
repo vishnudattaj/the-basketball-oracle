@@ -8,7 +8,7 @@ from nba_api.stats.endpoints import playercareerstats, commonteamroster, leagues
 from nba_api.stats.static import players, teams
 import joblib
 import requests
-from datetime import timedelta, datetime, date
+from datetime import datetime, date
 from bs4 import BeautifulSoup
 import re
 from dotenv import load_dotenv
@@ -37,7 +37,6 @@ app.secret_key = os.getenv('FLASK_SECRET_KEY')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///login.db'
 app.config['SESSION_COOKIE_SECURE'] = True
 app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=1)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 csrf = CSRFProtect(app)
@@ -165,6 +164,7 @@ def user_loader(username):
 # Redirects user to login page when they log out
 @app.route('/logout')
 def logout():
+    session.clear()
     flask_login.logout_user()
     return redirect(url_for('login'))
 
@@ -183,7 +183,6 @@ def login():
                 user = User()
                 user.id = username
                 flask_login.login_user(user)
-                session.permanent = True
                 return redirect(url_for('protected'))
 
             @limiter.limit("5 per 5 minutes")
@@ -962,7 +961,6 @@ def ratelimit_handler(e):
     return render_template('error.html',
                            error_code="429",
                            error_title="Rate Limit Exceeded",
-                           error_message=error_message,
                            rate_reset_seconds=rate_reset_seconds,
                            current_year=datetime.now().year), 429
 
