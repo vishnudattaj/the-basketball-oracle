@@ -54,7 +54,7 @@
                                     <div class="team-container">
                                         <div class="team-info">
                                             <div class="team-logo" style="background-image: url({{ game['Home Logo'] }});" onclick="location.href='/protected/teams/{{ game['Home Link'] }}'"></div>
-                                            <div class="team-name linkify" onclick="location.href='/protected/teams/{{ game['Home Link'] }}'">{{ game['Home Team'] }}</div>
+                                            <a class="team-name linkify" href="/protected/teams/{{ game['Home Link'] }}">{{ game['Home Team'] }}</a>
                                             <div class="score">{{ game['Home Score'] }}</div>
                                         </div>
                                     </div>
@@ -65,7 +65,7 @@
                                     <div class="team-container">
                                         <div class="team-info">
                                             <div class="team-logo" style="background-image: url({{ game['Away Logo'] }});" onclick="location.href='/protected/teams/{{ game['Away Link'] }}'"></div>
-                                            <div class="team-name linkify" onclick="location.href='/protected/teams/{{ game['Away Link'] }}'">{{ game['Away Team'] }}</div>
+                                            <a class="team-name linkify" href="/protected/teams/{{ game['Away Link'] }}">{{ game['Away Team'] }}</a>
                                             <div class="score">{{ game['Away Score'] }}</div>
                                         </div>
                                     </div>
@@ -85,7 +85,7 @@
                                     <div class="team-container">
                                         <div class="team-info">
                                             <div class="team-logo" style="background-image: url({{ game['Home Logo'] }});" onclick="location.href='/protected/teams/{{ game['Home Link'] }}'"></div>
-                                            <div class="team-name linkify" onclick="location.href='/protected/teams/{{ game['Home Link'] }}'">{{ game['Home Team'] }}</div>
+                                            <a class="team-name linkify" href="/protected/teams/{{ game['Home Link'] }}">{{ game['Home Team'] }}</a>
                                             <div class="score">{{ game['Home Score'] }}</div>
                                         </div>
                                     </div>
@@ -95,7 +95,7 @@
                                     <div class="team-container">
                                         <div class="team-info">
                                             <div class="team-logo" style="background-image: url({{ game['Away Logo'] }});" onclick="location.href='/protected/teams/{{ game['Away Link'] }}'"></div>
-                                            <div class="team-name linkify" onclick="location.href='/protected/teams/{{ game['Away Link'] }}'">{{ game['Away Team'] }}</div>
+                                            <a class="team-name linkify" href="/protected/teams/{{ game['Away Link'] }}">{{ game['Away Team'] }}</a>
                                             <div class="score">{{ game['Away Score'] }}</div>
                                         </div>
                                     </div>
@@ -115,8 +115,8 @@
                                     <div class="team-container">
                                         <div class="team-info">
                                             <div class="team-logo" style="background-image: url({{ game['Home Logo'] }});" onclick="location.href='/protected/teams/{{ game['Home Link'] }}'"></div>
-                                            <div class="team-name linkify" onclick="location.href='/protected/teams/{{ game['Home Link'] }}'">{{ game['Home Team'] }}</div>
-                                            <div class="score" onclick="location.href='/protected/teams/{{ game['Home Link'] }}'">{{ game['Home Record'] }}</div>
+                                            <a class="team-name linkify" href="/protected/teams/{{ game['Home Link'] }}">{{ game['Home Team'] }}</a>
+                                            <div class="score">{{ game['Home Record'] }}</div>
                                         </div>
                                     </div>
                                     <div class="game-info">
@@ -125,8 +125,8 @@
                                     <div class="team-container">
                                         <div class="team-info">
                                             <div class="team-logo" style="background-image: url({{ game['Away Logo'] }});" onclick="location.href='/protected/teams/{{ game['Away Link'] }}'"></div>
-                                            <div class="team-name linkify" onclick="location.href='/protected/teams/{{ game['Away Link'] }}'">{{ game['Away Team'] }}</div>
-                                            <div class="score" onclick="location.href='/protected/teams/{{ game['Away Link'] }}'">{{ game['Away Record'] }}</div>
+                                            <a class="team-name linkify" href="/protected/teams/{{ game['Away Link'] }}">{{ game['Away Team'] }}</a>
+                                            <div class="score">{{ game['Away Record'] }}</div>
                                         </div>
                                     </div>
                                 </div>

@@ -248,13 +248,14 @@ def protected():
         # Runs if user presses search
         if request.form['Submit'] == "Submit":
             player_input = request.form['player']
-            # Validate input - example: limit length, check for valid characters
-            if player_input and len(player_input) <= 100 and re.match(r'^[a-zA-Z0-9\s,\'.()-]+$', player_input):
-                flask.session['items'] = player_input
-                return redirect(url_for('search'))
-            else:
-                # Return error for invalid input
-                return render_template('search.html', save=flask_login.current_user.id,
+            # Validate input - check for valid characters
+            try:
+                if player_input and re.match(r'^[\u00C0-\u024F\u1E00-\u1EFFa-zA-Z,\s]+$', player_input):
+                    flask.session['items'] = player_input
+                    return redirect(url_for('search'))
+            except:
+                pass
+            return render_template('search.html', save=flask_login.current_user.id,
                                        standings=standingsHTML(), scoreboard=scoreboardData(),
                                        top_players=PRI(), error="Invalid search input")
     # Returns search.html if method is GET instead of POST
