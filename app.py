@@ -205,15 +205,6 @@ def signup():
         password = request.form['password']
         confirm = request.form['confirmpassword']
 
-        if len(password) < 8:
-            return render_template('signup.html', error="Password must be at least 8 characters long")
-
-        if not re.search(r'[A-Z]', password):
-            return render_template('signup.html', error="Password must contain at least one uppercase letter")
-
-        if not re.search(r'[0-9]', password):
-            return render_template('signup.html', error="Password must contain at least one number")
-
         # Ensures both password fields match
         if password == confirm:
             hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
