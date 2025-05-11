@@ -52,8 +52,8 @@ class User(flask_login.UserMixin):
 # Sets up the database
 class LoginScreen(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    usernames = db.Column(db.String(100), nullable=False)
-    passwords = db.Column(db.String(100), nullable=False)
+    usernames = db.Column(db.String(100), unique=True, nullable=False)
+    passwords = db.Column(db.Text, nullable=False)
 
     def __repr__(self):
         return 'User ' + str(self.id)
@@ -95,9 +95,9 @@ headers = {
 }
 
 # Requests the page based on the above urls
-basic_page = requests.get(basic, headers=headers)
-advanced_page = requests.get(advanced, headers=headers)
-shooting_page = requests.get(shooting, headers=headers)
+basic_page = requests.get(basic, headers=headers, timeout=5)
+advanced_page = requests.get(advanced, headers=headers, timeout=5)
+shooting_page = requests.get(shooting, headers=headers, timeout=5)
 
 # Sets up beautiful soup object
 basic_soup = BeautifulSoup(basic_page.content, "html.parser")
@@ -177,9 +177,9 @@ def login():
         user_data = LoginScreen.query.filter_by(usernames=username).first()
 
         if user_data:
-            stored_password = LoginScreen.query.get(user_data.id).passwords
-
-            if check_password_hash(stored_password, password):
+            user_data = LoginScreen.query.filter_by(usernames=username).first()
+            hashed_password = user_data.passwords if user_data else generate_password_hash("dummy", method="pbkdf2:sha256")
+            if check_password_hash(hashed_password, password):
                 user = User()
                 user.id = username
                 flask_login.login_user(user)
