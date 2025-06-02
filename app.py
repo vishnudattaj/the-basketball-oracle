@@ -153,8 +153,9 @@ def unauthorized_handler():
 # Loads a user in a session
 @login_manager.user_loader
 def user_loader(username):
-    if username not in username:
-        return
+    user_data = LoginScreen.query.filter_by(usernames=username).first()
+    if not user_data:
+        return None
 
     user = User()
     user.id = username
@@ -971,6 +972,11 @@ def add_security_headers(response):
     response.headers['X-Frame-Options'] = 'DENY'
     response.headers['X-XSS-Protection'] = '1; mode=block'
     return response
+
+@app.route('/protected/pri', methods=['POST', 'GET'])
+@flask_login.login_required
+def priInfo():
+    return render_template('pri.html', save=flask_login.current_user.id, scoreboard=scoreboardData(), top_players = PRI())
 
 # Runs app in debug mode
 if __name__ == "__main__":

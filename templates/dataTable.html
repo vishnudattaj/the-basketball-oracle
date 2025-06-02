@@ -162,7 +162,7 @@
                         <img src="{{ player_url }}" alt="{{ player_name }}" class="player-image">
                         <div class="player-info">
                             <span class="player-name">{{ player_name | safe}}</span>
-                            <span class="player-score">PRI: {{ player_score }}</span>
+                            <span class="player-score"><a href="/protected/pri">PRI</a>: {{ player_score }}</span>
                         </div>
                     </div>
                     {% endfor %}
@@ -172,7 +172,7 @@
                         <img src="{{ player_url }}" alt="{{ player_name }}" class="player-image">
                         <div class="player-info">
                             <span class="player-name">{{ player_name | safe }}</span>
-                            <span class="player-score">PRI: {{ player_score }}</span>
+                            <span class="player-score"><a href="/protected/pri">PRI</a>: {{ player_score }}</span>
                         </div>
                     </div>
                     {% endfor %}
@@ -201,7 +201,7 @@
                         <h3 class="playerInfo">{{ name }}</h3>
                         <h4 class="playerInfo">{{ category }}</h4>
                         {% if score != false %}
-                            <h4 class="playerInfo">PRI: {{ score }}</h4>
+                            <h4 class="playerInfo"><a href="/protected/pri">PRI</a>: {{ score }}</h4>
                         {% endif %}
                     </div>
                     <div class="playerTable">

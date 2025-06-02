@@ -1,0 +1,7 @@
+{
+  "devDependencies": {
+    "postcss": "^8.5.4",
+    "postcss-cli": "^11.0.1",
+    "postcss-pxtorem": "^6.1.0"
+  }
+}
