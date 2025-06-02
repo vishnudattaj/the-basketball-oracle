@@ -1,0 +1,59 @@
+.vh-100 {
+    background-color: #508bfc;
+}
+
+.btn-danger {
+    background-color: #1266f1;
+}
+
+.btn-danger:hover {
+    background-color: #0b5de3;
+}
+
+h5 {
+    color: #FF474C !important;
+}
+
+.theme-toggle {
+  position: fixed;
+  bottom: 0.625rem;
+  left: 0.625rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background-color: #111;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0.0625rem 0.1875rem rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+
+.theme-toggle.light {
+  background-color: #eee;
+}
+
+.toggle-icon {
+  font-size: 1rem;
+  transition: opacity 0.2s ease;
+}
+
+.sun {
+  color: #fff;
+  opacity: 1;
+}
+
+.moon {
+  color: #000;
+  position: absolute;
+  opacity: 0;
+}
+
+.theme-toggle.light .sun {
+  opacity: 0;
+}
+
+.theme-toggle.light .moon {
+  opacity: 1;
+}

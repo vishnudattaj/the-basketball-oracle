@@ -1,0 +1,897 @@
+body {
+    background-color: #151516;
+}
+
+.playerGrid, .teamGrid {
+    display: grid;
+    grid-template-columns: 1fr 4fr;
+    gap: 1.25rem 0;
+    margin-bottom: 1.875rem;
+}
+
+.playerGrid {
+    grid-template-rows: auto auto;
+}
+
+.teamGrid {
+    grid-template-rows: auto;
+}
+
+.playerHeadshot, .teamHeadshot {
+    grid-column: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.playerHeadshot {
+    grid-row: 1 / 3;
+}
+
+.teamHeadshot {
+    grid-row: 1;
+}
+
+.playerTable {
+    grid-column: 2;
+    grid-row: 1;
+    overflow-y: auto;
+    border: 0.0625rem solid #e0e0e0;
+    border-radius: 0.25rem;
+    margin-bottom: 0.9375rem;
+}
+
+.table-vh-1 {
+  max-height: 48vh;
+}
+
+.table-vh-1_25 {
+  max-height: 39vh;
+}
+
+.playerTable *, .teamTable *, .futureTable * {
+    color: white !important;
+    border-color: #636363;
+}
+
+.playerTable tbody tr:nth-child(odd) {
+    background-color: #111111;
+}
+
+.teamTable tbody tr:nth-child(odd) {
+    background-color: #111111;
+}
+
+/* Add hover effect for team table rows */
+.teamTable tbody tr:hover {
+    background-color: #2a2a2a;
+    transition: background-color 0.2s ease;
+}
+
+.btn-grayish {
+    background-color: #202124;
+}
+
+.futureTable {
+    grid-column: 2;
+    grid-row: 2;
+    width: 100%;
+    border: 0.0625rem solid #e0e0e0;
+    border-radius: 0.25rem;
+}
+
+.teamTable {
+    grid-column: 2;
+    grid-row: 1;
+    max-height: 68.7vh;
+    overflow-y: auto;
+    border: 0.0625rem solid #e0e0e0;
+    border-radius: 0.25rem;
+}
+
+.playerTable thead th, .futureTable thead th, .teamTable thead th {
+    position: sticky;
+    top: -0.0625rem;
+    background: #202124;
+    z-index: 1;
+    text-align: center;
+}
+
+th[colspan] {
+    text-align: center;
+    background-color: #212121 !important;
+    position: sticky;
+    top: 0;
+    z-index: 11;
+}
+
+td {
+    text-align: center;
+}
+
+th:not([colspan]) {
+    background-color: white;
+    position: sticky;
+    top: 1.875rem;
+    z-index: 10;
+}
+
+.playerInfo {
+    text-align:center;
+    color: white;
+}
+
+.playerTable table, .futureTable table, .teamTable table {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+.playerHeadshot img {
+    width: 12.5rem;
+    height: 18.75rem;
+    object-fit: cover;
+    object-position: center;
+    margin-bottom: 0.9375rem;
+}
+
+.teamHeadshot img {
+    width: 90%;
+    height: auto;
+    margin-bottom: 0.9375rem;
+}
+
+.alert {
+  padding: 1.25rem;
+  background-color: #f44336;
+  color: white;
+}
+
+#returnToSearchButton:hover {
+    background-color: #9fa6b2;
+    color: white;
+}
+
+#returnToSearchButton {
+    color: #9fa6b2;
+    border: 0.0625rem solid #9fa6b2;
+    background-color: transparent;
+    position: fixed;
+    bottom: 0.625rem;
+    left: 3.75rem;
+}
+
+.closebtn {
+  margin-left: 0.9375rem;
+  color: white;
+  font-weight: bold;
+  float: right;
+  font-size: 1.375rem;
+  line-height: 1.25rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.closebtn:hover {
+  color: black;
+}
+
+.tableFont {
+    font-size: 0.88em;
+}
+
+.defaultImage {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.fixed-element {
+    position: fixed;
+    bottom: 0.625rem;
+    right: 0.625rem;
+}
+
+.btn-outline-danger {
+    color: #ff0000;
+    border: 0.0625rem solid #ff0000;
+    background-color: transparent;
+}
+
+.btn-outline-danger:hover {
+    background-color: #ff0000;
+    color: white;
+}
+
+.topBar {
+    display: flex;
+    grid-row: 1;
+    background-color: #111111;
+    color: #333;
+    height: 5rem;
+    align-items: center;
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+    border-bottom: 0.0625rem solid #333333;
+}
+
+.bottomSection {
+    max-height: 81.3vh;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.scorecards-wrapper {
+    display: flex;
+    width: 100%;
+    position: relative;
+}
+
+.scorecards-container {
+    display: flex;
+    width: calc(100% - 6.25rem);
+    margin: 0 auto;
+    overflow: hidden;
+    position: relative;
+}
+
+.scorecards-slider {
+    display: flex;
+    transition: transform 0.3s ease;
+    width: 100%;
+}
+
+.scorecard {
+    min-width: calc(100% / var(--visible-cards, 5) - 0.75rem);
+    max-width: calc(100% / var(--visible-cards, 5) - 0.75rem);
+    height: 4.0625rem;
+    margin-right: 0.9375rem;
+    background-color: #202124;
+    border-radius: 0.375rem;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    box-shadow: 0 0.0625rem 0.1875rem rgba(0,0,0,0.12);
+    flex-shrink: 0;
+}
+
+.scorecard-header {
+    height: 1.25rem;
+    background-color: #666666;
+    border-radius: 0.375rem 0.375rem 0 0;
+    font-size: 0.6875rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0.625rem;
+    color: white;
+}
+
+.scorecard-body {
+    display: flex;
+    height: 2.8125rem;
+    padding: 0 0.625rem;
+}
+
+.team-container {
+    display: flex;
+    flex: 1;
+    align-items: center;
+}
+
+.team-info {
+    display: flex;
+    align-items: center;
+    flex: 1;
+}
+
+.team-logo {
+    width: 1.5625rem;
+    height: 1.5625rem;
+    margin-right: 0.5rem;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    flex-shrink: 0;
+}
+
+.team-name {
+    font-weight: 600;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 4.0625rem;
+    color: white;
+}
+
+.score {
+    font-weight: 700;
+    font-size: 1.125rem;
+    display: flex;
+    align-items: center;
+    width: 1.875rem;
+    justify-content: flex-end;
+    margin-left: auto;
+    color: white;
+    flex-shrink: 0;
+}
+
+.game-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 0 0.625rem;
+    min-width: 2.8125rem;
+    flex-shrink: 0;
+}
+
+.quarter {
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: white;
+}
+
+.time {
+    font-size: 0.75rem;
+    color: #FF0000;
+}
+
+.live-indicator {
+    position: absolute;
+    top: 0.3125rem;
+    right: 0.3125rem;
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: 50%;
+    background-color: #FF0000;
+    animation: pulse 1.5s infinite;
+    z-index: 10;
+}
+
+.upcoming-game {
+    color: #777;
+}
+
+.upcoming-game .score {
+    font-size: 0.9375rem;
+    color: #999;
+}
+
+.final-game .scorecard-header {
+    background-color: #555555;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.4; }
+    50% { opacity: 1; }
+    100% { opacity: 0.4; }
+}
+
+.nav-controls {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    padding: 0 0.625rem;
+    z-index: 10;
+}
+
+.nav-button {
+    width: 1.875rem;
+    height: 1.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(233, 236, 239, 0.8);
+    border-radius: 50%;
+    cursor: pointer;
+    color: #555;
+    pointer-events: auto;
+    z-index: 10;
+    box-shadow: 0 0.125rem 0.3125rem rgba(0,0,0,0.1);
+}
+
+.nav-button:hover {
+    background-color: rgba(222, 226, 230, 0.9);
+}
+
+.nav-button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.centerText {
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    flex-grow: 1;
+}
+
+.carousel-indicators {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.3125rem;
+    z-index: 5;
+}
+
+.theme-toggle {
+  position: fixed;
+  bottom: 0.625rem;
+  left: 0.625rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background-color: #111;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0.0625rem 0.1875rem rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+
+.theme-toggle.light {
+  background-color: #eee;
+}
+
+.toggle-icon {
+  font-size: 1rem;
+  transition: opacity 0.2s ease;
+}
+
+.sun {
+  color: #fff;
+  opacity: 1;
+}
+
+.moon {
+  color: #000;
+  position: absolute;
+  opacity: 0;
+}
+
+.theme-toggle.light .sun {
+  opacity: 0;
+}
+
+.theme-toggle.light .moon {
+  opacity: 1;
+}
+
+.boxscore {
+  width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;
+  margin-bottom: 0.9375rem;
+}
+
+.boxscore table {
+  width: 100%;
+  color: white;
+  border-collapse: collapse;
+}
+
+.boxscore thead th {
+  position: static;  /* Non-sticky headers */
+  background-color: #202124;
+  color: white;
+  border: 0.0625rem solid #636363;
+  padding: 0.375rem 0.5rem;
+  text-align: center;
+}
+
+.boxscore td {
+  background-color: #111111;
+  color: white !important;
+  border: 0.0625rem solid #636363;
+  padding: 0.375rem 0.5rem;
+  text-align: center;
+}
+
+/* Make first column (player names) left-aligned */
+.boxscore td:first-child {
+  text-align: left;
+}
+
+/* Optional: Add some padding for better readability */
+.boxscore th, .boxscore td {
+  min-width: 2.5rem;
+  padding: 0.375rem 0.5rem;
+}
+
+/* Team header (Indiana Pacers) */
+.boxscore table caption,
+.boxscore table th[colspan] {
+  background-color: #202124;
+  color: white;
+  padding: 0.5rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Hover effect for dark mode */
+.boxscore tbody tr:hover td {
+  background-color: #2a2a2a;
+  transition: background-color 0.2s ease;
+}
+
+/* Update the boxscore-scaled class to ensure it shows all rows */
+.boxscore-scaled {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible; /* Change from default to ensure all content shows */
+  white-space: nowrap;
+  margin-bottom: 0.9375rem;
+  font-size: 80%;
+  max-height: none; /* Remove or increase this - it might be cutting off content */
+}
+
+.boxscore-scaled table {
+  width: 100%;
+  color: white;
+  border-collapse: collapse;
+}
+
+.boxscore-scaled thead th {
+  position: static;
+  background-color: #202124;
+  color: white;
+  border: 0.0625rem solid #636363;
+  padding: 0.25rem 0.375rem; /* Smaller padding */
+  text-align: center;
+}
+
+.boxscore-scaled td {
+  background-color: #111111;
+  color: white !important;
+  border: 0.0625rem solid #636363;
+  padding: 0.25rem 0.375rem; /* Smaller padding */
+  text-align: center;
+}
+
+/* Make first column (player names) left-aligned */
+.boxscore-scaled td:first-child {
+  text-align: left;
+}
+
+/* Smaller minimum width for columns */
+.boxscore-scaled th, .boxscore-scaled td {
+  min-width: 2rem; /* Reduced from 40px */
+}
+
+/* Team header */
+.boxscore-scaled table caption,
+.boxscore-scaled table th[colspan] {
+  background-color: #202124;
+  color: white;
+  padding: 0.375rem; /* Smaller padding */
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Hover effect for dark mode */
+.boxscore-scaled tbody tr:hover td {
+  background-color: #2a2a2a;
+  transition: background-color 0.2s ease;
+}
+
+.boxGrid .playerGrid{
+    max-height: 43.75rem;
+    overflow-y: auto;
+}
+
+/* Update link styles */
+a {
+    color: white;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+/* Add hover effect for links */
+a:hover {
+    color: #3498db !important;
+}
+
+/* Add hover effect for player table rows */
+.playerTable tbody tr:hover {
+    background-color: #2a2a2a;
+    transition: background-color 0.2s ease;
+}
+
+/* ESPN-style Navbar styling */
+.navbar-oracle {
+    background-color: #111111;
+    padding: 0;
+    width: 100%;
+    position: relative;
+    z-index: 100;
+    height: 2.5rem;
+    margin-top: 0;
+    border-bottom: 0.0625rem solid #333333;
+    overflow: hidden;
+    margin-bottom: 1.875rem;
+}
+
+.navbar-container {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    position: relative;
+    padding-left: 0;
+}
+
+.navbar-brand-oracle {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    position: relative;
+    z-index: 2;
+    padding-left: 1.25rem;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    position: relative;
+    padding-left: 2.1875rem;
+}
+
+.logo-slant-background {
+    position: absolute;
+    top: 0;
+    left: -4.0625rem;
+    width: 37.5rem;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(50,50,50,0.7) 0%, rgba(50,50,50,0.4) 50%, rgba(50,50,50,0) 100%);
+    transform: skew(-20deg, 0deg);
+    z-index: -1;
+}
+
+.navbar-logo {
+    height: 1.875rem;
+    margin-right: 0.9375rem;
+    position: relative;
+    z-index: 2;
+}
+
+.navbar-title {
+    color: white;
+    font-weight: 700;
+    font-size: 1.3rem;
+    text-transform: uppercase;
+    letter-spacing: 0.0625rem;
+    position: relative;
+    z-index: 2;
+    text-shadow: 0.0625rem 0.0625rem 0.125rem rgba(0,0,0,0.5);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .navbar-title {
+        font-size: 1.1rem;
+    }
+
+    .navbar-logo {
+        height: 2.125rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .navbar-title {
+        font-size: 0.9rem;
+    }
+
+    .navbar-logo {
+        height: 1.875rem;
+    }
+}
+
+/* Grid layout modification - add to your existing CSS */
+.grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto 1fr;
+}
+
+.navbar-oracle {
+    grid-row: 2;
+}
+
+.bottomSection {
+    grid-row: 3;
+}
+
+/* Add these carousel styles to your existing CSS */
+.players-carousel-container {
+    overflow: hidden; /* Hide overflow */
+    margin-left: 1.25rem;
+    height: 100%;
+    flex-grow: 1;
+    width: calc(100% - 37.5rem); /* Increase subtracted width */
+    max-width: calc(100% - 18.75rem); /* Add max-width explicitly */
+}
+
+.players-carousel {
+    display: flex;
+    animation: scroll 30s linear infinite;
+    width: fit-content;
+    height: 100%;
+    align-items: center;
+}
+
+.player-card {
+    display: flex;
+    align-items: center;
+    margin-right: 1.25rem;
+    padding: 0.1875rem 0.625rem;
+    background-color: rgba(70, 70, 70, 0.3);
+    border-radius: 0.375rem;
+    min-width: 11.25rem;
+    height: 2.125rem;
+    flex-shrink: 0; /* Prevent cards from shrinking */
+}
+
+.player-image {
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 0.625rem;
+    flex-shrink: 0; /* Prevent image from shrinking */
+}
+
+.player-info {
+    display: flex;
+    flex-direction: column;
+    max-width: 8.125rem; /* Limit text width */
+    overflow: hidden;
+}
+
+.player-name {
+    font-weight: bold;
+    font-size: 0.75rem;
+    color: white;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.player-score {
+    font-size: 0.625rem;
+    color: #cccccc;
+}
+
+@keyframes scroll {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+/* To pause animation on hover */
+.players-carousel:hover {
+    animation-play-state: paused;
+}
+
+/* Update your navbar-container to include flex properties */
+.navbar-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100%;
+    position: relative;
+    padding-left: 0;
+    width: 100%;
+    overflow: hidden; /* Add this to contain everything */
+    max-width: 100%; /* Ensure it doesn't exceed viewport */
+}
+
+/* Add this to ensure the overall navbar stays within viewport */
+.navbar-oracle {
+    overflow: hidden;
+    max-width: 100vw;
+}
+
+.tables-container {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.playerTable {
+  flex: 1;
+  min-width: 18.75rem; /* Prevents tables from becoming too narrow */
+}
+
+/* Add these styles to your existing CSS */
+
+/* NBA Stats Toggle Button */
+.theme-toggle:not(#themeToggle) {
+  position: fixed;
+  bottom: 3.75rem; /* Position it above the theme toggle */
+  left: 0.625rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background-color: #17408B;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0.0625rem 0.1875rem rgba(0,0,0,0.2);
+  z-index: 1000;
+  overflow: hidden;
+  transition: background-color 0.3s ease;
+}
+
+.theme-toggle:not(#themeToggle).playoff-mode {
+  background-color: #FFD700;
+}
+
+/* NBA logos in the toggle */
+.theme-toggle:not(#themeToggle) .toggle-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  object-fit: contain;
+  transition: opacity 0.3s ease;
+  position: absolute;
+}
+
+.theme-toggle:not(#themeToggle) .sun {
+  opacity: 1;
+}
+
+.theme-toggle:not(#themeToggle) .moon {
+  opacity: 0;
+}
+
+.theme-toggle:not(#themeToggle).playoff-mode .sun {
+  opacity: 0;
+}
+
+.theme-toggle:not(#themeToggle).playoff-mode .moon {
+  opacity: 1;
+}
+
+/* Stats mode indicator */
+#statsIndicator {
+  transition: all 0.3s ease;
+}
+
+/* Initially hide playoff tables */
+.playerGrid .playerTable:nth-child(3) {
+  display: none;
+}
+
+.linkify:hover {
+    color: #3498db !important;
+}
+
+.cardHover:hover {
+    transform: translateY(-0.125rem);
+}
+
+#statTypeIndicator {
+  transition: all 0.3s ease;
+  font-weight: bold;
+  box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.2);
+}
