@@ -6,6 +6,8 @@ The Basketball Oracle is the ultimate basketball website that allows users to vi
 
 **Link to Website:** COMING SOON
 
+This website is optimized for use on a laptop with a screen resolution of 1920 x 1080. It may not display as intended on other resolutions, so for the best viewing experience, please adjust your screen resolution accordingly.
+
 ---
 
 ## How It's Made 🔧
