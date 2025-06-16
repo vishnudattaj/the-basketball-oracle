@@ -6,6 +6,8 @@ The Basketball Oracle is the ultimate basketball website that allows users to vi
 
 **Link to Website:** COMING SOON
 
+**Very Important:** This website is optimized for use on a laptop with a screen resolution of 1920 x 1080. It may not display as intended on other resolutions, so for the best viewing experience, please adjust your screen resolution accordingly.
+
 ---
 
 ## How It's Made 🔧
@@ -45,3 +47,4 @@ To use the features, first, you need to **log in** or **create an account** if y
 - **Regular/Playoff Stats:** Switch between seeing regular and playoff stats for a better user experience.
 - **Password Protection:** A secure password feature ensures only authorized users can access certain data or sections of the site.
 - **Typeahead Search:** Quickly find what you're looking for with real-time search suggestions that show matching player names, teams, and stats as you type.
+- **PRI:** A custom made metric created in order to effectively compare NBA players. Further information can be found by hovering over the word PRI anywhere within the website.
