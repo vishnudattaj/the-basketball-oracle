@@ -31,46 +31,12 @@ tr {
   color: black;
 }
 
-.standingsGrid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 3%;
-}
-
-.standingsTable {
-    overflow-y: auto;
-    grid-row: 1 / 3;
-}
-
 .table-vh-1 {
   max-height: 67.1vh;
 }
 
 .table-vh-1_25 {
   max-height: 55.7vh;
-}
-
-.standingsTable td, .standingsTable tr {
-    padding: 0.3125rem 0;
-    vertical-align: middle;
-}
-
-.standingsTable * {
-    color: white !important;
-    border-color: #636363;
-}
-
-.standingsTable tbody tr:nth-child(odd) {
-    background-color: #111111;
-}
-
-.standingsTable thead th {
-    position: sticky;
-    top: -0.0625rem;
-    background: #202124;
-    z-index: 1;
-    text-align: center;
 }
 
 .fixed-element {
@@ -638,4 +604,211 @@ a:hover {
 
 .cardHover:hover {
     transform: translateY(-0.125rem);
+}
+
+/* Replace your existing .standingsGrid and related styles with this improved version */
+
+.standingsGrid {
+    display: grid;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 100%;
+    max-height: calc(100vh - 265px); /* Increased from 200px to account for all elements */
+    margin-bottom: 2rem; /* Add bottom margin/padding */
+}
+
+/* Large screens (1200px and up) - 2 columns */
+@media (min-width: 1200px) {
+    .standingsGrid {
+        grid-template-columns: 1fr 1fr;
+        height: calc(100vh - 200px);
+    }
+}
+
+/* Medium screens like 1366x768 - keep 2 columns but adjust spacing */
+@media (min-width: 1024px) and (max-width: 1199px) {
+    .standingsGrid {
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        height: calc(100vh - 180px);
+    }
+}
+
+/* Smaller medium screens (768px to 1023px) - 1 column */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .standingsGrid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        height: calc(100vh - 160px);
+    }
+}
+
+/* Small screens (up to 767px) - 1 column */
+@media (max-width: 767px) {
+    .standingsGrid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        height: calc(100vh - 140px);
+    }
+}
+
+/* Update the standingsTable to be more responsive and show all columns */
+.standingsTable {
+    overflow-x: auto; /* Horizontal scroll for wide content */
+    overflow-y: auto; /* Vertical scroll for long content */
+    width: 100%;
+    max-width: 100%;
+    height: 100%; /* Fill the grid cell */
+    border: 1px solid #636363;
+    border-radius: 8px;
+    background-color: #1a1a1a;
+}
+
+/* Ensure tables fill their grid cells properly */
+.standingsTable table {
+    width: 100%;
+    min-width: 600px; /* Minimum width to ensure all columns are readable */
+    border-collapse: collapse;
+}
+
+/* Responsive font sizes and padding for tables */
+@media (min-width: 1200px) {
+    .standingsTable {
+        font-size: 0.9rem;
+    }
+
+    .standingsTable td, .standingsTable th {
+        padding: 0.4rem 0.25rem;
+    }
+}
+
+@media (min-width: 1024px) and (max-width: 1199px) {
+    .standingsTable {
+        font-size: 0.85rem;
+    }
+
+    .standingsTable td, .standingsTable th {
+        padding: 0.35rem 0.2rem;
+    }
+
+    .standingsTable table {
+        min-width: 550px;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .standingsTable {
+        font-size: 0.8rem;
+    }
+
+    .standingsTable td, .standingsTable th {
+        padding: 0.3rem 0.15rem;
+    }
+
+    .standingsTable table {
+        min-width: 500px;
+    }
+}
+
+@media (max-width: 767px) {
+    .standingsTable {
+        font-size: 0.75rem;
+    }
+
+    .standingsTable td, .standingsTable th {
+        padding: 0.25rem 0.1rem;
+    }
+
+    .standingsTable table {
+        min-width: 450px;
+    }
+}
+
+@media (max-width: 576px) {
+    .standingsTable {
+        font-size: 0.7rem;
+    }
+
+    .standingsTable td, .standingsTable th {
+        padding: 0.2rem 0.08rem;
+    }
+
+    .standingsTable table {
+        min-width: 400px;
+    }
+}
+
+/* Remove the old fixed height classes and replace with responsive heights */
+.table-vh-1, .table-vh-1_25 {
+    height: 100%;
+    max-height: 100%;
+}
+
+.standingsTable td, .standingsTable tr {
+    vertical-align: middle;
+    text-align: center;
+}
+
+.standingsTable * {
+    color: white !important;
+    border-color: #636363;
+}
+
+.standingsTable tbody tr:nth-child(odd) {
+    background-color: #111111;
+}
+
+.standingsTable tbody tr:nth-child(even) {
+    background-color: #1a1a1a;
+}
+
+/* Sticky header with better z-index management */
+.standingsTable thead th {
+    position: sticky;
+    top: 0;
+    background: #202124;
+    z-index: 10;
+    text-align: center;
+    border-bottom: 2px solid #636363;
+    font-weight: bold;
+}
+
+/* Add a subtle scroll indicator */
+.standingsTable::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.standingsTable::-webkit-scrollbar-track {
+    background: #2a2a2a;
+    border-radius: 4px;
+}
+
+.standingsTable::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 4px;
+}
+
+.standingsTable::-webkit-scrollbar-thumb:hover {
+    background: #777;
+}
+
+/* Additional responsive adjustments for very wide screens */
+@media (min-width: 1600px) {
+    .standingsGrid {
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        height: calc(100vh - 220px);
+    }
+}
+
+/* Ultra-wide screens */
+@media (min-width: 2000px) {
+    .standingsGrid {
+        grid-template-columns: repeat(3, 1fr);
+        max-width: 1800px;
+        height: calc(100vh - 240px);
+    }
 }

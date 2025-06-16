@@ -873,3 +873,426 @@ body.light-mode .navbar-title {
   font-weight: bold;
   box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.2);
 }
+
+/* ===== RESPONSIVE GRID LAYOUTS ===== */
+
+/* Base grid layout - mobile first approach */
+.playerGrid, .teamGrid {
+    display: grid;
+    gap: 1.25rem;
+    margin-bottom: 1.875rem;
+    padding: 0 0.625rem;
+}
+
+/* Mobile layout - stack vertically */
+.playerGrid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto auto;
+}
+
+.teamGrid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+}
+
+/* Player grid mobile layout */
+.playerHeadshot {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.playerTable {
+    grid-column: 1;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: auto;
+    border: 0.0625rem solid #e0e0e0;
+    border-radius: 0.25rem;
+    margin-bottom: 0.9375rem;
+    max-height: 50vh;
+}
+
+.playerTable:nth-child(2) {
+    grid-row: 2;
+}
+
+.playerTable:nth-child(3) {
+    grid-row: 3;
+}
+
+.futureTable {
+    grid-column: 1;
+    grid-row: 4;
+    width: 100%;
+    border: 0.0625rem solid #e0e0e0;
+    border-radius: 0.25rem;
+    overflow-x: auto;
+}
+
+/* Team grid mobile layout */
+.teamHeadshot {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.teamTable {
+    grid-column: 1;
+    grid-row: 2;
+    width: 100%;
+    max-height: 60vh;
+    overflow-x: auto;
+    overflow-y: auto;
+    border: 0.0625rem solid #e0e0e0;
+    border-radius: 0.25rem;
+}
+
+/* ===== TABLET BREAKPOINT (768px and up) ===== */
+@media (min-width: 768px) {
+    .playerGrid, .teamGrid {
+        padding: 0 1rem;
+    }
+
+    .playerGrid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto;
+    }
+
+    .teamGrid {
+        grid-template-columns: 1fr 2fr;
+        grid-template-rows: auto;
+    }
+
+    .playerHeadshot {
+        grid-column: 1;
+        grid-row: 1 / 3;
+        margin-bottom: 0;
+    }
+
+    .playerTable:nth-child(2) {
+        grid-column: 2;
+        grid-row: 1;
+        max-height: 40vh;
+    }
+
+    .playerTable:nth-child(3) {
+        grid-column: 2;
+        grid-row: 1;
+        max-height: 40vh;
+    }
+
+    .futureTable {
+        grid-column: 2;
+        grid-row: 2;
+        max-height: 35vh;
+    }
+
+    .teamHeadshot {
+        grid-column: 1;
+        grid-row: 1;
+        margin-bottom: 0;
+    }
+
+    .teamTable {
+        grid-column: 2;
+        grid-row: 1;
+        max-height: 65vh;
+    }
+}
+
+/* ===== DESKTOP BREAKPOINT (1024px and up) ===== */
+@media (min-width: 1024px) {
+    .playerGrid {
+        grid-template-columns: 1fr 3fr;
+    }
+
+    .teamGrid {
+        grid-template-columns: 1fr 4fr;
+    }
+
+    .playerTable:nth-child(2),
+    .playerTable:nth-child(3) {
+        max-height: 48vh;
+    }
+
+    .futureTable {
+        max-height: 39vh;
+    }
+
+    .teamTable {
+        max-height: 68.7vh;
+    }
+}
+
+/* ===== LARGE DESKTOP BREAKPOINT (1440px and up) ===== */
+@media (min-width: 1440px) {
+    .playerGrid {
+        grid-template-columns: 1fr 4fr;
+    }
+
+    .teamGrid {
+        grid-template-columns: 1fr 5fr;
+    }
+}
+
+/* ===== RESPONSIVE IMAGES ===== */
+.playerHeadshot img {
+    width: 100%;
+    max-width: 12.5rem;
+    height: auto;
+    aspect-ratio: 2/3;
+    object-fit: cover;
+    object-position: center;
+    margin-bottom: 0.9375rem;
+}
+
+.teamHeadshot img {
+    width: 100%;
+    max-width: 15rem;
+    height: auto;
+    margin-bottom: 0.9375rem;
+}
+
+/* ===== RESPONSIVE SCORECARDS ===== */
+.topBar {
+    height: auto;
+    min-height: 5rem;
+    padding: 0.5rem 0;
+}
+
+.scorecards-slider {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+}
+
+.scorecard {
+    min-width: 280px;
+    max-width: none;
+    flex-shrink: 0;
+    margin-right: 0.9375rem;
+}
+
+@media (max-width: 768px) {
+    .scorecard {
+        min-width: 250px;
+    }
+
+    .nav-controls {
+        display: none; /* Hide navigation on mobile */
+    }
+
+    .scorecards-container {
+        width: 100%;
+        padding: 0 1rem;
+    }
+}
+
+/* ===== RESPONSIVE NAVBAR ===== */
+@media (max-width: 1024px) {
+    .players-carousel-container {
+        width: calc(100% - 25rem);
+    }
+
+    .navbar-title {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .players-carousel-container {
+        display: none; /* Hide player carousel on mobile */
+    }
+
+    .navbar-title {
+        font-size: 1rem;
+    }
+
+    .logo-container {
+        padding-left: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .navbar-title {
+        font-size: 0.9rem;
+        display: none; /* Hide title on very small screens */
+    }
+
+    .logo-container {
+        padding-left: 0.5rem;
+    }
+
+    .navbar-logo {
+        height: 1.5rem;
+    }
+}
+
+/* ===== RESPONSIVE TABLES ===== */
+.playerTable table,
+.teamTable table,
+.futureTable table {
+    min-width: 100%;
+    font-size: clamp(0.75rem, 2vw, 0.9rem);
+}
+
+@media (max-width: 768px) {
+    .playerTable table,
+    .teamTable table,
+    .futureTable table {
+        font-size: 0.75rem;
+    }
+
+    .playerTable th,
+    .playerTable td,
+    .teamTable th,
+    .teamTable td,
+    .futureTable th,
+    .futureTable td {
+        padding: 0.25rem 0.125rem;
+    }
+}
+
+/* ===== RESPONSIVE BOTTOM SECTION ===== */
+.bottomSection {
+    max-height: none;
+    overflow-y: visible;
+    padding-bottom: 5rem; /* Space for fixed buttons */
+}
+
+@media (min-width: 1024px) {
+    .bottomSection {
+        max-height: 81.3vh;
+        overflow-y: scroll;
+        overflow-x: hidden;
+    }
+}
+
+/* ===== RESPONSIVE BUTTONS ===== */
+@media (max-width: 768px) {
+    .fixed-element {
+        position: fixed;
+        bottom: 0.625rem;
+        right: 0.625rem;
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+    }
+
+    #returnToSearchButton {
+        position: fixed;
+        bottom: 0.625rem;
+        left: 0.625rem;
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+    }
+}
+
+/* ===== RESPONSIVE BOXSCORE ===== */
+.boxGrid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: 1fr;
+}
+
+@media (min-width: 768px) {
+    .boxGrid {
+        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+    }
+}
+
+.boxGrid .teamGrid {
+    max-height: none;
+    overflow: visible;
+}
+
+@media (min-width: 1024px) {
+    .boxGrid .teamGrid {
+        max-height: 43.75rem;
+        overflow-y: auto;
+    }
+}
+
+/* ===== RESPONSIVE THEME TOGGLES ===== */
+@media (max-width: 576px) {
+    .theme-toggle {
+        width: 2rem;
+        height: 2rem;
+        bottom: 0.5rem;
+        left: 0.5rem;
+    }
+
+    .theme-toggle:not(#themeToggle) {
+        bottom: 3rem;
+        left: 0.5rem;
+        width: 2rem;
+        height: 2rem;
+    }
+
+    .toggle-icon {
+        font-size: 0.875rem;
+    }
+
+    .theme-toggle:not(#themeToggle) .toggle-icon {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+}
+
+/* ===== CONTAINER RESPONSIVE PADDING ===== */
+.container-sm {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+@media (min-width: 576px) {
+    .container-sm {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .container-sm {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+}
+
+/* ===== RESPONSIVE TEXT SIZING ===== */
+.playerInfo {
+    font-size: clamp(1rem, 3vw, 1.25rem);
+}
+
+.playerInfo h3 {
+    font-size: clamp(1.1rem, 3.5vw, 1.5rem);
+}
+
+.playerInfo h4 {
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+}
+
+/* ===== FIX FOR VERY WIDE SCREENS ===== */
+@media (min-width: 1920px) {
+    .playerGrid {
+        max-width: 1800px;
+        margin: 0 auto 1.875rem auto;
+    }
+
+    .teamGrid {
+        max-width: 1800px;
+        margin: 0 auto 1.875rem auto;
+    }
+
+    .container-sm {
+        max-width: 1800px;
+        margin: 0 auto;
+    }
+}

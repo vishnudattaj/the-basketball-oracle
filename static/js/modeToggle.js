@@ -138,23 +138,106 @@ document.addEventListener('DOMContentLoaded', () => {
         return filledCells > 3;
     }
 
+    // Function to get CSRF token from meta tag or cookie
+    function getCSRFToken() {
+        // Method 1: Try to get from meta tag (if you have it in your HTML head)
+        const metaToken = document.querySelector('meta[name="csrf-token"]');
+        if (metaToken) {
+            return metaToken.getAttribute('content');
+        }
+
+        // Method 2: Try to get from cookie
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            const [name, value] = cookie.trim().split('=');
+            if (name === 'csrf_token') {
+                return decodeURIComponent(value);
+            }
+        }
+
+        // Method 3: Try to get from a hidden form field (if you have one)
+        const hiddenInput = document.querySelector('input[name="csrf_token"]');
+        if (hiddenInput) {
+            return hiddenInput.value;
+        }
+
+        return null;
+    }
+
     function updateThemeOnServer(theme) {
+        console.log('Sending theme to server:', theme);
+        const payload = { theme };
+        console.log('Payload:', JSON.stringify(payload));
+
+        const csrfToken = getCSRFToken();
+        const headers = { 'Content-Type': 'application/json' };
+
+        if (csrfToken) {
+            headers['X-CSRFToken'] = csrfToken;  // or 'X-CSRF-Token' depending on your setup
+        }
+
         fetch('/update_theme', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ theme })
-        }).then(res => res.json())
-          .then(data => console.log('Theme updated:', data.theme))
-          .catch(console.error);
+            headers: headers,
+            body: JSON.stringify(payload)
+        })
+        .then(res => {
+            console.log('Server response status:', res.status);
+
+            if (res.status === 401) {
+                console.log('Theme saved locally (not logged in)');
+                return null;
+            }
+            if (!res.ok) {
+                return res.text().then(text => {
+                    console.log('Server error response:', text);
+                    throw new Error(`HTTP error! status: ${res.status}, message: ${text}`);
+                });
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (data) {
+                console.log('Theme updated on server:', data);
+            }
+        })
+        .catch(error => {
+            console.error('Theme update failed:', error);
+        });
     }
 
     function updateStatsModeOnServer(mode) {
+        const csrfToken = getCSRFToken();
+        const headers = { 'Content-Type': 'application/json' };
+
+        if (csrfToken) {
+            headers['X-CSRFToken'] = csrfToken;  // or 'X-CSRF-Token' depending on your setup
+        }
+
         fetch('/update_stats_mode', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: headers,
             body: JSON.stringify({ mode })
-        }).then(res => res.json())
-          .then(data => console.log('Stats mode updated:', data.mode))
-          .catch(console.error);
+        })
+        .then(res => {
+            if (res.status === 401) {
+                console.log('Stats mode saved locally (not logged in)');
+                return null;
+            }
+            if (!res.ok) {
+                return res.text().then(text => {
+                    throw new Error(`HTTP error! status: ${res.status}, message: ${text}`);
+                });
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (data) {
+                console.log('Stats mode updated on server:', data.mode || mode);
+            }
+        })
+        .catch(error => {
+            console.error('Stats mode update failed:', error);
+        });
     }
 });

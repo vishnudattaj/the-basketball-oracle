@@ -658,19 +658,35 @@ def boxScore(gameId):
     return render_template('dataTable.html', save=flask_login.current_user.id, boxscore=zip(team_table, team_url),
                            scoreboard=scoreboardData(), top_players = PRI())
 
+
 @app.route('/update_theme', methods=['POST'])
-@flask_login.login_required
 def update_theme():
-    theme_data = request.json
-    theme = theme_data.get('theme')
+    try:
+        print(f"Request headers: {dict(request.headers)}")
+        print(f"Request data: {request.data}")
+        print(f"Request json: {request.json}")
 
-    # Store the theme in the session for the current user
-    session['user_theme'] = theme
+        if not request.json:
+            return jsonify({"error": "No JSON data received"}), 400
 
-    return jsonify({"status": "success", "theme": theme})
+        theme_data = request.json
+        theme = theme_data.get('theme')
+
+        if not theme:
+            return jsonify({"error": "Missing theme parameter"}), 400
+
+        print(f"Theme received: {theme}")
+
+        # Store the theme in the session
+        session['user_theme'] = theme
+
+        return jsonify({"status": "success", "theme": theme})
+
+    except Exception as e:
+        print(f"Error in update_theme: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/update_stats_mode', methods=['POST'])
-@flask_login.login_required
 def update_stats_mode():
     mode_data = request.json
     mode = mode_data.get('mode')
@@ -979,5 +995,5 @@ def priInfo():
     return render_template('pri.html', save=flask_login.current_user.id, scoreboard=scoreboardData(), top_players = PRI())
 
 # Runs app in debug mode
-if __name__ == "__main__":
+if __name__ == '__main__':
     app.run(debug=True)
