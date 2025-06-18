@@ -97,19 +97,3 @@ model = MultiOutputRegressor(XGBRegressor(learning_rate=0.1, max_depth=3))
 model.fit(X_train, y_train)
 
 joblib.dump(model, filename='statPrediction.sav')
-
-allPlayers = []
-
-for player in players.get_players():
-    allPlayers.append(player['full_name'])
-
-allTeams = []
-
-for team in teams.get_teams():
-    allTeams.append(team['full_name'])
-
-teams_df = pd.DataFrame(allTeams)
-teams_df.to_json('static/data/teams.json', orient='values')
-
-total_df = pd.DataFrame(allPlayers + allTeams)
-total_df.to_json('static/data/total.json', orient='values')
