@@ -1217,31 +1217,6 @@ a:hover {
     }
 }
 
-/* ===== RESPONSIVE BOXSCORE ===== */
-.boxGrid {
-    display: grid;
-    gap: 1.25rem;
-    grid-template-columns: 1fr;
-}
-
-@media (min-width: 768px) {
-    .boxGrid {
-        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-    }
-}
-
-.boxGrid .teamGrid {
-    max-height: none;
-    overflow: visible;
-}
-
-@media (min-width: 1024px) {
-    .boxGrid .teamGrid {
-        max-height: 43.75rem;
-        overflow-y: auto;
-    }
-}
-
 /* ===== RESPONSIVE THEME TOGGLES ===== */
 @media (max-width: 576px) {
     .theme-toggle {
