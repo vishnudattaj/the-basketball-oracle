@@ -6,3 +6,4 @@ buildWikiDB.py
 queryWiki.py
 wikipediaScraper.py
 nbaBIO/
+chroma/
