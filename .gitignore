@@ -2,3 +2,7 @@
 __pycache__/
 *.pyc
 login.db
+buildWikiDB.py
+queryWiki.py
+wikipediaScraper.py
+nbaBIO/
