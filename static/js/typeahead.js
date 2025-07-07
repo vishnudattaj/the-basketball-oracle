@@ -1,7 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('player');
+    const searchInput = document.getElementById('search-input');
     const searchContainer = document.querySelector('.search-container');
-    const searchIcon = searchContainer.querySelector('.fa-search');
+    const statIcon = document.getElementById('statIcon');
+    const aiIcon = document.getElementById('aiIcon');
     const searchForm = searchInput.closest('form');
     const searchButton = searchForm ? searchForm.querySelector('button[type="submit"][hidden]') : null;
 
@@ -153,9 +154,20 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Make search icon clickable to submit the search
-    if (searchIcon) {
-        searchIcon.style.cursor = 'pointer'; // Make it look clickable
-        searchIcon.addEventListener('click', function() {
+    if (statIcon) {
+        statIcon.style.cursor = 'pointer'; // Make it look clickable
+        statIcon.addEventListener('click', function() {
+            if (suggestionsDropdown.style.display === 'block') {
+                suggestionsDropdown.style.display = 'none';
+            } else if (searchInput.value.trim() !== '') {
+                submitSearch();
+            }
+        });
+    }
+
+    if (aiIcon) {
+        aiIcon.style.cursor = 'pointer'; // Make it look clickable
+        aiIcon.addEventListener('click', function() {
             if (suggestionsDropdown.style.display === 'block') {
                 suggestionsDropdown.style.display = 'none';
             } else if (searchInput.value.trim() !== '') {
@@ -172,6 +184,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Navigate through suggestions with keyboard
+    // Navigate through suggestions with keyboard
     searchInput.addEventListener('keydown', function(e) {
         const suggestions = suggestionsDropdown.querySelectorAll('.suggestion-item');
         const currentActive = suggestionsDropdown.querySelector('.suggestion-item.active');
@@ -186,32 +199,40 @@ document.addEventListener('DOMContentLoaded', function() {
             // If dropdown is visible with an active suggestion
             if (suggestionsDropdown.style.display === 'block' && currentActive) {
                 e.preventDefault();
+                e.stopPropagation(); // Stop the event from bubbling up to the form
 
                 // Get existing input up to the last comma
                 const existingInput = searchInput.value;
                 const lastCommaIndex = existingInput.lastIndexOf(',');
 
                 if (lastCommaIndex === -1) {
-                    // No comma yet, just set the value
-                    searchInput.value = currentActive.textContent.trim();
+                    // No comma yet, add the player name with comma and space
+                    searchInput.value = currentActive.textContent.trim() + ', ';
                 } else {
                     // Replace just the part after the last comma
                     const beforeComma = existingInput.substring(0, lastCommaIndex + 1);
-                    searchInput.value = beforeComma + ' ' + currentActive.textContent.trim();
+                    searchInput.value = beforeComma + ' ' + currentActive.textContent.trim() + ', ';
                 }
 
                 suggestionsDropdown.style.display = 'none';
                 searchInput.focus();
+
+                // Trigger input event to refresh suggestions for continued typing
+                const inputEvent = new Event('input', { bubbles: true });
+                searchInput.dispatchEvent(inputEvent);
+
+                return false; // Explicitly prevent further event handling
             }
-            // If dropdown is visible but no suggestion is active, hide it
+            // If dropdown is visible but no suggestion is active, prevent submission
             else if (suggestionsDropdown.style.display === 'block') {
                 e.preventDefault();
-                suggestionsDropdown.style.display = 'none';
+                e.stopPropagation();
+                return false;
             }
-            // If dropdown is not visible, submit the search
+            // If dropdown is not visible, allow normal form submission
             else if (searchInput.value.trim() !== '') {
-                e.preventDefault();
-                submitSearch();
+                // Let the form submit naturally - don't prevent default here
+                return true;
             }
         }
 
@@ -246,6 +267,36 @@ document.addEventListener('DOMContentLoaded', function() {
             suggestionsDropdown.style.display = 'none';
         }
     });
+
+    // UPDATED: More robust form submission prevention
+    if (searchForm) {
+        searchForm.addEventListener('submit', function(e) {
+            // If the dropdown is visible, always prevent submission
+            if (suggestionsDropdown.style.display === 'block') {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+
+            // If this is a search submission (not logout) and input is empty
+            if (e.submitter && e.submitter.value === "Submit" && searchInput.value.trim() === '') {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // Additional prevention at the form level
+        searchForm.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.target === searchInput) {
+                // If dropdown is visible, prevent form submission
+                if (suggestionsDropdown.style.display === 'block') {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            }
+        });
+    }
 
     // Add a listener to the form to handle submission correctly
     if (searchForm) {

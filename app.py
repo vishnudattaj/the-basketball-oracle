@@ -1,7 +1,7 @@
 import flask
 from PIL import UnidentifiedImageError
 import pandas as pd
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, Response, stream_with_context
 from flask_sqlalchemy import SQLAlchemy
 import flask_login
 from nba_api.stats.endpoints import playercareerstats, commonteamroster, leaguestandings
@@ -23,6 +23,32 @@ from flask_wtf.csrf import CSRFProtect
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from io import StringIO
+from langchain_chroma import Chroma
+from langchain_huggingface.embeddings import HuggingFaceEmbeddings
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_ollama import OllamaLLM
+from sentence_transformers import CrossEncoder
+
+reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L6-v2")
+
+llm = OllamaLLM(model="mistral:7b-instruct-v0.2-q4_0")
+
+embedding_function = HuggingFaceEmbeddings(
+    model_name="sentence-transformers/all-MiniLM-L6-v2",
+    model_kwargs={"device": "cpu"}
+)
+
+template_string = """
+Answer the question based only on the following context:
+
+{context}
+
+---
+
+Answer the question based on the above context: {question}
+"""
+
+llmDB = Chroma(persist_directory="chroma", embedding_function=embedding_function)
 
 load_dotenv()
 
@@ -166,6 +192,10 @@ total_df.to_json('static/data/total.json', orient='values')
 with open('static/data/teams.json', 'r') as file:
     teamDictionary = json.load(file)
 
+def generateChunk(messages):
+    for chunk in llm.stream(messages):
+        yield chunk
+
 # 401 page if user tries to access material without logging in
 @login_manager.unauthorized_handler
 def unauthorized_handler():
@@ -253,28 +283,62 @@ def signup():
 # App route for home page - Only accessible once you log in or create an account
 @app.route('/protected', methods=['GET', 'POST'])
 @flask_login.login_required
+@limiter.limit("20 per minute")
 def protected():
     # Runs when user clicks one of the two buttons
     if request.method == 'POST':
+        submit_action = request.form.get('Submit')
         # Logs user out if log out button is clicked
-        if request.form['Submit'] == "Log Out":
+        if submit_action == "Log Out":
             return redirect(url_for('logout'))
         # Runs if user presses search
-        if request.form['Submit'] == "Submit":
-            player_input = request.form['player']
-            # Validate input - check for valid characters
-            try:
-                if player_input and re.match(r'^[\u00C0-\u024F\u1E00-\u1EFFa-zA-Z,\s]+$', player_input):
-                    flask.session['items'] = player_input
-                    return redirect(url_for('search'))
-            except:
-                pass
-            return render_template('search.html', save=flask_login.current_user.id,
+        if submit_action == "Submit":
+            if 'stats' in request.form:
+                player_input = request.form['stats']
+                # Validate input - check for valid characters
+                try:
+                    if player_input and re.match(r'^[\u00C0-\u024F\u1E00-\u1EFFa-zA-Z,\s]+$', player_input):
+                        flask.session['items'] = player_input
+                        return redirect(url_for('search'))
+                except:
+                    pass
+                return render_template('search.html', save=flask_login.current_user.id,
+                                           standings=standingsHTML(), scoreboard=scoreboardData(),
+                                           top_players=PRI(), error="Invalid search input")
+            elif 'ai' in request.form:
+                advanced_input = request.form['ai']
+                try:
+                    if advanced_input and re.match(r'^[\w\s.,!?\'"\-]+$', advanced_input):
+                        results = llmDB.similarity_search_with_relevance_scores(advanced_input, k=20)
+                        passages = [doc.page_content for doc, _score in results]
+                        rerank_inputs = [[advanced_input, passage] for passage in passages]
+                        rerank_scores = reranker.predict(rerank_inputs)
+                        scored_passages = sorted(zip(passages, rerank_scores), key=lambda x: x[1], reverse=True)
+                        top_contexts = [p for p, _ in scored_passages[:7]]
+                        context_text = "\n\n---\n\n".join(top_contexts)
+                        chat_prompt = ChatPromptTemplate.from_template(template_string)
+                        prompt_value = chat_prompt.invoke({"context": context_text, "question": advanced_input})
+                        flask.session['messages'] = [str(m.content) for m in prompt_value.to_messages()]
+                        return render_template('dataTable.html', save=flask_login.current_user.id, aiResponse=[advanced_input],
+                                               scoreboard=scoreboardData(), top_players=PRI())
+                except Exception as e:
+                    print(e)
+                    pass
+                return render_template('search.html', save=flask_login.current_user.id,
                                        standings=standingsHTML(), scoreboard=scoreboardData(),
                                        top_players=PRI(), error="Invalid search input")
+
     # Returns search.html if method is GET instead of POST
     else:
         return render_template('search.html', save=flask_login.current_user.id, standings=standingsHTML(), scoreboard=scoreboardData(), top_players = PRI())
+
+@app.route('/stream_response')
+def stream_response():
+    messages = flask.session.get('messages')
+    def generate():
+        for chunk in generateChunk(messages):
+            yield chunk
+    return Response(stream_with_context(generate()), content_type='text/plain')
 
 @app.route('/protected/search', methods=['GET', 'POST'])
 @flask_login.login_required

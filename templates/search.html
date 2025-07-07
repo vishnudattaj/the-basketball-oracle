@@ -189,12 +189,15 @@
 
         <form action="/protected" method="POST">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            <div class="my-3 mx-3 search-container">
-                <input type="text" id="player" name="player" class="form-control search-input" placeholder="Search...">
-                <i class="fas fa-search search-icon"></i>
+            <div id="StatsSearch" class="my-3 mx-3 search-container" hidden>
+                <input type="text" id="search-input" name="stats" class="form-control search-input searchStats" placeholder="Search..." maxlength="100" disabled>
+                <i id="statIcon" class="fas fa-search search-icon"></i>
+            </div>
+            <div id="AISearch" class="my-3 mx-3 search-container">
+                <input type="text" id="searchAI" name="ai" class="form-control search-input searchAI" placeholder="Search..." maxlength="200">
+                <i id="aiIcon" class="fas fa-search search-icon"></i>
             </div>
             <div class="mx-3">
-                <button hidden="hidden" type="submit" value="Submit" name="Submit" class="btn btn-primary btn-lg btn-block">Search</button>
                 <button type="submit" value="Log Out" name="Submit" class="btn btn-outline-danger fixed-element">Log Out</button>
             </div>
         </form>
@@ -206,6 +209,28 @@
             </div>
         {% endfor %}
         </div>
+        <div class="thinking-button-container">
+            <button class="thinking-button" id="thinkingBtn">
+                <div class="pulse"></div>
+
+                <!-- Chart/Statistics Icon -->
+                <svg class="icon chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 3v18h18"/>
+                    <path d="M18 17l-5-5-2 2-6-6"/>
+                    <circle cx="9" cy="9" r="1"/>
+                    <circle cx="13" cy="13" r="1"/>
+                    <circle cx="18" cy="18" r="1"/>
+                </svg>
+
+                <!-- Brain/AI Icon -->
+                <svg class="icon brain" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2a3 3 0 0 0-3 3c0 1.5-.5 2.5-1 3l-1.5 1.5C5.5 10.5 5 12 5 13.5c0 1.4.5 2.8 1.5 3.5L8 18.5c.5.5 1 .5 1.5.5s1-.5 1.5-1l1.5-1.5c.5-.5 1-1.5 1-2.5s-.5-2-1-2.5L11 10c-.5-.5-1-1.5-1-2.5C10 6 10.5 5 12 5s2 1 2 2.5c0 1-.5 2-1 2.5l-1.5 1.5c-.5.5-1 1.5-1 2.5s.5 2 1 2.5L13 17c.5.5 1 1 1.5 1s1 0 1.5-.5l1.5-1.5c1-1 1.5-2.1 1.5-3.5 0-1.5-.5-3-1.5-4L15.5 7c-.5-.5-1-2-1-3a3 3 0 0 0-3-3z"/>
+                    <path d="M12 12c.5-.5 1-1.5 1-2.5"/>
+                    <path d="M12 12c-.5-.5-1-1.5-1-2.5"/>
+                </svg>
+            </button>
+        </div>
+        <div id="queryModeIndicator" class="aiMode">AI Mode</div>
 
         {% endblock %}
     </div>

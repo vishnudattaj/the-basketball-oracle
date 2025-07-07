@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.appendChild(indicator);
         }
 
-        indicator.textContent = mode === 'playoff' ? 'Playoff Stats' : 'Regular Season';
+        indicator.textContent = mode === 'playoff' ? 'Playoff Stats' : 'Regular Stats';
         indicator.style.backgroundColor = mode === 'playoff' ? '#FFD700' : '#17408B';
         indicator.style.color = mode === 'playoff' ? '#000' : '#fff';
     }
@@ -240,4 +240,144 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Stats mode update failed:', error);
         });
     }
+});
+
+// AI Deep Thinking Mode Toggle Button JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, looking for thinking button...');
+
+    const thinkingBtn = document.getElementById('thinkingBtn');
+    const searchStats = document.getElementById('StatsSearch');
+    const searchAI = document.getElementById('AISearch');
+    const statsContainer = document.getElementById('search-input');
+    const AIContainer = document.getElementById('searchAI');
+    const modeText = document.getElementById('queryModeIndicator');
+    let isThinking = true;
+    if (isThinking) {
+        thinkingBtn.classList.add('active');
+        searchStats.hidden = true;
+        statsContainer.disabled = true;
+        searchAI.hidden = false;
+        AIContainer.disabled = false;
+        modeText.classList.add('aiMode')
+        modeText.classList.remove('statMode')
+        modeText.innerText = "AI Mode"
+        console.log('Initialized in thinking mode');
+    }
+
+
+    console.log('thinkingBtn:', thinkingBtn);
+
+    if (thinkingBtn) {
+        console.log('Elements found, adding click listener...');
+
+        thinkingBtn.addEventListener('click', function() {
+            console.log('Button clicked!');
+            isThinking = !isThinking;
+
+            console.log('isThinking:', isThinking);
+            modeText.style.opacity = '0';
+
+            setTimeout(() => {
+                modeText.innerText = isThinking ? "AI Mode" : "Stat Mode";
+                modeText.classList.toggle('aiMode', isThinking);
+                modeText.classList.toggle('statMode', !isThinking);
+                modeText.style.opacity = '1';
+            }, 300); // Delay matches the CSS transition duration
+            if (isThinking) {
+                thinkingBtn.classList.add('active');
+                searchStats.hidden = true;
+                statsContainer.disabled = true;
+                searchAI.hidden = false;
+                AIContainer.disabled = false;
+            } else {
+                thinkingBtn.classList.remove('active');
+                searchStats.hidden = false;
+                statsContainer.disabled = false;
+                searchAI.hidden = true;
+                AIContainer.disabled = true;
+            }
+
+            // Optional: Trigger custom event for other parts of your application
+            const customEvent = new CustomEvent('thinkingModeToggle', {
+                detail: { isThinking: isThinking }
+            });
+            document.dispatchEvent(customEvent);
+        });
+    } else {
+        console.error('Could not find elements:', {
+            thinkingBtn: thinkingBtn,
+        });
+    }
+});
+
+// Fallback if DOMContentLoaded doesn't work
+setTimeout(function() {
+    if (!document.getElementById('thinkingBtn')) {
+        console.error('Button still not found after timeout. Check if HTML is properly loaded.');
+    }
+}, 1000);
+
+// Optional: Function to get current thinking mode state
+function getThinkingMode() {
+    const thinkingBtn = document.getElementById('thinkingBtn');
+    return thinkingBtn ? thinkingBtn.classList.contains('active') : false;
+}
+
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Enter') {
+    const target = e.target;
+
+    // Only handle text inputs
+    if (target.tagName === 'INPUT' && target.type === 'text') {
+      e.preventDefault();
+
+      const form = target.form;
+
+      // If current input is disabled, trigger alternate logic
+      if (target.disabled) {
+        if (target.id === 'search-input') {
+          const altInput = document.getElementById('searchAI');
+          if (!altInput.disabled) {
+            console.log('search-input is disabled, triggering searchAI logic');
+            form.querySelector('input[name="Submit"]')?.remove(); // clean up if needed
+
+            const hiddenSubmit = document.createElement('input');
+            hiddenSubmit.type = 'hidden';
+            hiddenSubmit.name = 'Submit';
+            hiddenSubmit.value = 'Submit';
+            form.appendChild(hiddenSubmit);
+
+            form.submit();
+          }
+        } else if (target.id === 'searchAI') {
+          const altInput = document.getElementById('search-input');
+          if (!altInput.disabled) {
+            console.log('searchAI is disabled, triggering search-input logic');
+            form.querySelector('input[name="Submit"]')?.remove();
+
+            const hiddenSubmit = document.createElement('input');
+            hiddenSubmit.type = 'hidden';
+            hiddenSubmit.name = 'Submit';
+            hiddenSubmit.value = 'Submit';
+            form.appendChild(hiddenSubmit);
+
+            form.submit();
+          }
+        }
+      } else {
+        // If input is enabled, submit normally
+        console.log('Active input is enabled, submitting form');
+        form.querySelector('input[name="Submit"]')?.remove();
+
+        const hiddenSubmit = document.createElement('input');
+        hiddenSubmit.type = 'hidden';
+        hiddenSubmit.name = 'Submit';
+        hiddenSubmit.value = 'Submit';
+        form.appendChild(hiddenSubmit);
+
+        form.submit();
+      }
+    }
+  }
 });
