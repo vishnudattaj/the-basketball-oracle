@@ -2,7 +2,7 @@
 
 The Basketball Oracle is the ultimate basketball website that allows users to view NBA standings, today's scores, team roster info, player career information, boxscores, and most importantly: player predictions for the next season.
 
-**Link to Demo:** [Link](https://youtu.be/mdKGfKzdQ_4)
+**Link to Demo:** [Link](https://youtu.be/LPEVSYnCYn8)
 
 **Link to Website:** COMING SOON
 
