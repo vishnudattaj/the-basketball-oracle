@@ -8,3 +8,7 @@ wikipediaScraper.py
 nbaBIO/
 chroma/
 betterWikiScraper.py
+betterNBA/
+betterChroma/
+betterWikiScraperDepthChecker.py
+checkNBA.py
