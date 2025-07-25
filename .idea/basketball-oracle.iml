@@ -6,6 +6,8 @@
       <excludeFolder url="file://$MODULE_DIR$/python" />
       <excludeFolder url="file://$MODULE_DIR$/nbaBIO" />
       <excludeFolder url="file://$MODULE_DIR$/chroma" />
+      <excludeFolder url="file://$MODULE_DIR$/betterNBA" />
+      <excludeFolder url="file://$MODULE_DIR$/betterChroma" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.13 (basketball-oracle)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

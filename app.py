@@ -34,7 +34,7 @@ reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L6-v2")
 llm = OllamaLLM(model="mistral:7b-instruct-v0.2-q4_0")
 
 embedding_function = HuggingFaceEmbeddings(
-    model_name="sentence-transformers/all-MiniLM-L6-v2",
+    model_name="BAAI/bge-small-en-v1.5",
     model_kwargs={"device": "cpu"}
 )
 
@@ -48,7 +48,7 @@ Answer the question based only on the following context:
 Answer the question based on the above context: {question}
 """
 
-llmDB = Chroma(persist_directory="chroma", embedding_function=embedding_function)
+llmDB = Chroma(persist_directory="betterChroma", embedding_function=embedding_function)
 
 load_dotenv()
 
@@ -308,19 +308,25 @@ def protected():
             elif 'ai' in request.form:
                 advanced_input = request.form['ai']
                 try:
-                    if advanced_input and re.match(r'^[\w\s.,!?\'"\-]+$', advanced_input):
+                    if advanced_input and re.match(r'^[\u00C0-\u024F\u1E00-\u1EFF\w\s.,!?\'"“”‘’()\-–:;]+$', advanced_input):
                         results = llmDB.similarity_search_with_relevance_scores(advanced_input, k=20)
-                        passages = [doc.page_content for doc, _score in results]
-                        rerank_inputs = [[advanced_input, passage] for passage in passages]
+                        rerank_inputs = [
+                            [advanced_input, doc.page_content + f"\n\nSource: {doc.metadata['title']}"]
+                            for doc, _score in results
+                        ]
                         rerank_scores = reranker.predict(rerank_inputs)
-                        scored_passages = sorted(zip(passages, rerank_scores), key=lambda x: x[1], reverse=True)
-                        top_contexts = [p for p, _ in scored_passages[:7]]
+                        scored_passages = sorted(zip(results, rerank_scores), key=lambda x: x[1], reverse=True)
+
+                        top_contexts = [
+                            f"{doc.metadata['title']}:\n{doc.page_content}"
+                            for ((doc, _), _score) in scored_passages[:7]
+                        ]
                         context_text = "\n\n---\n\n".join(top_contexts)
                         chat_prompt = ChatPromptTemplate.from_template(template_string)
                         prompt_value = chat_prompt.invoke({"context": context_text, "question": advanced_input})
                         flask.session['messages'] = [str(m.content) for m in prompt_value.to_messages()]
-                        return render_template('dataTable.html', save=flask_login.current_user.id, aiResponse=[advanced_input],
-                                               scoreboard=scoreboardData(), top_players=PRI())
+                        flask.session['aiQuestion'] = advanced_input
+                        return redirect(url_for('aiSearch'))
                 except Exception as e:
                     print(e)
                     pass
@@ -331,6 +337,13 @@ def protected():
     # Returns search.html if method is GET instead of POST
     else:
         return render_template('search.html', save=flask_login.current_user.id, standings=standingsHTML(), scoreboard=scoreboardData(), top_players = PRI())
+
+@app.route('/protected/ai', methods=['GET', 'POST'])
+@flask_login.login_required
+def aiSearch():
+    advanced_input = flask.session.get('aiQuestion')
+    return render_template('dataTable.html', save=flask_login.current_user.id, aiResponse=[advanced_input],
+                           scoreboard=scoreboardData(), top_players=PRI())
 
 @app.route('/stream_response')
 def stream_response():
