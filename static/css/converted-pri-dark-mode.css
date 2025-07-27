@@ -535,3 +535,8 @@ a:hover {
     bottom: 0.625rem;
     right: 0.625rem;
 }
+
+.btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: white;
+}

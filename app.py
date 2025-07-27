@@ -298,7 +298,10 @@ def protected():
                 # Validate input - check for valid characters
                 try:
                     if player_input and re.match(r'^[\u00C0-\u024F\u1E00-\u1EFFa-zA-Z,\s]+$', player_input):
-                        flask.session['items'] = player_input
+                        if player_input[-2] == ",":
+                            flask.session['items'] = player_input[:-2]
+                        else:
+                            flask.session['items'] = player_input
                         return redirect(url_for('search'))
                 except:
                     pass

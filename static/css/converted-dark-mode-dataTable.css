@@ -192,12 +192,6 @@ th:not([colspan]) {
     right: 0.625rem;
 }
 
-.btn-outline-danger {
-    color: #ff0000;
-    border: 0.0625rem solid #ff0000;
-    background-color: transparent;
-}
-
 .btn-outline-danger:hover {
     background-color: #ff0000;
     color: white;

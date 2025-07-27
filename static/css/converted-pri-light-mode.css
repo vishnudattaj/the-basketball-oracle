@@ -655,13 +655,6 @@ a:hover {
   color: black;
 }
 
-/* Button styles */
-.btn-outline-danger {
-    color: #dc3545;
-    border: 0.0625rem solid #dc3545;
-    background-color: transparent;
-}
-
 .btn-outline-danger:hover {
     background-color: #dc3545;
     color: white;
