@@ -42,10 +42,11 @@ Input sanitization has been expanded to support natural phrasing, punctuation, a
 ## 📚 Usage Instructions
 
 1. **Create an account / log in.**
-2. Use the **AI Search Toggle** to switch modes.
+2. Use the **AI Search Toggle** to switch between AI and Search Mode.
 3. Navigate the **Scoreboard** or **Standings** to access team pages.
 4. Click any team name to explore roster details.
-5. Dive into **Boxscores** for granular stats and game breakdowns.
+5. Click any player name to explore their player card.
+6. Dive into **Boxscores** for granular stats and game breakdowns.
 
 ---
 
@@ -61,6 +62,7 @@ Input sanitization has been expanded to support natural phrasing, punctuation, a
 - Regular vs. playoff stat views.
 - Password-protected dashboard access.
 - Typeahead search with predictive suggestions.
+- Help button for guidance on navigation
 - **PRI (Player Relevance Index):** Custom metric for cross-era player comparison.
 
 ---
