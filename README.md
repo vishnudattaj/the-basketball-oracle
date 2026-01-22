@@ -1,15 +1,15 @@
-# The Basketball Oracle 🏀📊
+# The Basketball Oracle
 
 **The Basketball Oracle** is a dynamic NBA analytics website where users can explore standings, view live scores, inspect team rosters, analyze player careers, check boxscores, and most notably — predict player performance for the upcoming season using machine learning and RAG-powered search.
 
-**🎬 Demo Video:** [Watch Here](https://youtu.be/LPEVSYnCYn8)  
-**🌐 Website:** Coming Soon
+**Demo Video:** [Watch Here](https://youtu.be/LPEVSYnCYn8)  
+**Website:** Coming Soon
 
-⚠️ *Best viewed on laptops with a screen resolution of 1920 x 1080.*
+*Best viewed on laptops with a screen resolution of 1920 x 1080.*
 
 ---
 
-## 🔧 How It’s Made
+##How It’s Made
 
 **Tech Stack:** Flask, Python, HTML, CSS, JavaScript
 
@@ -18,12 +18,12 @@
 - Machine learning models (KMeans + XGBoost) predict player stats based on past performance.
 - AI Search powered by **LangChain** and **Ollama**, trained on Wikipedia articles using Retrieval-Augmented Generation (RAG).
 
-📈 [Kaggle Dataset](https://www.kaggle.com/datasets/sumitrodatta/nba-aba-baa-stats)  
-📊 [NBA API](https://github.com/swar/nba_api)
+[Kaggle Dataset](https://www.kaggle.com/datasets/sumitrodatta/nba-aba-baa-stats)  
+[NBA API](https://github.com/swar/nba_api)
 
 ---
 
-## 🧠 AI Search Toggle
+##AI Search Toggle
 
 A smart toggle lets users switch between:
 
@@ -39,7 +39,7 @@ Input sanitization has been expanded to support natural phrasing, punctuation, a
 
 ---
 
-## 📚 Usage Instructions
+##Usage Instructions
 
 1. **Create an account / log in.**
 2. Use the **AI Search Toggle** to switch between AI and Search Mode.
@@ -50,7 +50,7 @@ Input sanitization has been expanded to support natural phrasing, punctuation, a
 
 ---
 
-## ✨ Features
+##Features
 
 - Player stat predictions (PTS, REB, AST, STL, BLK) via ML models.
 - NBA standings and live scores.
@@ -67,6 +67,6 @@ Input sanitization has been expanded to support natural phrasing, punctuation, a
 
 ---
 
-## 🔒 Optimization Note
+##Optimization Note
 
 Performance and layout are optimized for standard laptop resolutions and may not display correctly on mobile or alternative screen sizes.
