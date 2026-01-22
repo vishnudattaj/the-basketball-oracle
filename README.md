@@ -9,7 +9,7 @@
 
 ---
 
-##How It’s Made
+## How It’s Made
 
 **Tech Stack:** Flask, Python, HTML, CSS, JavaScript
 
@@ -23,7 +23,7 @@
 
 ---
 
-##AI Search Toggle
+## AI Search Toggle
 
 A smart toggle lets users switch between:
 
@@ -39,7 +39,7 @@ Input sanitization has been expanded to support natural phrasing, punctuation, a
 
 ---
 
-##Usage Instructions
+## Usage Instructions
 
 1. **Create an account / log in.**
 2. Use the **AI Search Toggle** to switch between AI and Search Mode.
@@ -50,7 +50,7 @@ Input sanitization has been expanded to support natural phrasing, punctuation, a
 
 ---
 
-##Features
+## Features
 
 - Player stat predictions (PTS, REB, AST, STL, BLK) via ML models.
 - NBA standings and live scores.
@@ -67,6 +67,6 @@ Input sanitization has been expanded to support natural phrasing, punctuation, a
 
 ---
 
-##Optimization Note
+## Optimization Note
 
 Performance and layout are optimized for standard laptop resolutions and may not display correctly on mobile or alternative screen sizes.
